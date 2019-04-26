@@ -1,3 +1,4 @@
 # The main program
-add_executable(libdl_test main.cpp)
-target_link_libraries(libdl_test PRIVATE libdl)
+add_executable(firstTest firstTest.cpp)
+target_link_libraries(firstTest PRIVATE libdl)
+target_link_libraries(firstTest PRIVATE Catch2)
