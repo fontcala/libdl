@@ -5,4 +5,3 @@
 TEST_CASE( "first test", "[includes]" ) {
     REQUIRE( hello("test") == 0 );
 }
-

@@ -3,7 +3,33 @@ project(libdl VERSION 0.1
         DESCRIPTION "dl"
         LANGUAGES CXX)
 
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
 
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/Catch2/CMakeLists.txt")
+    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update Catch2 and try again.")
+endif()
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/eigen/CMakeLists.txt")
+    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update eigen and try again.")
+endif()
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/pybind11/CMakeLists.txt")
+    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update pybind11 and try again.")
+endif()
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/spdlog/CMakeLists.txt")
+    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update spdlog and try again.")
+endif()
 # When is it exactly that someone else has to do submodule init and stuff like that?
 # Build an interface library target ourselves or use the CMake from the library
 # Maybe all of this could go in a CMakeLists in the extern folder?
