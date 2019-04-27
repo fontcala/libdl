@@ -3,6 +3,7 @@ project(libdl VERSION 0.1
         DESCRIPTION "dl"
         LANGUAGES CXX)
 
+# Submodules
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 # Update submodules as needed
@@ -19,16 +20,16 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/Catch2/CMakeLists.txt")
-    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update Catch2 and try again.")
+    message(FATAL_ERROR "Please update Catch2 and try again.")
 endif()
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/eigen/CMakeLists.txt")
-    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update eigen and try again.")
+    message(FATAL_ERROR "Please update eigen and try again.")
 endif()
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/pybind11/CMakeLists.txt")
-    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update pybind11 and try again.")
+    message(FATAL_ERROR "Please update pybind11 and try again.")
 endif()
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/spdlog/CMakeLists.txt")
-    message(FATAL_ERROR "GIT_SUBMODULE was turned off or failed. Please update spdlog and try again.")
+    message(FATAL_ERROR "Please update spdlog and try again.")
 endif()
 # When is it exactly that someone else has to do submodule init and stuff like that?
 # Build an interface library target ourselves or use the CMake from the library
@@ -43,21 +44,23 @@ add_subdirectory(extern/pybind11)
 add_subdirectory(extern/spdlog)
 
 
-# STATIC or what?
 # Also if header only, what is the point of adding one of the headers? (In the guide they talk about fictional target)
 # should it instead be INTERFACE? 
-add_library(libdl STATIC include/libdl/hello.h)
+# # STATIC or what? STATIC/SHARED can be controled via variable BUILD_SHARED_LIBS (ON)
+add_library(libdl include/libdl/hello.h)
 target_include_directories(libdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
-target_link_libraries(libdl PUBLIC eigen)
-target_link_libraries(libdl PUBLIC pybind11)
-target_link_libraries(libdl PUBLIC spdlog)
+# PUBLIC/ PRIVATE/INTERFACE?
+target_link_libraries(libdl eigen)
+target_link_libraries(libdl pybind11)
+target_link_libraries(libdl spdlog)
 
 # because header only so far:
 set_target_properties(libdl PROPERTIES LINKER_LANGUAGE CXX)
-target_compile_features(libdl PUBLIC cxx_std_11)
+target_compile_features(libdl PUBLIC cxx_std_17)
 
 # test target
 add_subdirectory(test)
+add_subdirectory(doc EXCLUDE_FROM_ALL)
 
 

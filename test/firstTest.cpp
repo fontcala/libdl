@@ -2,6 +2,6 @@
 #include "catch2/catch.hpp"
 #include "libdl/hello.h"
 
-TEST_CASE( "first test", "[includes]" ) {
+TEST_CASE( "first  tests", "[includes]" ) {
     REQUIRE( hello("test") == 0 );
 }

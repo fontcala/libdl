@@ -1,3 +1,7 @@
+/** @file hello.h
+ * @author Adria Font Calvarons
+ */
+
 #ifndef HELLO_H
 #define HELLO_H
 
@@ -9,6 +13,10 @@
 
 using Eigen::MatrixXd;
 
+/** hello function
+    @param name
+    @return 0
+*/
 int hello(std::string const& name)
 {
   std::cout << "test includes: " << std::endl;
