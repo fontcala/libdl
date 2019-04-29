@@ -52,7 +52,6 @@ target_include_directories(libdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # PUBLIC/ PRIVATE/INTERFACE?
 target_link_libraries(libdl eigen)
-target_link_libraries(libdl pybind11)
 target_link_libraries(libdl spdlog)
 
 # because header only so far:
@@ -62,5 +61,6 @@ target_compile_features(libdl PUBLIC cxx_std_17)
 # test target
 add_subdirectory(test)
 add_subdirectory(doc EXCLUDE_FROM_ALL)
+add_subdirectory(python EXCLUDE_FROM_ALL)
 
 

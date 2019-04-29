@@ -9,7 +9,6 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <spdlog/spdlog.h>
-#include <pybind11/pybind11.h>
 
 using Eigen::MatrixXd;
 
