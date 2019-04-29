@@ -39,7 +39,7 @@ add_subdirectory(extern/Catch2)
 # eigen
 add_subdirectory(extern/eigen)
 # pybind
-# set(PYBIND11_CPP_STANDARD -std=c++1z) # Experimental C++17 support
+set(PYBIND11_CPP_STANDARD -std=c++11) # Experimental C++17 support
 add_subdirectory(extern/pybind11)
 # spdlog
 add_subdirectory(extern/spdlog)

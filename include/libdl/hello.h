@@ -26,6 +26,7 @@ int hello(std::string const& name)
   m(0,1) = -1;
   m(1,1) = m(1,0) + m(0,1);
   std::cout << m << std::endl;
+  //cpp17
   if (const auto it = name.find("Hello"); it != std::string::npos)
     std::cout << it << " Hello\n";
   std::cout << "Hello, " << name << "!\n";

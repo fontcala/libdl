@@ -5,7 +5,7 @@
 
 
 
-// Wrapper around
+// Wrapper around (cpp17)
 int hello_py(std::string const& name)
 {
   return hello(name);
