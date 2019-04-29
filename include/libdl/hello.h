@@ -18,7 +18,7 @@ using Eigen::MatrixXd;
 */
 int hello(std::string const& name)
 {
-  std::cout << "test includes: " << std::endl;
+  std::cout << "tests includes: " << std::endl;
   spdlog::info("Hello, {}!", "World");
   MatrixXd m(2,2);
   m(0,0) = 3;
