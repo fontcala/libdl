@@ -39,6 +39,7 @@ add_subdirectory(extern/Catch2)
 # eigen
 add_subdirectory(extern/eigen)
 # pybind
+set(PYBIND11_CPP_STANDARD -std=c++1z) # Experimental C++17 support
 add_subdirectory(extern/pybind11)
 # spdlog
 add_subdirectory(extern/spdlog)
@@ -61,6 +62,6 @@ target_compile_features(libdl PUBLIC cxx_std_17)
 # test target
 add_subdirectory(test)
 add_subdirectory(doc EXCLUDE_FROM_ALL)
-add_subdirectory(python EXCLUDE_FROM_ALL)
+add_subdirectory(python)
 
 
