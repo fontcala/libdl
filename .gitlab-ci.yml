@@ -7,40 +7,42 @@ stages:
 compile:linux-gcc:
   stage: compile
   script:
-    - mkdir -p build
-    - cd build
+    - mkdir -p build-linux-gcc
+    - cd build-linux-gcc
     - cmake ..
     - make
   artifacts:
     paths:
-      - build/test/
+      - build-linux-gcc/test/
   tags:
     - linux
   cache:
     key: "$CI_JOB_NAME"
     paths:
-      - build/
+      - build-linux-gcc/
 
 compile:linux-clang:
   stage: compile
   script:
-    - mkdir -p build
-    - cd build
+    - mkdir -p build-linux-clang
+    - cd build-linux-clang
     - cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/clang++
     - make
   artifacts:
     paths:
-      - build/test/
+      - build-linux-clang/test/
   tags:
     - linux
   cache:
     key: "$CI_JOB_NAME"
     paths:
-      - build/
+      - build-linux-clang/
+
 tests:
   stage: test
   script:
-    - ./build/test/firstTest
+    - ./build-linux-clang/test/firstTest
+    - ./build-linux-gcc/test/firstTest
   tags:
     - linux
       
