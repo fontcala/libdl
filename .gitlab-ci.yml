@@ -21,14 +21,7 @@ compile:linux-gcc:
     paths:
       - build/
 
-test:linux-gcc:
-  stage: test
-  script:
-    - ./build/test/firstTest
-  tags:
-    - linux
-
-build-linux-clang:
+compile:linux-clang:
   stage: compile
   script:
     - mkdir -p build
@@ -41,4 +34,11 @@ build-linux-clang:
     key: "$CI_JOB_NAME"
     paths:
       - build/
+
+tests:
+  stage: test
+  script:
+    - ./build/test/firstTest
+  tags:
+    - linux
       
