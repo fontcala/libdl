@@ -39,7 +39,7 @@ add_subdirectory(extern/Catch2)
 # eigen
 add_subdirectory(extern/eigen)
 # pybind
-set(PYBIND11_CPP_STANDARD -std=c++1z) # Experimental C++17 support
+set(PYBIND11_CPP_STANDARD -std=c++11) # Experimental C++17 support
 add_subdirectory(extern/pybind11)
 # spdlog
 add_subdirectory(extern/spdlog)
@@ -57,7 +57,7 @@ target_link_libraries(libdl spdlog)
 
 # because header only so far:
 set_target_properties(libdl PROPERTIES LINKER_LANGUAGE CXX)
-target_compile_features(libdl PRIVATE cxx_std_11)
+target_compile_features(libdl PRIVATE cxx_std_17)
 
 # test target
 add_subdirectory(test)
