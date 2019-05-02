@@ -12,7 +12,7 @@ compile:linux-gcc:
     - cmake ..
     - make
   artifacts:
-    - paths:
+    paths:
       - build/test/
   tags:
     - linux
