@@ -28,13 +28,15 @@ compile:linux-clang:
     - cd build
     - cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/clang++
     - make
+  artifacts:
+    paths:
+      - build/test/
   tags:
     - linux
   cache:
     key: "$CI_JOB_NAME"
     paths:
       - build/
-
 tests:
   stage: test
   script:
