@@ -4,7 +4,7 @@ stages:
   - compile
   - test
 
-build-linux-gcc:
+compile:linux-gcc:
   stage: compile
   script:
     - mkdir -p build
@@ -21,7 +21,7 @@ build-linux-gcc:
     paths:
       - build/
 
-build-linux-gcc:
+test:linux-gcc:
   stage: test
   script:
     - ./build/test/firstTest
