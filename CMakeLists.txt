@@ -46,9 +46,11 @@ target_include_directories(pybind11 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/extern
 target_compile_options(pybind11 INTERFACE -std=c++1z)
 message(STATUS "compiler")
 message(STATUS "${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "compiler")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(pybind11 INTERFACE -fsized-deallocation)
+    message(STATUS "applying -fsized-deallocation -std=c++1z")
+    target_compile_options(pybind11 INTERFACE -fsized-deallocation -std=c++1z)
+ else()
+    target_compile_options(pybind11 INTERFACE -std=c++1z)
 endif()
 #set(PYBIND11_CPP_STANDARD -std=c++11) # Experimental C++17 support
 #add_subdirectory(extern/pybind11)
