@@ -39,8 +39,16 @@ add_subdirectory(extern/Catch2)
 # eigen
 add_subdirectory(extern/eigen)
 # pybind
-set(PYBIND11_CPP_STANDARD -std=c++11) # Experimental C++17 support
-add_subdirectory(extern/pybind11)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/extern/pybind11/tools")
+include(pybind11Tools)
+add_library(pybind11 INTERFACE)
+target_include_directories(pybind11 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/pybind11/include/)
+target_compile_options(pybind11 INTERFACE -std=c++1z)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(pybind11 INTERFACE -fsized-deallocation)
+endif()
+#set(PYBIND11_CPP_STANDARD -std=c++11) # Experimental C++17 support
+#add_subdirectory(extern/pybind11)
 # spdlog
 add_subdirectory(extern/spdlog)
 
