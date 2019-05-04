@@ -71,6 +71,12 @@ target_link_libraries(libdl spdlog)
 # because header only so far:
 set_target_properties(libdl PROPERTIES LINKER_LANGUAGE CXX)
 target_compile_features(libdl PUBLIC cxx_std_17)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    message(STATUS "applying -fsized-deallocation -std=c++1z")
+    target_compile_options(libdl PUBLIC -fsized-deallocation -std=c++1z)
+ else()
+    target_compile_options(libdl PUBLIC -std=c++1z)
+endif()
 
 # test target
 add_subdirectory(test)
