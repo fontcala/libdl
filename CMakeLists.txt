@@ -65,7 +65,7 @@ target_link_libraries(libdl spdlog)
 
 # because header only so far:
 set_target_properties(libdl PROPERTIES LINKER_LANGUAGE CXX)
-target_compile_features(libdl PRIVATE cxx_std_17)
+target_compile_features(libdl PUBLIC cxx_std_17)
 
 # test target
 add_subdirectory(test)
