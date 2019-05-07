@@ -37,7 +37,10 @@ endif()
 # Catch2 maybe this one could go to test directly?
 add_subdirectory(extern/Catch2)
 # eigen
-add_subdirectory(extern/eigen)
+add_library(eigen INTERFACE)
+target_include_directories(eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/extern/eigen/)
+message(STATUS "eigenpath = ${CMAKE_CURRENT_SOURCE_DIR}/extern/eigen/")
+# add_subdirectory(extern/eigen)
 # pybind (directories not being found?)
 # list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/extern/pybind11/tools")
 # message(STATUS "pytools = ${CMAKE_CURRENT_SOURCE_DIR}/extern/pybind11/tools/pybind11Tools")
