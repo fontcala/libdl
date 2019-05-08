@@ -7,7 +7,7 @@ TEST_CASE( "firsttests", "[includes]" ) {
     REQUIRE( mathutils("test") == 0 );
 }
 
-TEST_CASE( "firsttests", "[includes]" ) {
+TEST_CASE( "first tests", "[includes]" ) {
     REQUIRE( 0 == 0 );
 }
 

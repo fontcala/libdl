@@ -26,6 +26,7 @@ compile:linux-clang:
   stage: compile
   script:
     - mkdir -p build-linux-clang
+    - rm -r build-linux-clang/*
     - cd build-linux-clang
     - cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/clang++
     - make
