@@ -8,6 +8,7 @@ compile:linux-gcc:
   stage: compile
   script:
     - mkdir -p build-linux-gcc
+    - rm -r build-linux-gcc/*
     - cd build-linux-gcc
     - cmake ..
     - make
