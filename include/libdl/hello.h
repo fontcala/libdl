@@ -1,5 +1,5 @@
 /** @file hello.h
- * @author Adria Font Calvarons
+ *  @author Adria Font Calvarons
  */
 
 #ifndef HELLO_H
@@ -7,7 +7,7 @@
 
 #include <string>
 #include <iostream>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <spdlog/spdlog.h>
 
 using Eigen::MatrixXd;
