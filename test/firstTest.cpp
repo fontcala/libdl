@@ -12,32 +12,53 @@
 int main()
 {
     MatrixXd inputData(4, 2);
-    inputData << 0.1, 1, 0.6, 0.5, 0.5, 1, 0.1, 0.5;
+    inputData << 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0;
     MatrixXd inputLabels(4, 1);
-    inputLabels << 1, 1, 0, 0;
+    inputLabels << 1.0, 1.0, 0.0, 0.0;
 
-    FullyConnectedLayer firstLayer(2, 2);
-
+    FullyConnectedLayer firstLayer(2, 2, &inputData);
     FullyConnectedOutputLayer secondLayer(2, 1, firstLayer.GetOutput());
+    firstLayer.SetNext(&secondLayer);
+    firstLayer.SetInput(inputData);
 
-    // firstLayer.SetInput(inputData);
-    // std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
-    // firstLayer.ForwardPass();
-    // std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
-    // secondLayer.ForwardPass();
+    // MatrixXd vTrueWeightsFirst(2, 2);
+    // MatrixXd vTrueWeightsSecond(2, 1);
+    // MatrixXd vTrueBiasesFirst(1, 2);
+    // MatrixXd vTrueBiasesSecond(1, 1);
+    // vTrueWeightsFirst << -2.0, 1.0, -2.0, 1.0;
+    // vTrueWeightsSecond << 1.08, 1.1;
+    // vTrueBiasesFirst << 3.0, -0.5;
+    // vTrueBiasesSecond << -1.5;
 
-    // std::cout << "---- Loss: ----" << std::endl;
-    // secondLayer.ComputeLoss(inputLabels);
-    // std::cout << secondLayer.GetLoss() << std::endl;
+    // firstLayer.mWeights = vTrueWeightsFirst;
+    // firstLayer.mBiases = vTrueBiasesFirst;
+    // secondLayer.mWeights = vTrueWeightsSecond;
+    // secondLayer.mBiases = vTrueBiasesSecond;
 
-    std::shared_ptr<MatrixXd> mInputPtr = std::make_shared<MatrixXd>(inputData);
-    firstLayer.SetInput(mInputPtr);
-    std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
-    firstLayer.ForwardPass();
-    std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
-    secondLayer.ForwardPass();
+    if (true)
+    {
+        for (size_t i = 0; i < 16000; i++)
+        {
+            //std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
+            firstLayer.ForwardPass();
+            //std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
+            secondLayer.ForwardPass();
 
-    std::cout << "---- Loss: ----" << std::endl;
-    secondLayer.ComputeLoss(inputLabels);
-    std::cout << secondLayer.GetLoss() << std::endl;
+            secondLayer.ComputeLoss(inputLabels);
+            if (i % 100 == 0)
+            {
+                std::cout << "----- Loss: ----" << std::endl;
+                std::cout << secondLayer.GetLoss() << std::endl;
+                std::cout << "----- Out: -----" << std::endl;
+                std::cout << *(secondLayer.GetOutput()) << std::endl;
+            }
+
+            //std::cout << "---- secondLayer.BackwardPass() ----" << std::endl;
+            secondLayer.BackwardPass();
+            //std::cout << "---- firstLayer.BackwardPass() ----" << std::endl;
+            firstLayer.BackwardPass();
+        }
+        std::cout << "----- Labels: --" << std::endl;
+        std::cout << inputLabels << std::endl;
+    }
 }
