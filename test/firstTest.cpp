@@ -16,49 +16,58 @@ int main()
     MatrixXd inputLabels(4, 1);
     inputLabels << 1.0, 1.0, 0.0, 0.0;
 
-    FullyConnectedLayer firstLayer(2, 2, &inputData);
-    FullyConnectedOutputLayer secondLayer(2, 1, firstLayer.GetOutput());
-    firstLayer.SetNext(&secondLayer);
-    firstLayer.SetInput(inputData);
+    FullyConnectedLayer firstLayer(2, 2);
+    FullyConnectedOutputLayer secondLayer(2, 1);
+    firstLayer.SetBackpropInput(secondLayer.GetBackpropOutput());
+    secondLayer.SetInput(firstLayer.GetOutput());
 
-    // MatrixXd vTrueWeightsFirst(2, 2);
-    // MatrixXd vTrueWeightsSecond(2, 1);
-    // MatrixXd vTrueBiasesFirst(1, 2);
-    // MatrixXd vTrueBiasesSecond(1, 1);
-    // vTrueWeightsFirst << -2.0, 1.0, -2.0, 1.0;
-    // vTrueWeightsSecond << 1.08, 1.1;
-    // vTrueBiasesFirst << 3.0, -0.5;
-    // vTrueBiasesSecond << -1.5;
-
-    // firstLayer.mWeights = vTrueWeightsFirst;
-    // firstLayer.mBiases = vTrueBiasesFirst;
-    // secondLayer.mWeights = vTrueWeightsSecond;
-    // secondLayer.mBiases = vTrueBiasesSecond;
+    firstLayer.mLearningRate = 0.2;
+    secondLayer.mLearningRate = 0.2;
 
     if (true)
     {
-        for (size_t i = 0; i < 16000; i++)
+        // set input subset
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, inputData.rows() - 1);
+        const int vBatchSize = 2;
+        std::vector<int> vSampleIndices(vBatchSize);
+        for (size_t i = 0; i < 23001; i++)
         {
+            for (size_t k = 0; k < vBatchSize; k++)
+            {
+                vSampleIndices[k] = dis(gen);
+            }
+
+            MatrixXd inputSample = inputData(vSampleIndices, Eigen::all);
+            MatrixXd inputSampleLabel = inputLabels(vSampleIndices, Eigen::all);
+            //std::cout << inputSample << std::endl;
+            //std::cout << inputSampleLabel << std::endl;
+
+            //std::cout << "---- firstLayer.SetInput ----" << std::endl;
+            firstLayer.SetInput(inputSample);
             //std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
             firstLayer.ForwardPass();
             //std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
             secondLayer.ForwardPass();
-
-            secondLayer.ComputeLoss(inputLabels);
-            if (i % 100 == 0)
-            {
-                std::cout << "----- Loss: ----" << std::endl;
-                std::cout << secondLayer.GetLoss() << std::endl;
-                std::cout << "----- Out: -----" << std::endl;
-                std::cout << *(secondLayer.GetOutput()) << std::endl;
-            }
-
+            secondLayer.ComputeLoss(inputSampleLabel);
             //std::cout << "---- secondLayer.BackwardPass() ----" << std::endl;
             secondLayer.BackwardPass();
             //std::cout << "---- firstLayer.BackwardPass() ----" << std::endl;
             firstLayer.BackwardPass();
+            if (i % 100 == 0)
+            {
+                firstLayer.SetInput(inputData);
+                firstLayer.ForwardPass();
+                secondLayer.ForwardPass();
+                secondLayer.ComputeLoss(inputLabels);
+                std::cout << "----- Total Loss: ----" << std::endl;
+                std::cout << secondLayer.GetLoss() << std::endl;
+                std::cout << "----- Total Out: -----" << std::endl;
+                std::cout << *(secondLayer.GetOutput()) << std::endl;
+                std::cout << "----- Total Labels: --" << std::endl;
+                std::cout << inputLabels << std::endl;
+            }
         }
-        std::cout << "----- Labels: --" << std::endl;
-        std::cout << inputLabels << std::endl;
     }
 }

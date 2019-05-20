@@ -1,4 +1,4 @@
-/** @file hello.h
+/** @file FullyConnectedOutputLayer.h
  *  @author Adria Font Calvarons
  */
 
@@ -11,7 +11,7 @@ class FullyConnectedOutputLayer : public FullyConnectedLayer
 {
 private:
   double mLoss;
-  MatrixXd mGradientVar;
+  MatrixXd mGradientLoss;
 
 public:
   using FullyConnectedLayer::FullyConnectedLayer;
@@ -35,8 +35,8 @@ void FullyConnectedOutputLayer::ComputeLoss(const MatrixXd &aLabels)
   {
     //L2
     // sigmoid from
-    mGradientVar = mOutput - aLabels;
-    mLoss = 0.5 * mGradientVar.squaredNorm();
+    mGradientLoss = mOutput - aLabels;
+    mLoss = 0.5 * mGradientLoss.squaredNorm();
   }
   else
   {
@@ -46,23 +46,23 @@ void FullyConnectedOutputLayer::ComputeLoss(const MatrixXd &aLabels)
 
 void FullyConnectedOutputLayer::BackwardPass()
 {
-  //sigmoid specific (dNorm/dsigmoid)*(dsigmoid/dmGradientVar)
-  MatrixXd vGradientSigmoid =  mGradientVar;
+  //sigmoid specific (dNorm/dsigmoid)*(dsigmoid/dmGradientLoss)
+  MatrixXd vGradientSigmoid =  mGradientLoss;
   ActivationFunction(vGradientSigmoid);
-  MatrixXd vGradientBackprop = mGradientVar.array() * vGradientSigmoid.array() * (1 - vGradientSigmoid.array());
-  // std::cout << "- vGradientBackprop" << std::endl;
-  // std::cout << vGradientBackprop << std::endl;
-  // std::cout << "- (*mInputPtr).transpose()" << std::endl;
-  // std::cout << (*mInputPtr).transpose() << std::endl;
+  MatrixXd vGradientBackprop = mGradientLoss.array() * vGradientSigmoid.array() * (1 - vGradientSigmoid.array());
+  //std::cout << "- vGradientBackprop" << std::endl;
+  //std::cout << vGradientBackprop << std::endl;
+  //std::cout << "- (*mInputPtr).transpose()" << std::endl;
+  //std::cout << (*mInputPtr).transpose() << std::endl;
   mGradientsWeights = (*mInputPtr).transpose() * vGradientBackprop;
-  // std::cout << "- mGradientsWeights" << std::endl;
-  // std::cout << mGradientsWeights << std::endl;
+  //std::cout << "- mGradientsWeights" << std::endl;
+  //std::cout << mGradientsWeights << std::endl;
   mGradientsBiases = vGradientBackprop.colwise().sum();
-  // std::cout << "- mGradientsBiases" << std::endl;
-  // std::cout << mGradientsBiases << std::endl;
+  //std::cout << "- mGradientsBiases" << std::endl;
+  //std::cout << mGradientsBiases << std::endl;
   mGradientsInputs = vGradientBackprop * mWeights.transpose();
-  // std::cout << "- mGradientInputs" << std::endl;
-  // std::cout << mGradientsInputs << std::endl;
+  //std::cout << "- mGradientInputs" << std::endl;
+  //std::cout << mGradientsInputs << std::endl;
   UpdateParams();
 };
 
