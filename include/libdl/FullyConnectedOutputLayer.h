@@ -7,6 +7,12 @@
 
 #include "FullyConnectedLayer.h"
 
+/**
+ * @class FullyConnectedOutputLayer
+ * @brief Class with additional notion of Loss
+ *
+ *
+ */
 class FullyConnectedOutputLayer : public FullyConnectedLayer
 {
 private:

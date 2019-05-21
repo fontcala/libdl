@@ -7,11 +7,12 @@
 #include <memory>
 #include "dlfunctions.h"
 
-/** hello function
-    @param name
-    @return 0
-*/
-
+/**
+ * @class FullyConnectedLayer
+ * @brief Base Class for Network Layer elements
+ *
+ *
+ */
 class FullyConnectedLayer
 {
 protected:
@@ -31,6 +32,7 @@ protected:
   bool mValidInput = false;
 
 public:
+  // Weights to be modified often.
   MatrixXd mWeights;
   MatrixXd mBiases;
   // Learning Rate to be modified often

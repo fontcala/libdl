@@ -45,7 +45,7 @@ int main()
                                             &hiddenLayer2,
                                            &secondLayer});
         vNetwork221.ConnectLayers();
-        vNetwork221.Train(inputData, inputLabels, 0.3, 2, 24001);
+        vNetwork221.Train(inputData, inputLabels, 0.3, 4, 24001);
     }
     else
     {
