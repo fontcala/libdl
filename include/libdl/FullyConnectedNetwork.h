@@ -16,7 +16,7 @@ FullyConnectedNetwork vNetworkExample({&firstLayer,
                                     &hiddenLayer2,
                                     &outputLayer});
 vNetworkExample.ConnectLayers();
-vNetworkExample.Train(inputData, inputLabels, 0.3, 4, 24001);
+vNetworkExample.Train(inputData, inputLabels, 0.3, 24001,false);
 @endcode
 Example use (given previously constructed layers):
 */
@@ -39,7 +39,7 @@ public:
     */
     FullyConnectedNetwork(const std::initializer_list<FullyConnectedLayer *> &aLayers);
     void ConnectLayers();
-    void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aBatchsize, const double aIters);
+    void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aIters, const bool aStochastic);
     void Predict(const MatrixXd &aInput, const MatrixXd &aLabels);
     void InitializeParams();
 };
@@ -82,37 +82,54 @@ void FullyConnectedNetwork::InitializeParams()
     }
 }
 
-void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aBatchSize, const double aIters)
+void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aIters, const bool aStochastic)
 {
     if (mValidNetwork)
     {
-        for (auto vNetworkLayerPtr : mNetwork)
+        if (aStochastic)
         {
-            vNetworkLayerPtr->mLearningRate = aLearningRate;
-        }
-        // Generate Random Subset
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, aInput.rows() - 1);
-        std::vector<int> vSampleIndices(aBatchSize);
-
-        for (size_t vIter = 0; vIter < aIters; vIter++)
-        {
-            // Set Random subset as input
-            for (size_t k = 0; k < aBatchSize; k++)
+            //TODO make this a parameter
+            const double aBatchSize = 1;
+            for (auto vNetworkLayerPtr : mNetwork)
             {
-                vSampleIndices[k] = dis(gen);
+                vNetworkLayerPtr->mLearningRate = aLearningRate;
             }
+            // Generate Random Subset
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> dis(0, aInput.rows() - 1);
+            std::vector<int> vSampleIndices(aBatchSize);
 
-            MatrixXd inputSample = aInput(vSampleIndices, Eigen::all);
-            MatrixXd inputSampleLabel = aLabels(vSampleIndices, Eigen::all);
-            mNetwork[0]->SetInput(inputSample);
-            FullForwardPass();
-            FullBackwardPass(inputSampleLabel);
-            if (vIter % 100 == 0)
+            for (size_t vIter = 0; vIter < aIters; vIter++)
             {
-                std::cout << "----- Iter: " << vIter << std::endl;
-                Predict(aInput, aLabels);
+                // Set Random subset as input
+                for (size_t k = 0; k < aBatchSize; k++)
+                {
+                    vSampleIndices[k] = dis(gen);
+                }
+                MatrixXd inputSample = aInput(vSampleIndices, Eigen::all);
+                MatrixXd inputSampleLabel = aLabels(vSampleIndices, Eigen::all);
+                mNetwork[0]->SetInput(inputSample);
+                FullForwardPass();
+                FullBackwardPass(inputSampleLabel);
+                if (vIter % 100 == 0)
+                {
+                    std::cout << "----- Iter: " << vIter << std::endl;
+                    Predict(aInput, aLabels);
+                }
+            }
+        }
+        else{
+            for (size_t vIter = 0; vIter < aIters; vIter++)
+            {
+                mNetwork[0]->SetInput(aInput);
+                FullForwardPass();
+                FullBackwardPass(aLabels);
+                if (vIter % 100 == 0)
+                {
+                    std::cout << "----- Iter: " << vIter << std::endl;
+                    Predict(aInput, aLabels);
+                }
             }
         }
     }

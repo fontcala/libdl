@@ -43,7 +43,7 @@ int main()
         FullyConnectedNetwork vNetwork221({&firstLayer,
                                            &secondLayer});
         vNetwork221.ConnectLayers();
-        vNetwork221.Train(inputData, inputLabels, 0.05, 3, 18001);
+        vNetwork221.Train(inputData, inputLabels, 0.05, 12001,false);
     }
     else
     {

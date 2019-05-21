@@ -109,7 +109,7 @@ void FullyConnectedLayer::UpdateParams()
   mMomentumUpdateBiases =  mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
   mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam)* mMomentumUpdateBiases;
 
-  // normal Gradient Descent
+  // Vanilla Descent
   // mWeights = mWeights - mLearningRate * mGradientsWeights;
   // mBiases = mBiases - mLearningRate * mGradientsBiases;
 }
@@ -117,9 +117,11 @@ void FullyConnectedLayer::UpdateParams()
 // TODO if the functional way not useful, use mOutput here directly.
 void FullyConnectedLayer::ActivationFunction(MatrixXd &aOutput)
 {
-  //ReLu
-  //aOutput = aOutput.cwiseMax(0);
-  //Sigmoid
+  // TODO User specified
+  //ReLU Activation
+  // aOutput = aOutput.cwiseMax(0);
+
+  //Sigmoid Activation
   aOutput = 1 / (1 + exp(-1 * aOutput.array()));
 };
 
@@ -156,22 +158,25 @@ void FullyConnectedLayer::BackwardPass()
 {
   // TODO this as a function of the input and then no need specialization.
   MatrixXd vBackpropInput = *mBackpropInputPtr;
-  //Sigmoid Derivative
+
+  // times Sigmoid Derivative
   MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
 
-  //MatrixXd vDerivatedBackPropInput = MatrixXd::Ones(vBackpropInput.size());
-  //MatrixXd vDerivatedBackPropInputHelper = vBackpropInput.cwiseMax(0);
+  // times ReLu Derivative 
+  //MatrixXd vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
+
 
   mGradientsWeights = (*mInputPtr).transpose() * vDerivatedBackPropInput;
   mGradientsBiases = vDerivatedBackPropInput.colwise().sum();
   mGradientsInputs = vDerivatedBackPropInput * mWeights.transpose();
 
-  // std::cout << "- *mGradientsWeights" << std::endl;
-  // std::cout << mGradientsWeights << std::endl;
-  // std::cout << "- *vDerivatedBackPropInput" << std::endl;
-  // std::cout << vDerivatedBackPropInput << std::endl;
   // std::cout << "- *vBackPropInput" << std::endl;
   // std::cout << vBackpropInput << std::endl;
+  // std::cout << "- *vDerivatedBackPropInput" << std::endl;
+  // std::cout << vDerivatedBackPropInput << std::endl;
+  // std::cout << "- *mGradientsWeights" << std::endl;
+  // std::cout << mGradientsWeights << std::endl;
+  
 
   UpdateParams();
 };

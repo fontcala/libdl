@@ -40,7 +40,6 @@ void FullyConnectedOutputLayer::ComputeLoss(const MatrixXd &aLabels)
   if (vLabelNum == vOutputNum)
   {
     //L2
-    // sigmoid from
     mGradientLoss = mOutput - aLabels;
     mLoss = 0.5 * mGradientLoss.squaredNorm();
   }
