@@ -18,10 +18,6 @@ FullyConnectedNetwork vNetworkExample({&firstLayer,
 vNetworkExample.ConnectLayers();
 vNetworkExample.Train(inputData, inputLabels, 0.3, 4, 24001);
 @endcode
-@note Weight Initialization random but factor and distribution still hardcoded.
-@note Activation Function still hardcoded.
-@note Loss Function still hardcoded.
-@note Gradient Update still hardcoded.
 Example use (given previously constructed layers):
 */
 class FullyConnectedNetwork
@@ -45,6 +41,7 @@ public:
     void ConnectLayers();
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aBatchsize, const double aIters);
     void Predict(const MatrixXd &aInput, const MatrixXd &aLabels);
+    void InitializeParams();
 };
 FullyConnectedNetwork::FullyConnectedNetwork(const std::initializer_list<FullyConnectedLayer *> &aLayers) : mNetwork(aLayers), mValidNetwork(false), mNumberLayers(aLayers.size())
 {
@@ -77,6 +74,13 @@ void FullyConnectedNetwork::FullForwardPass()
         mNetwork[vProcess]->ForwardPass();
     }
 }
+void FullyConnectedNetwork::InitializeParams()
+{
+    for (auto vNetworkLayerPtr : mNetwork)
+    {
+        vNetworkLayerPtr->InitParams();
+    }
+}
 
 void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const double aBatchSize, const double aIters)
 {
@@ -102,9 +106,9 @@ void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabel
 
             MatrixXd inputSample = aInput(vSampleIndices, Eigen::all);
             MatrixXd inputSampleLabel = aLabels(vSampleIndices, Eigen::all);
-            mNetwork[0]->SetInput(aInput);
+            mNetwork[0]->SetInput(inputSample);
             FullForwardPass();
-            FullBackwardPass(aLabels);
+            FullBackwardPass(inputSampleLabel);
             if (vIter % 100 == 0)
             {
                 std::cout << "----- Iter: " << vIter << std::endl;
