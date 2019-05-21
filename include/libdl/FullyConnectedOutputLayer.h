@@ -47,22 +47,27 @@ void FullyConnectedOutputLayer::ComputeLoss(const MatrixXd &aLabels)
 void FullyConnectedOutputLayer::BackwardPass()
 {
   //sigmoid specific (dNorm/dsigmoid)*(dsigmoid/dmGradientLoss)
-  MatrixXd vGradientSigmoid =  mGradientLoss;
+  MatrixXd vGradientSigmoid = mGradientLoss;
   ActivationFunction(vGradientSigmoid);
   MatrixXd vGradientBackprop = mGradientLoss.array() * vGradientSigmoid.array() * (1 - vGradientSigmoid.array());
-  //std::cout << "- vGradientBackprop" << std::endl;
-  //std::cout << vGradientBackprop << std::endl;
-  //std::cout << "- (*mInputPtr).transpose()" << std::endl;
-  //std::cout << (*mInputPtr).transpose() << std::endl;
+
   mGradientsWeights = (*mInputPtr).transpose() * vGradientBackprop;
-  //std::cout << "- mGradientsWeights" << std::endl;
-  //std::cout << mGradientsWeights << std::endl;
+
   mGradientsBiases = vGradientBackprop.colwise().sum();
-  //std::cout << "- mGradientsBiases" << std::endl;
-  //std::cout << mGradientsBiases << std::endl;
+
   mGradientsInputs = vGradientBackprop * mWeights.transpose();
-  //std::cout << "- mGradientInputs" << std::endl;
-  //std::cout << mGradientsInputs << std::endl;
+
+  // std::cout << "- vGradientBackprop" << std::endl;
+  // std::cout << vGradientBackprop << std::endl;
+  // std::cout << "- (*mInputPtr).transpose()" << std::endl;
+  // std::cout << (*mInputPtr).transpose() << std::endl;
+  // std::cout << "- mGradientsWeights" << std::endl;
+  // std::cout << mGradientsWeights << std::endl;
+  // std::cout << "- mGradientsBiases" << std::endl;
+  // std::cout << mGradientsBiases << std::endl;
+  // std::cout << "- mGradientInputs" << std::endl;
+  // std::cout << mGradientsInputs << std::endl;
+
   UpdateParams();
 };
 

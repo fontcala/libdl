@@ -35,24 +35,21 @@ void FullyConnectedNetwork::ConnectLayers()
     for (size_t i = 1; i < mNumberLayers; i++)
     {
         mNetwork[i]->SetInput(mNetwork[i - 1]->GetOutput());
-        mNetwork[i - 1]->SetBackpropInput(mNetwork[i]->GetOutput());
+        mNetwork[i - 1]->SetBackpropInput(mNetwork[i]->GetBackpropOutput());
     }
     mValidNetwork = true;
 }
 void FullyConnectedNetwork::FullBackwardPass(const MatrixXd &aInputSampleLabel)
 {
-    size_t vProcess = mNumberLayers - 1;
-    mNetwork[vProcess]->ComputeLoss(aInputSampleLabel);
-    while (vProcess <= 0)
+    mNetwork.back()->ComputeLoss(aInputSampleLabel);
+    for (int vProcess = mNumberLayers; vProcess > 0; vProcess--)
     {
-        mNetwork[vProcess]->BackwardPass();
-        vProcess--;
+        mNetwork[vProcess - 1]->BackwardPass();
     }
 }
 void FullyConnectedNetwork::FullForwardPass()
 {
-    size_t vProcess;
-    for (vProcess = 0; vProcess < mNumberLayers; vProcess++)
+    for (int vProcess = 0; vProcess < mNumberLayers; vProcess++)
     {
         mNetwork[vProcess]->ForwardPass();
     }
@@ -70,13 +67,12 @@ void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabel
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, aInput.rows() - 1);
-        const int vBatchSize = 3;
         std::vector<int> vSampleIndices(aBatchSize);
 
         for (size_t vIter = 0; vIter < aIters; vIter++)
         {
             // Set Random subset as input
-            for (size_t k = 0; k < vBatchSize; k++)
+            for (size_t k = 0; k < aBatchSize; k++)
             {
                 vSampleIndices[k] = dis(gen);
             }
@@ -86,19 +82,24 @@ void FullyConnectedNetwork::Train(const MatrixXd &aInput, const MatrixXd &aLabel
             mNetwork[0]->SetInput(inputSample);
             FullForwardPass();
             FullBackwardPass(inputSampleLabel);
-            if (vIter % 100)
+            if (vIter % 100 == 0)
             {
-                Predict(aInput,aLabels);
+                std::cout << "----- Iter: " << vIter << std::endl;
+                Predict(aInput, aLabels);
             }
         }
+    }
+    else
+    {
+        throw(std::runtime_error("Train(): invalid Network"));
     }
 }
 void FullyConnectedNetwork::Predict(const MatrixXd &aInput, const MatrixXd &aLabels)
 {
     mNetwork[0]->SetInput(aInput);
     FullForwardPass();
+    mNetwork.back()->ComputeLoss(aLabels);
     std::cout << "----- Predict Loss: ----" << std::endl;
-
     std::cout << mNetwork.back()->GetLoss() << std::endl;
     std::cout << "----- Predict Out: -----" << std::endl;
     std::cout << *(mNetwork.back()->GetOutput()) << std::endl;

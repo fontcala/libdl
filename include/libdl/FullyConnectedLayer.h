@@ -20,8 +20,6 @@ protected:
   MatrixXd mGradientsWeights;
   MatrixXd mGradientsBiases;
   MatrixXd mGradientsInputs;
-  MatrixXd mWeights;
-  MatrixXd mBiases;
   void ActivationFunction(MatrixXd &mOutput);
 
   // Readonly data from other layers
@@ -33,6 +31,8 @@ protected:
   bool mValidInput = false;
 
 public:
+  MatrixXd mWeights;
+  MatrixXd mBiases;
   // Learning Rate to be modified often
   double mLearningRate;
   // Constructors
@@ -43,9 +43,9 @@ public:
   void InitParams(const size_t aInputDim, const size_t aOutputDim);
   void UpdateParams();
   void ForwardPass();
-  void BackwardPass();
+  virtual void BackwardPass();
 
-  // Virtual Methods
+  // Virtual Dummy Methods
   virtual void ComputeLoss(const MatrixXd &aLabels);
   virtual double GetLoss() const;
 
@@ -102,7 +102,7 @@ void FullyConnectedLayer::ForwardPass()
     // TODO This can be rewritten as single matrix product. TODO look into coefficient-wise sum (solve with array() method)
     mOutput = (*mInputPtr) * mWeights + mBiases.replicate(mInputPtr->rows(), 1);
 
-    // TODO Erase all this
+    //TODO Erase all this
     // std::cout << "- *mInputPtr" << std::endl;
     // std::cout << (*mInputPtr) << std::endl;
     // std::cout << "- mWeights:" << std::endl;
@@ -128,17 +128,20 @@ void FullyConnectedLayer::BackwardPass()
 {
   // TODO this as a function of the input and then no need specialization.
   MatrixXd vBackpropInput = *mBackpropInputPtr;
-  //std::cout << "- *vBackPropInput" << std::endl;
-  //std::cout << vBackpropInput << std::endl;
   //SigmoidSpecific
   MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
-  //std::cout << "- *vDerivatedBackPropInput" << std::endl;
-  //std::cout << vDerivatedBackPropInput << std::endl;
+
   mGradientsWeights = (*mInputPtr).transpose() * vDerivatedBackPropInput;
-  //std::cout << "- *mGradientsWeights" << std::endl;
-  //std::cout << mGradientsWeights << std::endl;
   mGradientsBiases = vBackpropInput.colwise().sum();
   mGradientsInputs = vBackpropInput * mWeights.transpose();
+
+  // std::cout << "- *mGradientsWeights" << std::endl;
+  // std::cout << mGradientsWeights << std::endl;
+  // std::cout << "- *vDerivatedBackPropInput" << std::endl;
+  // std::cout << vDerivatedBackPropInput << std::endl;
+  // std::cout << "- *vBackPropInput" << std::endl;
+  // std::cout << vBackpropInput << std::endl;
+
   UpdateParams();
 };
 
@@ -179,7 +182,7 @@ const MatrixXd *FullyConnectedLayer::GetBackpropOutput() const
 void FullyConnectedLayer::ComputeLoss(const MatrixXd &aLabels)
 {
 }
-double FullyConnectedLayer:: GetLoss() const
+double FullyConnectedLayer::GetLoss() const
 {
 }
 #endif
