@@ -7,9 +7,11 @@ Deep Learning Library
 
 
 ## IMPORTANT NOTE
-<span style="color: red">
-There are many TODOs, but solving them now is futile since I am considering to following big changes soon (feedback apreciated):
+
+There are many TODOs, but solving them now is futile since I am considering to following big changes soon (**feedback apreciated**):
+
 Currently I have FullyConnectedLayer types which encapsulate  aggregation from previous layers and also the Activation Function and Loss Function. I plan to make it separate in the following kind of structure.
+
 * class NetworkElement
     * class AggregationLayer
         * class FullyConnectedLayer
@@ -20,8 +22,9 @@ Currently I have FullyConnectedLayer types which encapsulate  aggregation from p
     * class LossMeasureLayer 
         * class L2Layer
 * class Network
+
 Then it would be easy to add more Activation Functions and Loss Measures.
-</span>
+
 
 ## Getting Started
 
@@ -43,7 +46,7 @@ C++17 compiler.
 
 ## Running the tests
 
-TODO
+TODO pending big changes
 
 ## submodules
 
