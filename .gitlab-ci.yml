@@ -3,6 +3,7 @@ image: elsa/ubu18-clang6:latest
 stages:
   - compile
   - test
+  - examples
 
 compile:linux-gcc:
   stage: compile
@@ -14,6 +15,7 @@ compile:linux-gcc:
   artifacts:
     paths:
       - build-linux-gcc/test/
+      - build-linux-gcc/examples/
   tags:
     - linux
   cache:
@@ -31,6 +33,7 @@ compile:linux-clang:
   artifacts:
     paths:
       - build-linux-clang/test/
+      - build-linux-clang/examples/
   tags:
     - linux
   cache:
@@ -43,6 +46,13 @@ tests:
   script:
     - ./build-linux-clang/test/firstTest
     - ./build-linux-gcc/test/firstTest
+  tags:
+    - linux
+examples:
+  stage: test
+  script:
+    - ./build-linux-clang/test/xor
+    - ./build-linux-gcc/test/xor
   tags:
     - linux
       
