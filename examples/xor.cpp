@@ -13,7 +13,7 @@ int main()
     // 0 0    0
     // 1 1    0
 
-    
+    // Construct the Layers
     FullyConnectedLayer firstLayer(2, 2);
     FullyConnectedOutputLayer secondLayer(2, 1);
 

@@ -49,10 +49,10 @@ tests:
   tags:
     - linux
 examples:
-  stage: test
+  stage: examples
   script:
-    - ./build-linux-clang/test/xor
-    - ./build-linux-gcc/test/xor
+    - ./build-linux-clang/examples/xor
+    - ./build-linux-gcc/examples/xor
   tags:
     - linux
       
