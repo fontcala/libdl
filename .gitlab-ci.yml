@@ -41,18 +41,28 @@ compile:linux-clang:
     paths:
       - build-linux-clang/
 
-tests:
+tests:linux-gcc:
   stage: test
   script:
-    - ./build-linux-clang/test/firstTest
     - ./build-linux-gcc/test/firstTest
   tags:
     - linux
-examples:
+tests:linux-clang:
+  stage: test
+  script:
+    - ./build-linux-clang/test/firstTest
+  tags:
+    - linux
+examples:linux-gcc:
+  stage: examples
+  script:
+    - ./build-linux-gcc/examples/xor
+  tags:
+    - linux
+examples:linux-clang:
   stage: examples
   script:
     - ./build-linux-clang/examples/xor
-    - ./build-linux-gcc/examples/xor
   tags:
     - linux
       
