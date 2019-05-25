@@ -65,24 +65,24 @@ add_subdirectory(extern/spdlog)
 # Also if header only, what is the point of adding one of the headers? (In the guide they talk about fictional target)
 # should it instead be INTERFACE? 
 # # STATIC or what? STATIC/SHARED can be controled via variable BUILD_SHARED_LIBS (ON)
-add_library(libdl include/libdl/hello.h)
-target_include_directories(libdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
+add_library(libdl INTERFACE)
+target_include_directories(libdl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # PUBLIC/ PRIVATE/INTERFACE?
-target_link_libraries(libdl eigen)
-target_link_libraries(libdl spdlog)
+target_link_libraries(libdl INTERFACE eigen)
+target_link_libraries(libdl INTERFACE spdlog)
 
 # because header only so far:
-set_target_properties(libdl PROPERTIES LINKER_LANGUAGE CXX)
-target_compile_features(libdl PUBLIC cxx_std_17)
+target_compile_features(libdl INTERFACE cxx_std_17)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     message(STATUS "applying -fsized-deallocation -std=c++1z")
-    target_compile_options(libdl PUBLIC -fsized-deallocation -std=c++1z)
+    target_compile_options(libdl INTERFACE -fsized-deallocation -std=c++1z)
  else()
-    target_compile_options(libdl PUBLIC -std=c++1z)
+    target_compile_options(libdl INTERFACE -std=c++1z)
 endif()
 
 # test target
+enable_testing()
 add_subdirectory(test)
 add_subdirectory(doc EXCLUDE_FROM_ALL)
 add_subdirectory(python)

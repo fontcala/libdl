@@ -9,6 +9,7 @@ compile:linux-gcc:
   stage: compile
   script:
     - mkdir -p build-linux-gcc
+    - rm -r build-linux-gcc/*
     - cd build-linux-gcc
     - cmake ..
     - make
@@ -23,10 +24,11 @@ compile:linux-gcc:
     paths:
       - build-linux-gcc/
 
-compile:linux-clang:
+compile:linux-clang:  
   stage: compile
   script:
     - mkdir -p build-linux-clang
+    - rm -r build-linux-clang/*
     - cd build-linux-clang
     - cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/clang++
     - make
@@ -44,13 +46,15 @@ compile:linux-clang:
 tests:linux-gcc:
   stage: test
   script:
-    - ./build-linux-gcc/test/firstTest
+    - cd build-linux-gcc
+    - make test
   tags:
     - linux
 tests:linux-clang:
   stage: test
   script:
-    - ./build-linux-clang/test/firstTest
+    - cd build-linux-clang
+    - make test
   tags:
     - linux
 examples:linux-gcc:
