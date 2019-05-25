@@ -46,14 +46,16 @@ compile:linux-clang:
 tests:linux-gcc:
   stage: test
   script:
-    - cd build-linux-gcc
+    - cd build-linux-gcc/test/
+    - ls
     - make test
   tags:
     - linux
 tests:linux-clang:
   stage: test
   script:
-    - cd build-linux-clang
+    - cd build-linux-clang/test/
+    - ls
     - make test
   tags:
     - linux
