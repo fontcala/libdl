@@ -18,7 +18,7 @@ public:
     void setMatrix(const MatrixXd & aInput){someMat = aInput;}
     const Eigen::MatrixXd &viewMatrix() { return someMat; }
     
-};
+};  
 namespace py = pybind11;
 PYBIND11_MODULE(pybindings, m) {
     m.def("hello", &hello_py, "py");

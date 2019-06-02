@@ -27,7 +27,6 @@ protected:
   MatrixXd mGradientsWeights;
   MatrixXd mGradientsBiases;
   MatrixXd mGradientsInputs;
-  void ActivationFunction(MatrixXd &mOutput);
 
   // Readonly data from other layers
   const MatrixXd *mInputPtr;
@@ -37,12 +36,14 @@ protected:
   bool mInitializedFlag = false;
   bool mValidInput = false;
 
-public:
   // Weights to be modified often.
   MatrixXd mWeights;
   MatrixXd mBiases;
   MatrixXd mMomentumUpdateWeights;
   MatrixXd mMomentumUpdateBiases;
+
+public:
+
   // Learning Rate to be modified often
   double mLearningRate;
   double mMomentumUpdateParam;
@@ -114,17 +115,6 @@ void FullyConnectedLayer::UpdateParams()
   // mBiases = mBiases - mLearningRate * mGradientsBiases;
 }
 
-// TODO if the functional way not useful, use mOutput here directly.
-void FullyConnectedLayer::ActivationFunction(MatrixXd &aOutput)
-{
-  // TODO User specified
-  //ReLU Activation
-  // aOutput = aOutput.cwiseMax(0);
-
-  //Sigmoid Activation
-  aOutput = 1 / (1 + exp(-1 * aOutput.array()));
-};
-
 void FullyConnectedLayer::ForwardPass()
 {
   if (mInitializedFlag)
@@ -143,7 +133,7 @@ void FullyConnectedLayer::ForwardPass()
     // std::cout << mOutput << std::endl;
 
     // Activation Function
-    ActivationFunction(mOutput);
+    //ActivationFunction(mOutput);
 
     // std::cout << "- mOutput after activation:" << std::endl;
     // std::cout << mOutput << std::endl;
@@ -160,15 +150,15 @@ void FullyConnectedLayer::BackwardPass()
   MatrixXd vBackpropInput = *mBackpropInputPtr;
 
   // times Sigmoid Derivative
-  MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
+  //MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
 
   // times ReLu Derivative 
   //MatrixXd vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
 
 
-  mGradientsWeights = (*mInputPtr).transpose() * vDerivatedBackPropInput;
-  mGradientsBiases = vDerivatedBackPropInput.colwise().sum();
-  mGradientsInputs = vDerivatedBackPropInput * mWeights.transpose();
+  mGradientsWeights = (*mInputPtr).transpose() * vBackpropInput;
+  mGradientsBiases = vBackpropInput.colwise().sum();
+  mGradientsInputs = vBackpropInput * mWeights.transpose();
 
   // std::cout << "- *vBackPropInput" << std::endl;
   // std::cout << vBackpropInput << std::endl;
