@@ -10,22 +10,22 @@
 @class ConvLayer
 @brief Conv Class for Network Layer elements.
  */
-template <int FilterSizeX, int FilterSizeY>
+template <int FilterHeight, int FilterWidth>
 class ConvLayer : public BaseLayer<MatrixXd>
 {
 protected:
     // Data
     const size_t mInputFilterNumber;
     const size_t mOutputFilterNumber;
-    const size_t mInputDataSizeX;
-    const size_t mInputDataSizeY;
+    const size_t mInputDataHeight;
+    const size_t mInputDataWidth;
     const size_t mInputDataNumber;
     // Initialize Params
     void InitParams();
 
 public:
     // Constructors
-    ConvLayer(const size_t aInputFilterNumber, const size_t aOutputFilterNumber, const size_t aInputDataSizeX, const size_t aInputDataSizeY, const size_t aInputNumber);
+    ConvLayer(const size_t aInputFilterNumber, const size_t aOutputFilterNumber, const size_t aInputDataHeight, const size_t aInputDataWidth, const size_t aInputNumber);
 
     // Every Layer element must implement these
     void InitParams();
@@ -33,21 +33,21 @@ public:
     void BackwardPass();
 };
 
-template <int FilterSizeX, int FilterSizeY>
-ConvLayer<FilterSizeX, FilterSizeY>::ConvLayer(const size_t aInputFilterNumber,
+template <int FilterHeight, int FilterWidth>
+ConvLayer<FilterHeight, FilterWidth>::ConvLayer(const size_t aInputFilterNumber,
                                                const size_t aOutputFilterNumber,
-                                               const size_t aInputDataSizeX,
-                                               const size_t aInputDataSizeY,
+                                               const size_t aInputDataHeight,
+                                               const size_t aInputDataWidth,
                                                const size_t aInputDataNumber) : mInputFilterNumber(aInputFilterNumber),
                                                                             mOutputFilterNumber(aOutputFilterNumber),
-                                                                            mInputDataSizeX(aInputDataSizeX),
-                                                                            mIputDataSizeY(aInputDataSizeY),
+                                                                            mInputDataHeight(aInputDataHeight),
+                                                                            mIputDataWidth(aInputDataWidth),
                                                                             mInputDataNumber(aInputDataNumber){};
 
-template <int FilterSizeX, int FilterSizeY>
-void ConvLayer<FilterSizeX, FilterSizeY>::InitParams()
+template <int FilterHeight, int FilterWidth>
+void ConvLayer<FilterHeight, FilterWidth>::InitParams()
 {
-    if (InputSizeX < FilterSizeX || InputSizeY < FilterSizeY)
+    if (InputHeight < FilterHeight || InputWidth < FilterWidth)
     {
         throw(std::runtime_error("ConvLayer::InitParams(): dimensions not right"));
     }
@@ -55,7 +55,7 @@ void ConvLayer<FilterSizeX, FilterSizeY>::InitParams()
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, 1.0);
     double vParamScaleFactor = sqrt(1.0 / static_cast<double>(mInputDim));
-    mWeights = vParamScaleFactor * MatrixXd::NullaryExpr(mInputDataSizeX * mInputFilterNumber, mInputDataSizeY *, [&]() { return vRandDistr(vRandom); });
+    mWeights = vParamScaleFactor * MatrixXd::NullaryExpr(mInputDataHeight * mInputFilterNumber, mInputDataWidth *, [&]() { return vRandDistr(vRandom); });
     mBiases = vParamScaleFactor * MatrixXd::NullaryExpr(1, mOutputDim, [&]() { return vRandDistr(vRandom); });
     mMomentumUpdateWeights = MatrixXd::Zero(mInputDim, mOutputDim);
     mMomentumUpdateBiases = MatrixXd::Zero(1, mOutputDim);
