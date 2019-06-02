@@ -27,13 +27,15 @@ L2LossLayer::L2LossLayer(){};
 
 void L2LossLayer::ForwardPass()
 {
+    //check same number of training samples.
     const size_t vLabelNum = mLabels.rows();
     const size_t vOutputNum = (*mInputPtr).rows();
     if (vLabelNum == vOutputNum)
     {
         //L2
         mGradientHelper = (*mInputPtr) - mLabels;
-        mLoss = 0.5 * mGradientHelper.squaredNorm();
+        // Loss divided by number of examples;
+        mLoss = (0.5/vOutputNum) * mGradientHelper.rowwise().squaredNorm().sum();
     }
     else
     {

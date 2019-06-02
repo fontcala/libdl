@@ -36,6 +36,7 @@ public:
     virtual void BackwardPass() = 0;
 
     // Helpers to connect Layers
+    void SetInput(const DataType &aInput);
     virtual void SetInput(const DataType *aInput);
     virtual void SetBackpropInput(const DataType *aOutput);
     virtual const DataType *GetOutput() const;
@@ -50,6 +51,12 @@ void BaseLayer<DataType>::SetInput(const DataType *aInput)
 {
     // TODO check validity
     mInputPtr = aInput;
+};
+template <class DataType>
+void BaseLayer<DataType>::SetInput(const DataType &aInput)
+{
+    // TODO check validity
+    mInputPtr = &aInput;
 };
 
 template <class DataType>

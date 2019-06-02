@@ -18,7 +18,7 @@ protected:
 public:
     // Constructor
     LossBaseLayer();
-
+    // Assume one-hot encoding Labels
     void SetLabels(const MatrixXd &aLabels);
     double GetLoss() const;
     // TODO method that checks validity

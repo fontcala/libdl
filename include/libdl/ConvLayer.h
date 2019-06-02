@@ -28,6 +28,7 @@ public:
     ConvLayer(const size_t aInputFilterNumber, const size_t aOutputFilterNumber, const size_t aInputDataSizeX, const size_t aInputDataSizeY, const size_t aInputNumber);
 
     // Every Layer element must implement these
+    void InitParams();
     void ForwardPass();
     void BackwardPass();
 };

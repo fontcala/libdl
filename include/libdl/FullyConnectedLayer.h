@@ -6,6 +6,7 @@
 
 #include <memory>
 #include "dlfunctions.h"
+#include "ConnectedBaseLayer.h"
 
 /**
 @class FullyConnectedLayer
@@ -16,40 +17,16 @@
 @note Loss Function still hardcoded.
 @note Gradient Update still hardcoded.
  */
-class FullyConnectedLayer
+class FullyConnectedLayer : public ConnectedBaseLayer
 {
 protected:
   // Properties
   const size_t mInputDim;
   const size_t mOutputDim;
-  // Data
-  MatrixXd mOutput;
-  MatrixXd mGradientsWeights;
-  MatrixXd mGradientsBiases;
-  MatrixXd mGradientsInputs;
-
-  // Readonly data from other layers
-  const MatrixXd *mInputPtr;
-  const MatrixXd *mBackpropInputPtr;
-
-  // Checkers
-  bool mInitializedFlag = false;
-  bool mValidInput = false;
-
-  // Weights to be modified often.
-  MatrixXd mWeights;
-  MatrixXd mBiases;
-  MatrixXd mMomentumUpdateWeights;
-  MatrixXd mMomentumUpdateBiases;
 
 public:
-
-  // Learning Rate to be modified often
-  double mLearningRate;
-  double mMomentumUpdateParam;
   // Constructors
   FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim);
-  FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim, const MatrixXd *aInput);
 
   // Processing
   /**
@@ -57,32 +34,15 @@ public:
   @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
  */
   void InitParams();
-  void UpdateParams();
+
   void ForwardPass();
-  virtual void BackwardPass();
-
-  // Virtual Dummy Methods
-  virtual void ComputeLoss(const MatrixXd &aLabels);
-  virtual double GetLoss() const;
-
-  // Helpers to connect Layers
-  void SetNext(const FullyConnectedLayer *aNext);
-  void SetInput(const MatrixXd &aInput);
-  void SetInput(const MatrixXd *aInput);
-  void SetBackpropInput(const MatrixXd *aOutput);
-  const MatrixXd *GetOutput() const;
-  const MatrixXd *GetBackpropOutput() const;
+  void BackwardPass();
 };
 
-FullyConnectedLayer::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : mInputDim(aInputDim), mOutputDim(aOutputDim), mLearningRate(0.3), mInputPtr(NULL), mBackpropInputPtr(NULL)
+FullyConnectedLayer::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : mInputDim(aInputDim), mOutputDim(aOutputDim)
 {
   InitParams();
 };
-
-FullyConnectedLayer::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim, const MatrixXd *aInput) : mInputDim(aInputDim), mOutputDim(aOutputDim), mLearningRate(0.3), mInputPtr(aInput), mBackpropInputPtr(NULL)
-{
-  InitParams();
-}
 
 void FullyConnectedLayer::InitParams()
 {
@@ -94,26 +54,10 @@ void FullyConnectedLayer::InitParams()
   mBiases = vParamScaleFactor * MatrixXd::NullaryExpr(1, mOutputDim, [&]() { return vRandDistr(vRandom); });
   mMomentumUpdateWeights = MatrixXd::Zero(mInputDim, mOutputDim);
   mMomentumUpdateBiases = MatrixXd::Zero(1, mOutputDim);
+  mLearningRate = 0.05;
   mMomentumUpdateParam = 0.9;
   mInitializedFlag = true;
 };
-
-void FullyConnectedLayer::UpdateParams()
-{
-  // TODO User specified
-  // Nesterov-Momentum
-  MatrixXd vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
-  mMomentumUpdateWeights =  mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
-  mWeights = mWeights + (-mMomentumUpdateParam * vPreviousMomentumUpdateWeights) + (1 + mMomentumUpdateParam)* mMomentumUpdateWeights;
-
-  MatrixXd vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
-  mMomentumUpdateBiases =  mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
-  mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam)* mMomentumUpdateBiases;
-
-  // Vanilla Descent
-  // mWeights = mWeights - mLearningRate * mGradientsWeights;
-  // mBiases = mBiases - mLearningRate * mGradientsBiases;
-}
 
 void FullyConnectedLayer::ForwardPass()
 {
@@ -152,13 +96,12 @@ void FullyConnectedLayer::BackwardPass()
   // times Sigmoid Derivative
   //MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
 
-  // times ReLu Derivative 
+  // times ReLu Derivative
   //MatrixXd vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
-
 
   mGradientsWeights = (*mInputPtr).transpose() * vBackpropInput;
   mGradientsBiases = vBackpropInput.colwise().sum();
-  mGradientsInputs = vBackpropInput * mWeights.transpose();
+  mBackpropOutput = vBackpropInput * mWeights.transpose();
 
   // std::cout << "- *vBackPropInput" << std::endl;
   // std::cout << vBackpropInput << std::endl;
@@ -166,49 +109,7 @@ void FullyConnectedLayer::BackwardPass()
   // std::cout << vDerivatedBackPropInput << std::endl;
   // std::cout << "- *mGradientsWeights" << std::endl;
   // std::cout << mGradientsWeights << std::endl;
-  
 
   UpdateParams();
 };
-
-void FullyConnectedLayer::SetInput(const MatrixXd &aInput)
-{
-  const size_t vInputDim = aInput.cols();
-  if (vInputDim == mWeights.rows())
-  {
-    mValidInput = true;
-    mInputPtr = &aInput;
-  }
-  else
-  {
-    throw(std::runtime_error("SetInput(): dimension mismatch"));
-  }
-};
-
-void FullyConnectedLayer::SetInput(const MatrixXd *aInput)
-{
-  mInputPtr = aInput;
-};
-
-void FullyConnectedLayer::SetBackpropInput(const MatrixXd *aBackpropInput)
-{
-  mBackpropInputPtr = aBackpropInput;
-};
-
-const MatrixXd *FullyConnectedLayer::GetOutput() const
-{
-  return &mOutput;
-};
-
-const MatrixXd *FullyConnectedLayer::GetBackpropOutput() const
-{
-  return &mGradientsInputs;
-};
-
-void FullyConnectedLayer::ComputeLoss(const MatrixXd &aLabels)
-{
-}
-double FullyConnectedLayer::GetLoss() const
-{
-}
 #endif
