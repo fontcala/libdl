@@ -1,8 +1,8 @@
 /** @file FullyConnectedNetwork.h
  *  @author Adria Font Calvarons
  */
-// #ifndef FULLYCONNECTEDNETWORK_H
-// #define FULLYCONNECTEDNETWORK_H
+#ifndef FULLYCONNECTEDNETWORK_H
+#define FULLYCONNECTEDNETWORK_H
 
 // #include "FullyConnectedLayer.h"
 

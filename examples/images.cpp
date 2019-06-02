@@ -1,6 +1,5 @@
 #include <iostream>
-#include "libdl/FullyConnectedNetwork.h"
-
+#include <libdl/dlfunctions.h>
 int main()
 {
     MatrixXd imageData = MatrixXd::Random(21,7);
