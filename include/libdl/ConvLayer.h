@@ -28,7 +28,7 @@ public:
     ConvLayer(const size_t aInputFilterNumber, const size_t aOutputFilterNumber, const size_t aInputDataHeight, const size_t aInputDataWidth, const size_t aInputNumber);
 
     // Every Layer element must implement these
-    void InitParams();
+    //void InitParams();
     void ForwardPass();
     void BackwardPass();
 };
@@ -41,7 +41,7 @@ ConvLayer<FilterHeight, FilterWidth>::ConvLayer(const size_t aInputFilterNumber,
                                                const size_t aInputDataNumber) : mInputFilterNumber(aInputFilterNumber),
                                                                             mOutputFilterNumber(aOutputFilterNumber),
                                                                             mInputDataHeight(aInputDataHeight),
-                                                                            mIputDataWidth(aInputDataWidth),
+                                                                            mInputDataWidth(aInputDataWidth),
                                                                             mInputDataNumber(aInputDataNumber){};
 
 template <int FilterHeight, int FilterWidth>
@@ -51,15 +51,16 @@ void ConvLayer<FilterHeight, FilterWidth>::InitParams()
     {
         throw(std::runtime_error("ConvLayer::InitParams(): dimensions not right"));
     }
-    std::random_device rd;
-    std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, 1.0);
-    double vParamScaleFactor = sqrt(1.0 / static_cast<double>(mInputDim));
-    mWeights = vParamScaleFactor * MatrixXd::NullaryExpr(mInputDataHeight * mInputFilterNumber, mInputDataWidth *, [&]() { return vRandDistr(vRandom); });
-    mBiases = vParamScaleFactor * MatrixXd::NullaryExpr(1, mOutputDim, [&]() { return vRandDistr(vRandom); });
-    mMomentumUpdateWeights = MatrixXd::Zero(mInputDim, mOutputDim);
-    mMomentumUpdateBiases = MatrixXd::Zero(1, mOutputDim);
-    mMomentumUpdateParam = 0.9;
-    mInitializedFlag = true;
+    auto aa = (*mInputPtr).block<FilterHeight,FilterWidth>(row, col).reshaped<Eigen::RowMajor>().transpose();
+    // std::random_device rd;
+    // std::mt19937 vRandom(rd());
+    // std::normal_distribution<float> vRandDistr(0, 1.0);
+    // double vParamScaleFactor = sqrt(1.0 / static_cast<double>(mInputDim));
+    // mWeights = vParamScaleFactor * MatrixXd::NullaryExpr(mInputDataHeight * mInputFilterNumber, mInputDataWidth *, [&]() { return vRandDistr(vRandom); });
+    // mBiases = vParamScaleFactor * MatrixXd::NullaryExpr(1, mOutputDim, [&]() { return vRandDistr(vRandom); });
+    // mMomentumUpdateWeights = MatrixXd::Zero(mInputDim, mOutputDim);
+    // mMomentumUpdateBiases = MatrixXd::Zero(1, mOutputDim);
+    // mMomentumUpdateParam = 0.9;
+    // mInitializedFlag = true;
 }
 #endif
