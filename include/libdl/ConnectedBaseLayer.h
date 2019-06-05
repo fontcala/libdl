@@ -7,7 +7,7 @@
 #include "BaseLayer.h"
 /**
 @class ConnectedBaseLayer
-@brief Base Connected Layer.
+@brief Base Connected Layer introduces the parameter of cumputation layers
  */
 class ConnectedBaseLayer : public BaseLayer<MatrixXd>
 {
@@ -25,8 +25,12 @@ public:
     double mLearningRate;
     double mMomentumUpdateParam;
 
-    // Every connected leyer must initialize its params
-    virtual void InitParams() = 0;
+    // Processing
+    /**
+    @function InitParams
+    @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
+    */
+    void InitParams(size_t aInputDim, size_t aOutputDim);
     void UpdateParams();
     // Constructor
     ConnectedBaseLayer();
@@ -41,6 +45,19 @@ public:
 
 ConnectedBaseLayer::ConnectedBaseLayer(){};
 
+void ConnectedBaseLayer::InitParams(size_t aInputDim, size_t aOutputDim)
+{
+    std::random_device rd;
+    std::mt19937 vRandom(rd());
+    std::normal_distribution<float> vRandDistr(0, 1.0); // TODO which distribution?
+    mWeights = MatrixXd::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
+    mBiases = MatrixXd::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
+    mMomentumUpdateWeights = MatrixXd::Zero(aInputDim, aOutputDim);
+    mMomentumUpdateBiases = MatrixXd::Zero(1, aInputDim);
+    mLearningRate = 0.05;
+    mMomentumUpdateParam = 0.9;
+    mInitializedFlag = true;
+}
 void ConnectedBaseLayer::UpdateParams()
 {
     // TODO User specified

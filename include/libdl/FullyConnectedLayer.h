@@ -20,7 +20,7 @@
 class FullyConnectedLayer : public ConnectedBaseLayer
 {
 protected:
-  // Properties
+  // Layer-specific Properties
   const size_t mInputDim;
   const size_t mOutputDim;
 
@@ -28,35 +28,14 @@ public:
   // Constructors
   FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim);
 
-  // Processing
-  /**
-  @function InitParams
-  @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
- */
-  void InitParams();
-
+  // Layer-specific Forward-Backward passes.
   void ForwardPass();
   void BackwardPass();
 };
 
 FullyConnectedLayer::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : mInputDim(aInputDim), mOutputDim(aOutputDim)
 {
-  InitParams();
-};
-
-void FullyConnectedLayer::InitParams()
-{
-  std::random_device rd;
-  std::mt19937 vRandom(rd());
-  std::normal_distribution<float> vRandDistr(0, 1.0); // TODO which distribution?
-  double vParamScaleFactor = sqrt(1.0 / static_cast<double>(mInputDim));
-  mWeights = vParamScaleFactor * MatrixXd::NullaryExpr(mInputDim, mOutputDim, [&]() { return vRandDistr(vRandom); });
-  mBiases = vParamScaleFactor * MatrixXd::NullaryExpr(1, mOutputDim, [&]() { return vRandDistr(vRandom); });
-  mMomentumUpdateWeights = MatrixXd::Zero(mInputDim, mOutputDim);
-  mMomentumUpdateBiases = MatrixXd::Zero(1, mOutputDim);
-  mLearningRate = 0.05;
-  mMomentumUpdateParam = 0.9;
-  mInitializedFlag = true;
+  InitParams(aInputDim,aOutputDim);
 };
 
 void FullyConnectedLayer::ForwardPass()
