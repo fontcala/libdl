@@ -36,6 +36,7 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
 }
 // Inner loops adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
 // If the input is in format vectorized images stacked horizontally, supports padding and multiple inputs
+// TODO Homogeneous coding style.
 template <int FilterHeight, int FilterWidth>
 void im2col(const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int width, int height, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
@@ -68,15 +69,28 @@ void im2col(const double *img, double *col, size_t aOutHeight, size_t aOutWidth,
         }
     }
 }
+MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
+{
+    size_t vFilterSize = aFilters.rows();
+    size_t vOutputDepth = aFilters.cols();
+    size_t v2DFilterSize = vFilterSize / aNumberCuts;
+    MatrixXd vToBeReturned = aFilters;
+
+    for (int i = 0; i < aNumberCuts; ++i)
+    {
+        vToBeReturned.block(v2DFilterSize * i, 0, v2DFilterSize, vOutputDepth).colwise().reverseInPlace();
+    }
+    return vToBeReturned;
+}
 
 template <int FilterHeight, int FilterWidth>
-void convolution(MatrixXd& aConvolutedOutput, const MatrixXd &aFilters, const MatrixXd& aInputImage, size_t aOutHeight, size_t aOutWidth, int width, int height, int channels,
+void convolution(MatrixXd &aConvolutedOutput, const MatrixXd &aFilters, const MatrixXd &aInputImage, size_t aOutHeight, size_t aOutWidth, int width, int height, int channels,
                  int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     size_t vOutFields = FilterHeight * FilterWidth * channels;
     MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
-    im2col<FilterHeight,FilterWidth>(aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, width, height, channels, pad_w, pad_h, aStride, aNumSamples);
+    im2col<FilterHeight, FilterWidth>(aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, width, height, channels, pad_w, pad_h, aStride, aNumSamples);
 
     aConvolutedOutput = im2ColImage * aFilters;
 }

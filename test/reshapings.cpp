@@ -57,3 +57,31 @@ TEST_CASE("3D Data", "3D Data")
 
     REQUIRE(OutputVol == vExpectedOutputVol);
 }
+
+TEST_CASE("flip", "flip")
+{
+    MatrixXd InputVol1(4, 1);
+    MatrixXd InputVol2(4, 1);
+    MatrixXd InputVol3(4, 1);
+    InputVol3 << 301, 302, 303, 304;
+    InputVol1 << 101, 102, 103, 104;
+    InputVol2 << 201, 202, 203, 204;
+    MatrixXd InputVol(4, 3);
+    InputVol << InputVol1, InputVol2, InputVol3;
+
+    SECTION("simple Flip")
+    {
+        size_t vInputDepth = 2;
+        MatrixXd vFlipped = dlfunctions::flip(InputVol, vInputDepth);
+        MatrixXd ExpectedVol1(4, 1);
+        MatrixXd ExpectedVol2(4, 1);
+        MatrixXd ExpectedVol3(4, 1);
+        ExpectedVol3 << 302, 301, 304, 303;
+        ExpectedVol1 << 102, 101, 104, 103;
+        ExpectedVol2 << 202, 201, 204, 203;
+        MatrixXd ExpectedVol(4, 3);
+        ExpectedVol << ExpectedVol1, ExpectedVol2, ExpectedVol3;
+
+        REQUIRE(vFlipped == ExpectedVol);
+    }
+}
