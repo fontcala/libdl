@@ -10,12 +10,17 @@
 @class ConvLayer
 @brief Conv Class for Network Layer elements.
  */
-template <int FilterHeight, int FilterWidth, int PaddingHeight, int PaddingWidth, int Stride>
 class ConvLayer : public ConnectedBaseLayer
 {
 protected:
     // Layer-specific properties.
+    const size_t mFilterHeight;
+    const size_t mFilterWidth;
+    const size_t mPaddingHeight;
+    const size_t mPaddingWidth;
+    const size_t mStride;
 
+    // Would not need these in the constructor but for now yes.
     const size_t mInputDepth;
     const size_t mInputHeight;
     const size_t mInputWidth;
@@ -24,12 +29,17 @@ protected:
     const size_t mOutputHeight;
     const size_t mOutputWidth;
 
-    const size_t mInputSampleNumber; //could be deduced in the flatten Layer!
+    const size_t mInputSampleNumber; //TODO: could be deduced in the flatten Layer!
     const size_t mFilterSize;
 
 public:
     // Constructors
-    ConvLayer(const size_t aInputDepth,
+    ConvLayer(const size_t aFilterHeight,
+              const size_t aFilterWidth,
+              const size_t aPaddingHeight,
+              const size_t aPaddingWidth,
+              const size_t aStride,
+              const size_t aInputDepth,
               const size_t aInputHeight,
               const size_t aInputWidth,
               const size_t aOutputDepth,
@@ -42,38 +52,47 @@ public:
     void BackwardPass();
 };
 
-template <int FilterHeight, int FilterWidth, int PaddingHeight, int PaddingWidth, int Stride>
-ConvLayer<FilterHeight, FilterWidth, PaddingHeight, PaddingWidth, Stride>::ConvLayer(const size_t aInputDepth,
-                                                                                     const size_t aInputHeight,
-                                                                                     const size_t aInputWidth,
-                                                                                     const size_t aOutputDepth,
-                                                                                     const size_t aOutputHeight,
-                                                                                     const size_t aOutputWidth,
-                                                                                     const size_t aInputSampleNumber) : mInputDepth(aInputDepth),
-                                                                                                                        mInputHeight(aInputHeight),
-                                                                                                                        mInputWidth(aInputWidth),
-                                                                                                                        mOutputDepth(aOutputDepth),
-                                                                                                                        mOutputHeight(aOutputHeight),
-                                                                                                                        mOutputWidth(aOutputWidth),
-                                                                                                                        mInputSampleNumber(aInputSampleNumber),
-                                                                                                                        mFilterSize(FilterHeight * FilterWidth * aInputDepth)
+ConvLayer::ConvLayer(const size_t aFilterHeight,
+                     const size_t aFilterWidth,
+                     const size_t aPaddingHeight,
+                     const size_t aPaddingWidth,
+                     const size_t aStride,
+                     const size_t aInputDepth,
+                     const size_t aInputHeight,
+                     const size_t aInputWidth,
+                     const size_t aOutputDepth,
+                     const size_t aOutputHeight,
+                     const size_t aOutputWidth,
+                     const size_t aInputSampleNumber) : mFilterHeight(aFilterHeight),
+                                                        mFilterWidth(aFilterWidth),
+                                                        mPaddingHeight(mPaddingHeight),
+                                                        mPaddingWidth(mPaddingWidth),
+                                                        mStride(aStride),
+                                                        mInputDepth(aInputDepth),
+                                                        mInputHeight(aInputHeight),
+                                                        mInputWidth(aInputWidth),
+                                                        mOutputDepth(aOutputDepth),
+                                                        mOutputHeight(aOutputHeight),
+                                                        mOutputWidth(aOutputWidth),
+                                                        mInputSampleNumber(aInputSampleNumber),
+                                                        mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
 {
     InitParams(mFilterSize, mOutputDepth);
 };
 
-template <int FilterHeight, int FilterWidth, int PaddingHeight, int PaddingWidth, int Stride>
-void ConvLayer<FilterHeight, FilterWidth, PaddingHeight, PaddingWidth, Stride>::ForwardPass() {
-    
+void ConvLayer::ForwardPass()
+{
+
     MatrixXd vOutputConvolution(mOutputHeight * mOutputWidth, mOutputDepth);
-    dlfunctions::convolution<3, 3>(vOutputConvolution,mWeights,(*mInputPtr),mOutputHeight, mOutputWidth, mInputHeight, mInputWidth, mInputDepth, PaddingHeight, PaddingWidth, Stride,mInputSampleNumber);
+    dlfunctions::convolution(mFilterHeight, mFilterWidth, vOutputConvolution, mWeights, (*mInputPtr), mOutputHeight, mOutputWidth, mInputHeight, mInputWidth, mInputDepth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
     mOutput = vOutputConvolution + mBiases.replicate(mOutputHeight * mOutputWidth, 1);
 }
 
-template <int FilterHeight, int FilterWidth, int PaddingHeight, int PaddingWidth, int Stride>
-void ConvLayer<FilterHeight, FilterWidth, PaddingHeight, PaddingWidth, Stride>::BackwardPass() {
+void ConvLayer::BackwardPass()
+{
 
     // Flip the kernels
-    MatrixXd vFlippedFilters = dlfunctions::flip(mweights,mInputDepth);
+    MatrixXd vFlippedFilters = dlfunctions::flip(mWeights, mInputDepth);
 
     // Full convolution means using padding Filter Height/Width - 1.
 

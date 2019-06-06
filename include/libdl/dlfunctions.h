@@ -37,8 +37,7 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
 // Inner loops adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
 // If the input is in format vectorized images stacked horizontally, supports padding and multiple inputs
 // TODO Homogeneous coding style.
-template <int FilterHeight, int FilterWidth>
-void im2col(const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int width, int height, int channels,
+void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int width, int height, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     int imOffset = aOutHeight * aOutWidth * aOutFields;
@@ -83,14 +82,14 @@ MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
     return vToBeReturned;
 }
 
-template <int FilterHeight, int FilterWidth>
-void convolution(MatrixXd &aConvolutedOutput, const MatrixXd &aFilters, const MatrixXd &aInputImage, size_t aOutHeight, size_t aOutWidth, int width, int height, int channels,
+
+void convolution(const int aFilterHeight, const int aFilterWidth, MatrixXd &aConvolutedOutput, const MatrixXd &aFilters, const MatrixXd &aInputImage, size_t aOutHeight, size_t aOutWidth, int width, int height, int channels,
                  int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
-    size_t vOutFields = FilterHeight * FilterWidth * channels;
+    size_t vOutFields = aFilterHeight * aFilterWidth * channels;
     MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
-    im2col<FilterHeight, FilterWidth>(aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, width, height, channels, pad_w, pad_h, aStride, aNumSamples);
+    im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, width, height, channels, pad_w, pad_h, aStride, aNumSamples);
 
     aConvolutedOutput = im2ColImage * aFilters;
 }
