@@ -40,8 +40,9 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
 void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
+    //std::cout << FilterHeight << FilterWidth << aOutHeight << aOutWidth << aOutFields << height << width << channels<< "padw " << pad_w << "padh " << pad_h << "stride " << aStride << "samp " << aNumSamples << std::endl;
     int imOffset = aOutHeight * aOutWidth * aOutFields;
-    for (size_t vSample = 0; vSample < aNumSamples; vSample++)
+    for (size_t vSample = 0; vSample < aNumSamples; vSample++) // TODO This wrong
     {
         for (int c = 0; c < aOutFields; ++c)
         {
@@ -56,12 +57,12 @@ void im2col(const int FilterHeight, const int FilterWidth, const double *img, do
                     int w_pad = w * aStride - pad_w + w_offset;
                     if (h_pad >= 0 && h_pad < height && w_pad >= 0 && w_pad < width)
                     {
-                        col[vSample * (imOffset - 1) + (c * aOutHeight + h) * aOutWidth + w] =
-                            img[vSample * (imOffset - 1) + (c_im * height + h_pad) * width + w_pad];
+                        col[(c * aOutHeight + h) * aOutWidth + w] =
+                            img[(c_im * height + h_pad) * width + w_pad];
                     }
                     else
                     {
-                        col[vSample * (imOffset - 1) + (c * aOutHeight + h) * aOutWidth + w] = 0;
+                        col[(c * aOutHeight + h) * aOutWidth + w] = 0;
                     }
                 }
             }
@@ -88,26 +89,26 @@ MatrixXd flatten(const MatrixXd &aInput, const size_t aNumberCuts)
     size_t vInputDim2 = aInput.cols();
     size_t vBlockSize = vInputDim1 / aNumberCuts;
     size_t vOutputCols = vInputDim2 * vBlockSize;
-    MatrixXd vToBeReturned(aNumberCuts,vOutputCols);
+    MatrixXd vToBeReturned(aNumberCuts, vOutputCols);
 
     for (int i = 0; i < aNumberCuts; ++i)
-    { 
-        MatrixXd vSampleBlock = aInput.block(i*vBlockSize,0,vBlockSize,vInputDim2);
-        vSampleBlock.resize(1,vOutputCols);
+    {
+        MatrixXd vSampleBlock = aInput.block(i * vBlockSize, 0, vBlockSize, vInputDim2);
+        vSampleBlock.resize(1, vOutputCols);
         vToBeReturned.row(i) = vSampleBlock;
     }
     return vToBeReturned;
 }
-MatrixXd unflatten(const MatrixXd &aInput,const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
+MatrixXd unflatten(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
 {
     size_t vNumberSamples = aInput.rows();
     size_t vUnflatSampleSize = aInputHeight * aInputWidth / vNumberSamples;
-    MatrixXd vToBeReturned(vNumberSamples * vUnflatSampleSize,aInputDepth);
+    MatrixXd vToBeReturned(vNumberSamples * vUnflatSampleSize, aInputDepth);
     for (int i = 0; i < vNumberSamples; ++i)
     {
         MatrixXd vSampleBlock = aInput.row(i);
-        vSampleBlock.resize(vUnflatSampleSize,aInputDepth);
-        vToBeReturned.block(i*vUnflatSampleSize,0,vUnflatSampleSize,aInputDepth) = vSampleBlock;
+        vSampleBlock.resize(vUnflatSampleSize, aInputDepth);
+        vToBeReturned.block(i * vUnflatSampleSize, 0, vUnflatSampleSize, aInputDepth) = vSampleBlock;
     }
     return vToBeReturned;
 }
@@ -119,7 +120,8 @@ void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidt
     MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
     dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, channels, pad_w, pad_h, aStride, aNumSamples);
-
+    std::cout << "im2ColImage" << std::endl;
+    std::cout << im2ColImage << std::endl;
     aConvolutedOutput = im2ColImage * aFilters;
 }
 

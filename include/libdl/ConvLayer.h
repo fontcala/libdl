@@ -64,8 +64,8 @@ ConvLayer::ConvLayer(const size_t aFilterHeight,
                      const size_t aOutputWidth,
                      const size_t aInputSampleNumber) : mFilterHeight(aFilterHeight),
                                                         mFilterWidth(aFilterWidth),
-                                                        mPaddingHeight(mPaddingHeight),
-                                                        mPaddingWidth(mPaddingWidth),
+                                                        mPaddingHeight(aPaddingHeight),
+                                                        mPaddingWidth(aPaddingWidth),
                                                         mStride(aStride),
                                                         mInputDepth(aInputDepth),
                                                         mInputHeight(aInputHeight),
@@ -84,6 +84,15 @@ void ConvLayer::ForwardPass()
     MatrixXd vOutputConvolution(mOutputHeight * mOutputWidth, mOutputDepth);
     dlfunctions::convolution(vOutputConvolution, mOutputHeight, mOutputWidth, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputHeight, mInputWidth, mInputDepth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
     mOutput = vOutputConvolution + mBiases.replicate(mOutputHeight * mOutputWidth, 1);
+    // std::cout << "vOutputConvolution" << std::endl;
+    // std::cout << vOutputConvolution << std::endl;
+
+    // std::cout << "mWeights" << std::endl;
+    // std::cout << mWeights << std::endl;
+
+    // std::cout  << "(*mInputPtr)" << std::endl;
+    // std::cout  << (*mInputPtr) << std::endl;
+
 }
 
 void ConvLayer::BackwardPass()
