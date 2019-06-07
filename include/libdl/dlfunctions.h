@@ -82,6 +82,36 @@ MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
     return vToBeReturned;
 }
 
+MatrixXd flatten(const MatrixXd &aInput, const size_t aNumberCuts)
+{
+    size_t vInputDim1 = aInput.rows();
+    size_t vInputDim2 = aInput.cols();
+    size_t vBlockSize = vInputDim1 / aNumberCuts;
+    size_t vOutputCols = vInputDim2 * vBlockSize;
+    MatrixXd vToBeReturned(aNumberCuts,vOutputCols);
+
+    for (int i = 0; i < aNumberCuts; ++i)
+    { 
+        MatrixXd vSampleBlock = aInput.block(i*vBlockSize,0,vBlockSize,vInputDim2);
+        vSampleBlock.resize(1,vOutputCols);
+        vToBeReturned.row(i) = vSampleBlock;
+    }
+    return vToBeReturned;
+}
+MatrixXd unflatten(const MatrixXd &aInput,const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
+{
+    size_t vNumberSamples = aInput.rows();
+    size_t vUnflatSampleSize = aInputHeight * aInputWidth / vNumberSamples;
+    MatrixXd vToBeReturned(vNumberSamples * vUnflatSampleSize,aInputDepth);
+    for (int i = 0; i < vNumberSamples; ++i)
+    {
+        MatrixXd vSampleBlock = aInput.row(i);
+        vSampleBlock.resize(vUnflatSampleSize,aInputDepth);
+        vToBeReturned.block(i*vUnflatSampleSize,0,vUnflatSampleSize,aInputDepth) = vSampleBlock;
+    }
+    return vToBeReturned;
+}
+
 void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const MatrixXd &aFilters, const int aFilterHeight, const int aFilterWidth, const MatrixXd &aInputImage, int height, int width, int channels,
                  int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
