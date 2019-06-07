@@ -39,7 +39,7 @@ TEST_CASE("conv", "convolution")
     SECTION("applying im2col manually")
     {
         MatrixXd OutputVol(vOutHeightVol * vOutWidthVol, vOutFieldsVol);
-        dlfunctions::im2col(tFILTERSIZE,tFILTERSIZE,InputVol.data(), OutputVol.data(), vOutHeightVol, vOutWidthVol, vOutFieldsVol, vImageWidthVol, vImageHeightVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
+        dlfunctions::im2col(tFILTERSIZE,tFILTERSIZE,InputVol.data(), OutputVol.data(), vOutHeightVol, vOutWidthVol, vOutFieldsVol, vImageHeightVol, vImageWidthVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
         MatrixXd OutputConv = OutputVol * FilterVol;
 
         REQUIRE(OutputConv == InputVol);
@@ -49,7 +49,7 @@ TEST_CASE("conv", "convolution")
         // Now using the conv function
         size_t vFiltersNumber = 3;
         MatrixXd OutputVolCnv(vOutHeightVol * vOutWidthVol, vFiltersNumber);
-        dlfunctions::convolution(tFILTERSIZE,tFILTERSIZE,OutputVolCnv, FilterVol, InputVol, vOutHeightVol, vOutWidthVol, vImageWidthVol, vImageHeightVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
+        dlfunctions::convolution(OutputVolCnv,vOutHeightVol, vOutWidthVol,FilterVol,tFILTERSIZE,tFILTERSIZE, InputVol, vImageHeightVol, vImageWidthVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
 
         REQUIRE(OutputVolCnv == InputVol);
     }

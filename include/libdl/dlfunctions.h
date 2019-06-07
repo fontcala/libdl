@@ -9,7 +9,7 @@
 //#include <spdlog/spdlog.h>
 
 using Eigen::MatrixXd;
-
+// TODO Homogeneous style! size_t, const, hungarian, ...
 namespace dlfunctions
 {
 // First attempt.
@@ -37,7 +37,7 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
 // Inner loops adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
 // If the input is in format vectorized images stacked horizontally, supports padding and multiple inputs
 // TODO Homogeneous coding style.
-void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int width, int height, int channels,
+void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     int imOffset = aOutHeight * aOutWidth * aOutFields;
@@ -82,16 +82,23 @@ MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
     return vToBeReturned;
 }
 
-
-void convolution(const int aFilterHeight, const int aFilterWidth, MatrixXd &aConvolutedOutput, const MatrixXd &aFilters, const MatrixXd &aInputImage, size_t aOutHeight, size_t aOutWidth, int width, int height, int channels,
+void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const MatrixXd &aFilters, const int aFilterHeight, const int aFilterWidth, const MatrixXd &aInputImage, int height, int width, int channels,
                  int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     size_t vOutFields = aFilterHeight * aFilterWidth * channels;
     MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
-    im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, width, height, channels, pad_w, pad_h, aStride, aNumSamples);
+    dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, channels, pad_w, pad_h, aStride, aNumSamples);
 
     aConvolutedOutput = im2ColImage * aFilters;
+}
+
+void fullconvolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const MatrixXd &aFilters, const int aFilterHeight, const int aFilterWidth, const MatrixXd &aInputImage, int height, int width, int channels,
+                     int aStride, size_t aNumSamples)
+{
+    size_t vPadHeight = aFilterHeight - 1;
+    size_t vPadWidth = aFilterWidth - 1;
+    dlfunctions::convolution(aConvolutedOutput, aOutHeight, aOutWidth, aFilters, aFilterHeight, aFilterWidth, aInputImage, height, width, channels, vPadHeight, vPadWidth, aStride, aNumSamples);
 }
 void ReLUActivationFunction(MatrixXd &aOutput)
 {

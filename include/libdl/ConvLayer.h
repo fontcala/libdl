@@ -20,7 +20,6 @@ protected:
     const size_t mPaddingWidth;
     const size_t mStride;
 
-    // Would not need these in the constructor but for now yes.
     const size_t mInputDepth;
     const size_t mInputHeight;
     const size_t mInputWidth;
@@ -82,21 +81,27 @@ ConvLayer::ConvLayer(const size_t aFilterHeight,
 
 void ConvLayer::ForwardPass()
 {
-
     MatrixXd vOutputConvolution(mOutputHeight * mOutputWidth, mOutputDepth);
-    dlfunctions::convolution(mFilterHeight, mFilterWidth, vOutputConvolution, mWeights, (*mInputPtr), mOutputHeight, mOutputWidth, mInputHeight, mInputWidth, mInputDepth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
+    dlfunctions::convolution(vOutputConvolution, mOutputHeight, mOutputWidth, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputHeight, mInputWidth, mInputDepth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
     mOutput = vOutputConvolution + mBiases.replicate(mOutputHeight * mOutputWidth, 1);
 }
 
 void ConvLayer::BackwardPass()
 {
+    // Backprop input from previous layer.
+    MatrixXd vBackpropInput = *mBackpropInputPtr;
 
-    // Flip the kernels
-    MatrixXd vFlippedFilters = dlfunctions::flip(mWeights, mInputDepth);
+    // derivative wrt to bias
+    mGradientsBiases = vBackpropInput.colwise().sum();
 
-    // Full convolution means using padding Filter Height/Width - 1.
+    // derivative wrt filters (dOut/df = In conv Out)
+    dlfunctions::convolution(mGradientsWeights, mFilterHeight, mFilterWidth, vBackpropInput, mOutputHeight, mOutputWidth, (*mInputPtr), mInputHeight, mInputWidth, mInputDepth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
 
-    // Compute all of them.
+    // derivative wrt to input (full convolution means using padding Filter Height/Width - 1. Also stride = 1.)
+    dlfunctions::fullconvolution(mBackpropOutput, mInputHeight, mInputWidth, dlfunctions::flip(mWeights, mInputDepth), mFilterHeight, mFilterWidth, vBackpropInput, mOutputHeight, mOutputWidth,mOutputDepth,1, mInputSampleNumber);
+
+    // Update.
+    UpdateParams();
 }
 
 #endif
