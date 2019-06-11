@@ -103,13 +103,11 @@ void ConvLayer::ForwardPass()
     MatrixXd vOutputConvolution(mOutputDims.Height * mOutputDims.Width, mOutputDims.Depth);
     dlfunctions::convolution(vOutputConvolution, mOutputDims.Height, mOutputDims.Width, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
     mOutput = vOutputConvolution + mBiases.replicate(mOutputDims.Height * mOutputDims.Width, 1);
-    // std::cout << "vOutputConvolution" << std::endl;
-    // std::cout << vOutputConvolution << std::endl;
 
     // std::cout << "mWeights" << std::endl;
     // std::cout << mWeights << std::endl;
-    std::cout << "mWeights" << std::endl;
-    std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
+    // std::cout << "mWeights" << std::endl;
+    // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
 
     // std::cout  << "(*mInputPtr)" << std::endl;
     // std::cout  << (*mInputPtr) << std::endl;
@@ -118,29 +116,30 @@ void ConvLayer::ForwardPass()
 void ConvLayer::BackwardPass()
 {
     // Backprop input from previous layer.
-    MatrixXd vBackpropInput = *mBackpropInputPtr;
+    MatrixXd vBackpropInputTranspose = mBackpropInputPtr->transpose();
 
     // derivative wrt to bias
-    mGradientsBiases = vBackpropInput.colwise().sum();
+    mGradientsBiases = vBackpropInputTranspose.rowwise().sum();
 
     // derivative wrt filters (dOut/df = In conv Out)
-    dlfunctions::convolution(mGradientsWeights, mFilterHeight, mFilterWidth, vBackpropInput, mOutputDims.Height, mOutputDims.Width, (*mInputPtr), mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
-    std::cout << "mOutputDims" << std::endl;
+    MatrixXd im2ColImage(mOutputDims.Height * mOutputDims.Width, mFilterSize);
+    dlfunctions::im2col(mFilterHeight, mFilterWidth, mInputPtr->data(), im2ColImage.data(), mOutputDims.Height, mOutputDims.Width, mFilterSize, mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
+    mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
+
     std::cout << mOutputDims.Height << " " << mOutputDims.Width << std::endl;
-
-    std::cout << "mGradientsWeights" << std::endl;
-    std::cout << mGradientsWeights.rows()<< " " << mGradientsWeights.cols()<< std::endl;
-
-    std::cout << "vBackpropInput" << std::endl;
-    std::cout << vBackpropInput.rows()<<  " " << vBackpropInput.cols() << std::endl;
-
-    std::cout << "Input rowscols" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
 
     std::cout << "mWeights" << std::endl;
     std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
-    // derivative wrt to input (full convolution means using padding Filter Height/Width - 1. Also stride = 1.)
-    dlfunctions::fullconvolution(mBackpropOutput, mInputDims.Height, mInputDims.Width, dlfunctions::flip(mWeights, mInputDims.Depth), mFilterHeight, mFilterWidth, vBackpropInput, mOutputDims.Height, mOutputDims.Width, mOutputDims.Depth, 1, mInputSampleNumber);
+
+    std::cout << "mGradientsWeights" << std::endl;
+    std::cout << mGradientsWeights.rows() << " " << mGradientsWeights.cols() << std::endl;
+
+
+
+    // derivative wrt to input
+    MatrixXd colImage = mWeights * vBackpropInputTranspose;
+    mBackpropOutput = MatrixXd::Zero(mInputDims.Height * mInputDims.Height, mInputDims.Width);
+    dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), mBackpropOutput.data(), mOutputDims.Height, mOutputDims.Width, mFilterSize, mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
 
     // Update.
     UpdateParams();

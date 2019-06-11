@@ -34,8 +34,8 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
         }
     }
 }
-// Inner loops adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
-// If the input is in format vectorized images stacked horizontally, supports padding and multiple inputs
+// Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
+// If the input is in format vectorized images stacked horizontally, can be aeasily made to support padding and multiple inputs
 // TODO Homogeneous coding style.
 void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
@@ -69,6 +69,34 @@ void im2col(const int FilterHeight, const int FilterWidth, const double *img, do
         }
     }
 }
+
+// Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
+// This is not just a reshaping, it aggregates for locations that have more than one filter in them!
+// Also here harder to support multiple images!
+void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const double *aColData, double *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
+            const size_t height, const size_t width, const size_t channels,
+            const size_t pad_w, const size_t pad_h,
+            const size_t aStride, const size_t aNumSamples)
+{
+    for (size_t c = 0; c < aOutFields; ++c)
+    {
+        size_t w_offset = c % aFilterWidth;
+        size_t h_offset = (c / aFilterWidth) % aFilterHeight;
+        size_t c_im = c / aFilterHeight / aFilterWidth;
+        for (size_t h = 0; h < aOutHeight; ++h)
+        {
+            size_t h_pad = h * aStride - pad_h + h_offset;
+            for (size_t w = 0; w < aOutWidth; ++w)
+            {
+                size_t w_pad = w * aStride - pad_w + w_offset;
+                if (h_pad >= 0 && h_pad < height && w_pad >= 0 && w_pad < width)
+                    aImData[(c_im * height + h_pad) * width + w_pad] +=
+                        aColData[(c * aOutHeight + h) * aOutWidth + w];
+            }
+        }
+    }
+}
+
 MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
 {
     size_t vFilterSize = aFilters.rows();

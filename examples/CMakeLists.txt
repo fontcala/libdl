@@ -14,3 +14,7 @@ target_compile_features(images PRIVATE cxx_std_17)
 add_executable(multipleoutputs multipleoutputs.cpp)
 target_link_libraries(multipleoutputs PRIVATE libdl)
 target_compile_features(multipleoutputs PRIVATE cxx_std_17)
+
+add_executable(reshapes reshapes.cpp)
+target_link_libraries(reshapes PRIVATE libdl)
+target_compile_features(reshapes PRIVATE cxx_std_17)

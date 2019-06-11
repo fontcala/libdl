@@ -33,8 +33,9 @@ protected:
     const DataType *mBackpropInputPtr;
 
     // Data from other layers
-    // const DataPtr<InputDimType,DataType> mInputDataPtr;
-    // const DataPtr<BackpropInputDimType,DataType> mBackpropInputDataPtr;
+    //const int whatev;
+    // DataPtr<InputDimType,DataType> mInputDataPtr;
+    // DataPtr<BackpropInputDimType,DataType> mBackpropInputDataPtr;
 
 
 public:

@@ -35,6 +35,13 @@ TEST_CASE("shapes", "3D horizontal stacked im2col")
     im2ColVerifyRow << 0,0,-0.211234,0.566198,-0.329554,0.536459,0.615449,0.838053,-0.827888,-0.615572,0,0,-0.012834,0.94555,0.539828,-0.199543,-0.668052,-0.119791,-0.542064,0.786745,0,0,-0.921439,-0.124725,-0.431413,0.477069,-0.270431,0.0268018,0.434594,-0.716795;
 
     REQUIRE(im2ColImage.row(1) == im2ColVerifyRow);
+
+    // How to test the col2im part?
+    // MatrixXd col2ImImage = MatrixXd::Zero(vInputHeight1 * vInputWidth1, vInputDepth1);
+    // dlfunctions::col2im(vFilterHeight1, vFilterWidth1, im2ColImage.data(), col2ImImage.data(), vOutputHeight1, vOutputWidth1, vOutFields, vInputHeight1, vInputWidth1, vInputDepth1,
+    //         vPaddingHeight1, vPaddingWidth1, vStride1, 1);
+    // std::cout << "OutputVol 3" << std::endl;
+    // std::cout << col2ImImage << std::endl;
 }
 
 TEST_CASE("2D Data", "image im2col")
