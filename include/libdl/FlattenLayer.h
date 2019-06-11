@@ -9,7 +9,7 @@
 @class FlattenLayer
 @brief Flatten Layer.
  */
-class FlattenLayer : public BaseLayer<MatrixXd>
+class FlattenLayer : public BaseLayer<ConvDataDims,size_t,MatrixXd>
 {
 public:
     const size_t mInputDepth;

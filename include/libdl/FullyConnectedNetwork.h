@@ -1,10 +1,11 @@
-/** @file FullyConnectedNetwork.h
- *  @author Adria Font Calvarons
- */
-#ifndef FULLYCONNECTEDNETWORK_H
-#define FULLYCONNECTEDNETWORK_H
+// /** @file FullyConnectedNetwork.h
+//  *  @author Adria Font Calvarons
+//  */
+// #ifndef FULLYCONNECTEDNETWORK_H
+// #define FULLYCONNECTEDNETWORK_H
 
-// #include "FullyConnectedLayer.h"
+
+// #include "BaseLayer.h"
 
 
 // /**
@@ -151,4 +152,4 @@
 //     std::cout << aLabels << std::endl;
 // }
 
-#endif
+// #endif

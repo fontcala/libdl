@@ -120,8 +120,8 @@ void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidt
     MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
     dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, channels, pad_w, pad_h, aStride, aNumSamples);
-    std::cout << "im2ColImage" << std::endl;
-    std::cout << im2ColImage << std::endl;
+    // std::cout << "im2ColImage" << std::endl;
+    // std::cout << im2ColImage << std::endl;
     aConvolutedOutput = im2ColImage * aFilters;
 }
 

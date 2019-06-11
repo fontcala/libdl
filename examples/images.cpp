@@ -5,76 +5,41 @@
 
 int main()
 {
+  const size_t vNumSamples = 2;
+  MatrixXd someMat(2,3);
+  someMat << 1,0,1,2,2,5;
+  MatrixXd labels(2,3);
+  labels << 1,0,0,0,0,1;
+  std::cout << someMat << std::endl;
+  MatrixXd exp = someMat.array().exp();
+  MatrixXd probs = exp.array().colwise() / exp.rowwise().sum().array();
+  MatrixXd logprobs = -probs.array().log();
+  MatrixXd filtered = logprobs.cwiseProduct(labels);
+  double lossdata = filtered.array().sum() / static_cast<double>(vNumSamples); 
+  std::cout << exp << std::endl;
+  std::cout << probs << std::endl;
+  std::cout << logprobs << std::endl;
+  std::cout << lossdata << " lossdata" << std::endl;
+  MatrixXd dscores = probs - labels;
+  std::cout << dscores << " dscores" << std::endl;
+  // const size_t vInputSampleNumber = 1;
+
   // // Input
-  // MatrixXd InputVol1(16, 1);
-  // MatrixXd InputVol2(16, 1);
-  // MatrixXd InputVol3(16, 1);
-  // InputVol3 << 301, 302, 303, 304, 305, 306, 307, 308, 309, 330, 311, 312, 313, 314, 315, 316;
-  // InputVol1 << 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116;
-  // InputVol2 << 201, 202, 203, 204, 205, 206, 207, 208, 209, 220, 211, 212, 213, 214, 215, 216;
-  // MatrixXd InputVol(16, 3);
-  // InputVol << InputVol1, InputVol2, InputVol3;
+  // const size_t vInputDepth1 = 3;
+  // const size_t vInputHeight1 = 10;
+  // const size_t vInputWidth1 = 9;
+  // MatrixXd Input = MatrixXd::Random(vInputHeight1 * vInputWidth1, vInputDepth1);
+  // std::cout << "Input" << std::endl;
+  // std::cout << Input << std::endl;
 
-  // // Parameters
-  // const size_t tFILTERSIZE = 3; // Both sides
-  // size_t vNumChannelsVol = 3;
-  // size_t vImageHeightVol = 4;
-  // size_t vImageWidthVol = 4;
-  // size_t vStrideVol = 1;
-  // size_t vPaddingVol = 1;
-  // size_t vOutHeightVol = (vImageHeightVol - tFILTERSIZE + 2 * vPaddingVol) / vStrideVol + 1;
-  // size_t vOutWidthVol = (vImageWidthVol - tFILTERSIZE + 2 * vPaddingVol) / vStrideVol + 1;
-  // size_t vOutFieldsVol = tFILTERSIZE * tFILTERSIZE * vNumChannelsVol;
-  // size_t vNumSamples = 1;
+  // // CONV 1
+  // const size_t vFilterHeight1 = 2;
+  // const size_t vFilterWidth1 = 3;
+  // const size_t vPaddingHeight1 = 1;
+  // const size_t vPaddingWidth1 = 1;
+  // const size_t vStride1 = 2;
+  // const size_t vOutputDepth1 = 6;
 
-  // // Filters (Identity)
-  // // MatrixXd FilterVol1(vOutFieldsVol, 1);
-  // // MatrixXd FilterVol2(vOutFieldsVol, 1);
-  // // MatrixXd FilterVol3(vOutFieldsVol, 1);
-  // // FilterVol3 << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0;
-  // // FilterVol1 << 0, 0, -1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-  // // FilterVol2 << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-  // // MatrixXd FilterVol(vOutFieldsVol, 3);
-  // // FilterVol << FilterVol1, FilterVol2, FilterVol3;
-  // size_t vFiltersNumber = 3;
-  // MatrixXd FilterVol = MatrixXd::Random(vOutFieldsVol, vFiltersNumber);
-  
-  // // MatrixXd OutputVol(vOutHeightVol * vOutWidthVol, vOutFieldsVol);
-  // // dlfunctions::im2col(tFILTERSIZE,tFILTERSIZE,InputVol.data(), OutputVol.data(), vOutHeightVol, vOutWidthVol, vOutFieldsVol, vImageHeightVol, vImageWidthVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
-  // // MatrixXd OutputConv = OutputVol * FilterVol;
-
-  // // Now using the conv function
-  // MatrixXd OutputVolCnv(vOutHeightVol * vOutWidthVol, vFiltersNumber);
-  // dlfunctions::convolution(OutputVolCnv, vOutHeightVol, vOutWidthVol, FilterVol, tFILTERSIZE, tFILTERSIZE, InputVol, vImageHeightVol, vImageWidthVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
-
-  // std::cout << OutputVolCnv << std::endl;
-  // //Input
-  const size_t vInputSampleNumber = 1;
-
-  const size_t vInputDepth1 = 3;
-  const size_t vInputHeight1 = 7;
-  const size_t vInputWidth1 = 5;
-  MatrixXd Input = MatrixXd::Random(vInputHeight1 * vInputWidth1,vInputDepth1);
-  std::cout << "Input" << std::endl;
-  std::cout << Input << std::endl;
-
-  //Params
-  const size_t vFilterHeight1 = 5;
-  const size_t vFilterWidth1 = 2;
-  const size_t vPaddingHeight1 = 1;
-  const size_t vPaddingWidth1 = 1;
-  const size_t vStride1 = 2;
-
-  const size_t vOutputDepth1 = 6;
-  const size_t vOutputHeight1 = (vInputHeight1 - vFilterHeight1 + 2 * vPaddingHeight1) / vStride1 + 1;
-  const size_t vOutputWidth1 = (vInputWidth1 - vFilterWidth1 + 2 * vPaddingWidth1) / vStride1 + 1;
-
-  size_t vOutFields = vFilterHeight1 * vFilterWidth1 * vInputDepth1;
-  MatrixXd im2ColImage(vOutputHeight1 * vOutputWidth1, vOutFields);
-  dlfunctions::im2col(vFilterHeight1,vFilterWidth1, Input.data(), im2ColImage.data(),vOutputHeight1,vOutputWidth1, vOutFields,vInputHeight1,vInputWidth1,vInputDepth1,
-            vPaddingHeight1,vPaddingWidth1,vStride1, 1);
-  std::cout << im2ColImage.data()[107] << std::endl;
-  std::cout << im2ColImage << std::endl;
   // ConvLayer firstConvLayer(vFilterHeight1,
   //                          vFilterWidth1,
   //                          vPaddingHeight1,
@@ -84,11 +49,57 @@ int main()
   //                          vInputHeight1,
   //                          vInputWidth1,
   //                          vOutputDepth1,
-  //                          vOutputHeight1,
-  //                          vOutputWidth1,
   //                          vInputSampleNumber);
+
+  // // Sigmoid.
+  // SigmoidActivationLayer firstSigmoidLayer;
+
+  // // Conv 2
+  // const size_t vFilterHeight2 = 3;
+  // const size_t vFilterWidth2 = 2;
+  // const size_t vPaddingHeight2 = 1;
+  // const size_t vPaddingWidth2 = 1;
+  // const size_t vStride2 = 2;
+  // const size_t vOutputDepth2 = 7;
+  // ConvLayer secondConvLayer(vFilterHeight2,
+  //                           vFilterWidth2,
+  //                           vPaddingHeight2,
+  //                           vPaddingWidth2,
+  //                           vStride2,
+  //                           firstConvLayer.GetOutputDims(),
+  //                           vOutputDepth2,
+  //                           vInputSampleNumber);
+
+  // // Sigmoid
+  // SigmoidActivationLayer secondSigmoidLayer;
+
+  // // flatten layer
+
+  // // Connect
   // firstConvLayer.SetInput(Input);
+  // firstSigmoidLayer.SetInput(firstConvLayer.GetOutput());
+  // secondConvLayer.SetInput(firstSigmoidLayer.GetOutput());
+  // secondSigmoidLayer.SetInput(secondConvLayer.GetOutput());
 
   // firstConvLayer.ForwardPass();
-  // std::cout << *(firstConvLayer.GetOutput()) << std::endl;
+  // firstSigmoidLayer.ForwardPass();
+  // secondConvLayer.ForwardPass();
+  // secondSigmoidLayer.ForwardPass();
+
+
+  // MatrixXd BackpropInput = 0.1 * MatrixXd::Random(9, 7);
+  // firstConvLayer.SetBackpropInput(firstSigmoidLayer.GetBackpropOutput());
+  // firstSigmoidLayer.SetBackpropInput(secondConvLayer.GetBackpropOutput());
+  // secondConvLayer.SetBackpropInput(secondSigmoidLayer.GetBackpropOutput());
+  // secondSigmoidLayer.SetBackpropInput(&BackpropInput);
+  
+  // std::cout << *(secondSigmoidLayer.GetOutput()) << std::endl;
+  // std::cout << "secondSigmoidLayer.BackwardPass()" << std::endl;
+  // secondSigmoidLayer.BackwardPass();
+  // std::cout << "secondConv.BackwardPass()" << std::endl;
+  // secondConvLayer.BackwardPass();
+  // std::cout << "firstSigmoidLayer.BackwardPass()" << std::endl;
+  // firstSigmoidLayer.BackwardPass();
+  // std::cout << "firstConvLayer.BackwardPass()" << std::endl;
+  // firstConvLayer.BackwardPass();
 }

@@ -17,7 +17,7 @@
 @note Loss Function still hardcoded.
 @note Gradient Update still hardcoded.
  */
-class FullyConnectedLayer : public ConnectedBaseLayer
+class FullyConnectedLayer : public ConnectedBaseLayer<size_t>
 {
 protected:
   // Layer-specific Properties

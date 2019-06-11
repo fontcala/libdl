@@ -35,7 +35,7 @@ void L2LossLayer::ForwardPass()
         //L2
         mGradientHelper = (*mInputPtr) - mLabels;
         // Loss divided by number of examples;
-        mLoss = (0.5/vOutputNum) * mGradientHelper.rowwise().squaredNorm().sum();
+        mLoss = (0.5/static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
     }
     else
     {

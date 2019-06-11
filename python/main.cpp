@@ -3,6 +3,7 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
 #include <libdl/hello.h>
+#include <libdl/hello.h>
 
 
 
@@ -26,6 +27,5 @@ PYBIND11_MODULE(pybindings, m) {
     py::class_<MyClass>(m, "MyClass")
     .def(py::init<>())
     .def("view_matrix", &MyClass::viewMatrix, py::return_value_policy::reference_internal)
-    .def("set_matrix", &MyClass::setMatrix,"set")
-    ;
+    .def("set_matrix", &MyClass::setMatrix,"set");
 }

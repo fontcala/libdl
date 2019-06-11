@@ -9,21 +9,21 @@
 @class SigmoidActivationLayer
 @brief Sigmoid Activation Layer.
  */
-class SigmoidActivationLayer: public BaseLayer<MatrixXd>
+class SigmoidActivationLayer : public BaseLayer<size_t, size_t, MatrixXd>
 {
 public:
-    // Constructors
-    SigmoidActivationLayer();
+  // Constructors
+  SigmoidActivationLayer();
 
-    void ForwardPass();
-    void BackwardPass();
+  void ForwardPass();
+  void BackwardPass();
 };
 
 SigmoidActivationLayer::SigmoidActivationLayer(){};
 
 void SigmoidActivationLayer::ForwardPass()
 {
-  mOutput =  1 / (1 + exp(-1 * (*mInputPtr).array()));
+  mOutput = 1 / (1 + exp(-1 * (*mInputPtr).array()));
 };
 void SigmoidActivationLayer::BackwardPass()
 {

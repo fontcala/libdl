@@ -9,7 +9,7 @@
 @class LossBaseLayer
 @brief L2 Loss Layer.
  */
-class LossBaseLayer : public BaseLayer<MatrixXd>
+class LossBaseLayer : public BaseLayer<size_t,size_t,MatrixXd>
 { 
 protected:
     double mLoss;

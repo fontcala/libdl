@@ -10,3 +10,7 @@ target_compile_features(xor_bigger_network PRIVATE cxx_std_17)
 add_executable(images images.cpp)
 target_link_libraries(images PRIVATE libdl)
 target_compile_features(images PRIVATE cxx_std_17)
+
+add_executable(multipleoutputs multipleoutputs.cpp)
+target_link_libraries(multipleoutputs PRIVATE libdl)
+target_compile_features(multipleoutputs PRIVATE cxx_std_17)

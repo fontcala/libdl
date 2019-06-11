@@ -9,7 +9,8 @@
 @class ConnectedBaseLayer
 @brief Base Connected Layer introduces the parameter of cumputation layers
  */
-class ConnectedBaseLayer : public BaseLayer<MatrixXd>
+template <class DimType>
+class ConnectedBaseLayer : public BaseLayer<DimType,DimType,MatrixXd>
 {
 protected:
     MatrixXd mGradientsWeights;
@@ -43,9 +44,11 @@ public:
     virtual void BackwardPass() = 0;
 };
 
-ConnectedBaseLayer::ConnectedBaseLayer(){};
+template <class DimType>
+ConnectedBaseLayer<DimType>::ConnectedBaseLayer(){};
 
-void ConnectedBaseLayer::InitParams(size_t aInputDim, size_t aOutputDim)
+template <class DimType>
+void ConnectedBaseLayer<DimType>::InitParams(size_t aInputDim, size_t aOutputDim)
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
@@ -53,19 +56,19 @@ void ConnectedBaseLayer::InitParams(size_t aInputDim, size_t aOutputDim)
     mWeights = MatrixXd::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mBiases = MatrixXd::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mMomentumUpdateWeights = MatrixXd::Zero(aInputDim, aOutputDim);
-    mMomentumUpdateBiases = MatrixXd::Zero(1, aInputDim);
+    mMomentumUpdateBiases = MatrixXd::Zero(1, aOutputDim);
     mLearningRate = 0.05;
     mMomentumUpdateParam = 0.9;
-    mInitializedFlag = true;
+    this->mInitializedFlag = true;
 }
-void ConnectedBaseLayer::UpdateParams()
+template <class DimType>
+void ConnectedBaseLayer<DimType>::UpdateParams()
 {
     // TODO User specified
     // Nesterov-Momentum
     MatrixXd vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
     mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
     mWeights = mWeights + (-mMomentumUpdateParam * vPreviousMomentumUpdateWeights) + (1 + mMomentumUpdateParam) * mMomentumUpdateWeights;
-
     MatrixXd vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
     mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
     mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam) * mMomentumUpdateBiases;
