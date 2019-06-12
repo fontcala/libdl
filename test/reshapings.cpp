@@ -140,6 +140,10 @@ TEST_CASE("flatten and unflatten", "flattenLayer")
     InputVol << InputVol1, InputVol2, InputVol3;
 
     MatrixXd flattened = dlfunctions::flatten(InputVol, 2);
+    std::cout << "- flattened" << std::endl;
+    std::cout << flattened.rows() << " " << flattened.cols()<< std::endl;
     MatrixXd unflattened = dlfunctions::unflatten(InputVol, 3, 4, 4);
+    std::cout << "- unflattened" << std::endl;
+    std::cout << unflattened.rows() << " " << unflattened.cols()<< std::endl;
     REQUIRE(unflattened == InputVol);
 }

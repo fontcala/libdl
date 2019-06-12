@@ -46,8 +46,10 @@ void FullyConnectedLayer::ForwardPass()
     mOutput = (*mInputPtr) * mWeights + mBiases.replicate(mInputPtr->rows(), 1);
 
     //TODO Erase all this
-    // std::cout << "- *mInputPtr" << std::endl;
-    // std::cout << (*mInputPtr) << std::endl;
+    std::cout << "- (*mInputPtr)" << std::endl;
+    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
+    std::cout << "mOutput" << std::endl;
+    std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
     // std::cout << "- mWeights:" << std::endl;
     // std::cout << mWeights << std::endl;
     // std::cout << "- mBiases:" << std::endl;
@@ -82,6 +84,12 @@ void FullyConnectedLayer::BackwardPass()
   mGradientsBiases = vBackpropInput.colwise().sum();
   mBackpropOutput = vBackpropInput * mWeights.transpose();
 
+
+  
+  std::cout << "- mBackpropOutput" << std::endl;
+  std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols()<< std::endl;
+  std::cout << "(*mInputPtr)" << std::endl;
+  std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
   // std::cout << "- *vBackPropInput" << std::endl;
   // std::cout << vBackpropInput << std::endl;
   // std::cout << "- *vDerivatedBackPropInput" << std::endl;
@@ -89,6 +97,6 @@ void FullyConnectedLayer::BackwardPass()
   // std::cout << "- *mGradientsWeights" << std::endl;
   // std::cout << mGradientsWeights << std::endl;
 
-  UpdateParams();
+  // UpdateParams();
 };
 #endif
