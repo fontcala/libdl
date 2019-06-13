@@ -65,7 +65,7 @@ void FullyConnectedLayer::ForwardPass()
   }
   else
   {
-    throw(std::runtime_error("ForwardPass(): weights not initialized"));
+    throw(std::runtime_error("ForwardPass(): weights not initialized (FullyConnectedLayer)"));
   };
 };
 

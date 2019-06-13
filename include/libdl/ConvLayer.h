@@ -96,21 +96,28 @@ ConvLayer::ConvLayer(const size_t aFilterHeight,
                                                         mFilterSize(aFilterHeight * aFilterWidth * aInputDims.Depth)
 {
     InitParams(mFilterSize, mOutputDims.Depth);
+    //TODO normalize the weights using Ho or something
 };
 
 void ConvLayer::ForwardPass()
 {
-    MatrixXd vOutputConvolution(mOutputDims.Height * mOutputDims.Width, mOutputDims.Depth);
-    dlfunctions::convolution(vOutputConvolution, mOutputDims.Height, mOutputDims.Width, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
-    mOutput = vOutputConvolution + mBiases.replicate(mOutputDims.Height * mOutputDims.Width, 1);
+    if (mInitializedFlag)
+    {
+        MatrixXd vOutputConvolution(mOutputDims.Height * mOutputDims.Width, mOutputDims.Depth);
+        dlfunctions::convolution(vOutputConvolution, mOutputDims.Height, mOutputDims.Width, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
+        mOutput = vOutputConvolution + mBiases.replicate(mOutputDims.Height * mOutputDims.Width, 1);
 
-
-    std::cout << "mWeights" << std::endl;
-    std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
-    std::cout << "(*mInputPtr)" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    std::cout << "mOutput" << std::endl;
-    std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+        std::cout << "mWeights" << std::endl;
+        std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
+        std::cout << "(*mInputPtr)" << std::endl;
+        std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+        std::cout << "mOutput" << std::endl;
+        std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+    }
+    else
+    {
+        throw(std::runtime_error("ForwardPass(): weights not initialized (ConvLayer)"));
+    };
 }
 
 void ConvLayer::BackwardPass()

@@ -34,8 +34,8 @@ protected:
 
     // Data from other layers
     //const int whatev;
-    // DataPtr<InputDimType,DataType> mInputDataPtr;
-    // DataPtr<BackpropInputDimType,DataType> mBackpropInputDataPtr;
+    DataPtr<InputDimType,DataType> mInputDataPtr;
+    DataPtr<BackpropInputDimType,DataType> mBackpropInputDataPtr;
 
 
 public:
@@ -63,6 +63,8 @@ void BaseLayer<InputDimType,BackpropInputDimType,DataType>::SetInput(const DataT
     // TODO check validity
     mInputPtr = aInput;
 };
+
+// TODO: using this one indicates it is the first layer, so no need for mBackpropagateOutput update (set a Flag)
 template <class InputDimType, class BackpropInputDimType, class DataType>
 void BaseLayer<InputDimType,BackpropInputDimType,DataType>::SetInput(const DataType &aInput)
 {

@@ -1,7 +1,6 @@
 #ifndef DLTYPES_H
 #define DLTYPES_H
 
-
 #include "dlfunctions.h"
 
 struct ConvDataDims
@@ -9,6 +8,7 @@ struct ConvDataDims
     const size_t Depth;
     const size_t Height;
     const size_t Width;
+    ConvDataDims();
     ConvDataDims(const size_t aDepth,
                  const size_t aHeight,
                  const size_t aWidth);
@@ -21,6 +21,9 @@ struct ConvDataDims
                  const size_t aPaddingWidth,
                  const size_t aStride);
 };
+ConvDataDims::ConvDataDims() : Depth(0),
+                               Height(0),
+                               Width(0) {}
 ConvDataDims::ConvDataDims(const size_t aDepth,
                            const size_t aHeight,
                            const size_t aWidth) : Depth(aDepth),
@@ -43,28 +46,29 @@ template <class DimType, class DataType>
 class DataPtr
 {
 public:
-    DataPtr(DataType* aPtr, DimType aDims) 
-        : mPtr(aPtr), mDims(aDims){}
+    DataPtr(DataType *aPtr, DimType aDims)
+        : mPtr(aPtr), mDims(aDims) {}
+    DataPtr()
+        : mPtr(NULL), mDims() {}
 
-    DataType* operator->() const {return mPtr;}
-    DataType& operator*() const {return *mPtr;}
-    DimType IndexToArr() const {return mDims;}
+    DataType *operator->() const { return mPtr; }
+    DataType &operator*() const { return *mPtr; }
+    DimType IndexToArr() const { return mDims; }
 
 private:
-    DataType * mPtr;
+    DataType *mPtr;
     DimType mDims;
 };
-
 
 // My classes templated with an activation function class?
 class SigmoidActivation
 {
-public:
-  // Constructors
-  SigmoidActivation();
+private:
+    MatrixXd mSigmoidOutput;
 
-  void Activate();
-  void BackpropagationFactor();
+public:
+    void Activate();
+    MatrixXd BackpropagationFactor();
 };
 
-#endif 
+#endif
