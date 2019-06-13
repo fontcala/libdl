@@ -31,7 +31,7 @@ public:
     @function InitParams
     @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
     */
-    void InitParams(size_t aInputDim, size_t aOutputDim);
+    void InitParams(size_t aInputDim, size_t aOutputDim,double aInitVariance);
     void UpdateParams();
     // Constructor
     ConnectedBaseLayer();
@@ -48,7 +48,7 @@ template <class DimType>
 ConnectedBaseLayer<DimType>::ConnectedBaseLayer(){};
 
 template <class DimType>
-void ConnectedBaseLayer<DimType>::InitParams(size_t aInputDim, size_t aOutputDim)
+void ConnectedBaseLayer<DimType>::InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance)
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());

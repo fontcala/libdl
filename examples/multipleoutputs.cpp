@@ -21,8 +21,8 @@ int main()
     FullyConnectedLayer secondLayer(2, 2);
     SigmoidActivationLayer firstSigmoidLayer;
     SigmoidActivationLayer secondSigmoidLayer;
-    //L2LossLayer LossLayer;
-    SoftmaxLossLayer LossLayer;
+    L2LossLayer LossLayer;
+    //SoftmaxLossLayer LossLayer;
 
     // // OPTIONAL Weights and biases made Public in case you want to set your own weights.
     // bool vManualSetWeights = false;
@@ -127,5 +127,5 @@ int main()
     }
 
 
-    std::cout << "Rerun a few times (random weight initialization)" << std::endl;
+    std::cout << "Rerun a few times (randommm weight initialization)" << std::endl;
 }

@@ -35,22 +35,22 @@ FlattenLayer::FlattenLayer(const ConvDataDims aInputDims, const size_t aInputSam
 void FlattenLayer::ForwardPass()
 {
     mOutput = dlfunctions::flatten((*mInputPtr), mInputSampleNumber);
-    std::cout << "(*mInputPtr)" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    std::cout << "mOutput" << std::endl;
-    std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+    // std::cout << "(*mInputPtr)" << std::endl;
+    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+    // std::cout << "mOutput" << std::endl;
+    // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
 };
 void FlattenLayer::BackwardPass()
 {
     mBackpropOutput = dlfunctions::unflatten((*mBackpropInputPtr), mInputDims.Depth, mInputDims.Height, mInputDims.Width);
-    std::cout << "(*mInputPtr)" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    std::cout << "mBackpropOutput" << std::endl;
-    std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
-    std::cout << "(*mBackpropInputPtr)" << std::endl;
-    std::cout << (*mBackpropInputPtr).rows() << " " << (*mBackpropInputPtr).cols() << std::endl;
-    std::cout << "mOutput" << std::endl;
-    std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+    // std::cout << "(*mInputPtr)" << std::endl;
+    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+    // std::cout << "mBackpropOutput" << std::endl;
+    // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
+    // std::cout << "(*mBackpropInputPtr)" << std::endl;
+    // std::cout << (*mBackpropInputPtr).rows() << " " << (*mBackpropInputPtr).cols() << std::endl;
+    // std::cout << "mOutput" << std::endl;
+    // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
 };
 size_t FlattenLayer::GetOutputDims()
 {

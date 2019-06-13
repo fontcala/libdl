@@ -10,6 +10,8 @@
 #include <libdl/FlattenLayer.h>
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
+#include <algorithm> // std::random_shuffle
+#include <vector>    // std::vector
 
 int hello_py(std::string const &name)
 {
@@ -33,7 +35,7 @@ class ExampleModel
     size_t mInputHeight;
     size_t mInputWidth;
     size_t mNumCategories;
-    double mLearningRate;
+    double mLearningRate = 0.01;
 
 public:
     void setInputs(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
@@ -52,15 +54,18 @@ public:
     {
         mLearningRate = aLearningRate;
     }
-    void train();
+    void train(const size_t aBatchNum);
 };
-void ExampleModel::train()
+void ExampleModel::train(const size_t aBatchNum)
 {
+    const size_t vTotalSamples = mTrainInput.cols();
+    std::vector<size_t> vIndexVector(vTotalSamples);
+    std::iota(std::begin(vIndexVector), std::end(vIndexVector), 0); // Fill with 0, 1, ..., N.
     const size_t vInputSampleNumber = 1;
 
     // CONV 1
-    const size_t vFilterHeight1 = 2;
-    const size_t vFilterWidth1 = 3;
+    const size_t vFilterHeight1 = 5;
+    const size_t vFilterWidth1 = 5;
     const size_t vPaddingHeight1 = 1;
     const size_t vPaddingWidth1 = 1;
     const size_t vStride1 = 2;
@@ -82,11 +87,11 @@ void ExampleModel::train()
 
     // Conv 2
     const size_t vFilterHeight2 = 3;
-    const size_t vFilterWidth2 = 2;
+    const size_t vFilterWidth2 = 3;
     const size_t vPaddingHeight2 = 1;
     const size_t vPaddingWidth2 = 1;
     const size_t vStride2 = 2;
-    const size_t vOutputDepth2 = 7;
+    const size_t vOutputDepth2 = 8;
     ConvLayer secondConvLayer(vFilterHeight2,
                               vFilterWidth2,
                               vPaddingHeight2,
@@ -123,49 +128,63 @@ void ExampleModel::train()
     flattenLayer.SetBackpropInput(fcLayer.GetBackpropOutput());
     fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
 
-    for (size_t i = 0; i < 5; i++)
-    {
-        MatrixXd Input = mTrainInput.block(0, 10, mInputHeight * mInputWidth, 1);
-        MatrixXd Label = mTrainLabels.block(10, 0, 1, mNumCategories);
-        // std::cout << "Input" << std::endl;
-        // std::cout << Input.rows() << " " << Input.cols() << std::endl;
-        // std::cout << "Label" << std::endl;
-        // std::cout << Label << std::endl;
-        std::cout << "---------start forward ---------" << std::endl;
-        firstConvLayer.SetInput(Input);
-        lossLayer.SetLabels(Label);
-        std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
-        firstConvLayer.ForwardPass();
-        std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
-        firstSigmoidLayer.ForwardPass();
-        std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
-        secondConvLayer.ForwardPass();
-        std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
-        secondSigmoidLayer.ForwardPass();
-        std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
-        flattenLayer.ForwardPass();
-        std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
-        fcLayer.ForwardPass();
-        std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
-        lossLayer.ForwardPass();
-        std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        std::cout << lossLayer.GetLoss() << std::endl;
+    // Init Params
+    firstConvLayer.mLearningRate = mLearningRate;
+    secondConvLayer.mLearningRate = mLearningRate;
+    fcLayer.mLearningRate = mLearningRate;
 
-        std::cout << "---------start backward ---------" << std::endl;
-        std::cout << "lossLayer.BackwardPass()  ------" << std::endl;
-        lossLayer.BackwardPass();
-        std::cout << "fcLayer.BackwardPass()  ------" << std::endl;
-        fcLayer.BackwardPass();
-        std::cout << "flattenLayer.BackwardPass()  ------" << std::endl;
-        flattenLayer.BackwardPass();
-        std::cout << "secondSigmoidLayer.BackwardPass()  ------" << std::endl;
-        secondSigmoidLayer.BackwardPass();
-        std::cout << "secondConv.BackwardPass()  ------" << std::endl;
-        secondConvLayer.BackwardPass();
-        std::cout << "firstSigmoidLayer.BackwardPass()  ------" << std::endl;
-        firstSigmoidLayer.BackwardPass();
-        std::cout << "firstConvLayer.BackwardPass()  ------" << std::endl;
-        firstConvLayer.BackwardPass();
+    for (size_t vBatch = 0; vBatch < aBatchNum; vBatch++)
+    {
+        std::random_shuffle(vIndexVector.begin(), vIndexVector.end());
+        for (const auto &vIndex : vIndexVector)
+        {
+            MatrixXd Input = mTrainInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
+            MatrixXd Label = mTrainLabels.block(vIndex, 0, 1, mNumCategories);
+            // std::cout << "Input" << std::endl;
+            // std::cout << Input.rows() << " " << Input.cols() << std::endl;
+            // std::cout << "Label" << std::endl;
+            // std::cout << Label << std::endl;
+            //std::cout << "---------start forward ---------" << std::endl;
+            firstConvLayer.SetInput(Input);
+            lossLayer.SetLabels(Label);
+            //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
+            firstConvLayer.ForwardPass();
+            //std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
+            firstSigmoidLayer.ForwardPass();
+            //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
+            secondConvLayer.ForwardPass();
+            //std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
+            secondSigmoidLayer.ForwardPass();
+            //std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
+            flattenLayer.ForwardPass();
+            //std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
+            fcLayer.ForwardPass();
+            //std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
+            lossLayer.ForwardPass();
+            std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+            std::cout << lossLayer.GetLoss() << std::endl;
+            //std::cout << "---------start backward ---------" << std::endl;
+            //std::cout << "lossLayer.BackwardPass()  ------" << std::endl;
+            lossLayer.BackwardPass();
+            //std::cout << "fcLayer.BackwardPass()  ------" << std::endl;
+            fcLayer.BackwardPass();
+            //std::cout << "flattenLayer.BackwardPass()  ------" << std::endl;
+            flattenLayer.BackwardPass();
+            //std::cout << "secondSigmoidLayer.BackwardPass()  ------" << std::endl;
+            secondSigmoidLayer.BackwardPass();
+            //std::cout << "secondConv.BackwardPass()  ------" << std::endl;
+            secondConvLayer.BackwardPass();
+            //std::cout << "firstSigmoidLayer.BackwardPass()  ------" << std::endl;
+            firstSigmoidLayer.BackwardPass();
+            //std::cout << "firstConvLayer.BackwardPass()  ------" << std::endl;
+            firstConvLayer.BackwardPass();
+        }
+        if (vBatch % 1 == 0)
+        {
+            std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+            std::cout << lossLayer.GetLoss() << std::endl;
+            std::cout << "Batch " << vBatch << std::endl;
+        }
     }
 }
 
@@ -183,7 +202,7 @@ PYBIND11_MODULE(pybindings, m)
         .def("setInputs", &ExampleModel::setInputs, "set In")
         .def("setLabels", &ExampleModel::setLabels, "set Lb")
         .def("setLearningRate", &ExampleModel::setLearningRate, "set Lr")
-        .def("trainz", &ExampleModel::train,
+        .def("train", &ExampleModel::train,
              py::call_guard<py::scoped_ostream_redirect,
                             py::scoped_estream_redirect>());
 }

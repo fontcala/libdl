@@ -20,6 +20,7 @@ protected:
     const size_t mPaddingWidth;
     const size_t mStride;
 
+    // move this up in the hierarchy with the template parameter
     const ConvDataDims mInputDims;
     const ConvDataDims mOutputDims;
 
@@ -75,7 +76,7 @@ ConvLayer::ConvLayer(const size_t aFilterHeight,
                                                         mInputSampleNumber(aInputSampleNumber),
                                                         mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
 {
-    InitParams(mFilterSize, mOutputDims.Depth);
+    InitParams(mFilterSize, mOutputDims.Depth, mFilterSize);
 };
 
 ConvLayer::ConvLayer(const size_t aFilterHeight,
@@ -95,8 +96,9 @@ ConvLayer::ConvLayer(const size_t aFilterHeight,
                                                         mInputSampleNumber(aInputSampleNumber),
                                                         mFilterSize(aFilterHeight * aFilterWidth * aInputDims.Depth)
 {
-    InitParams(mFilterSize, mOutputDims.Depth);
-    //TODO normalize the weights using Ho or something
+    InitParams(mFilterSize, mOutputDims.Depth,mFilterSize);
+    // Ho / Xavier initialization
+
 };
 
 void ConvLayer::ForwardPass()
@@ -107,12 +109,12 @@ void ConvLayer::ForwardPass()
         dlfunctions::convolution(vOutputConvolution, mOutputDims.Height, mOutputDims.Width, mWeights, mFilterHeight, mFilterWidth, (*mInputPtr), mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
         mOutput = vOutputConvolution + mBiases.replicate(mOutputDims.Height * mOutputDims.Width, 1);
 
-        std::cout << "mWeights" << std::endl;
-        std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
-        std::cout << "(*mInputPtr)" << std::endl;
-        std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-        std::cout << "mOutput" << std::endl;
-        std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+        // std::cout << "mWeights" << std::endl;
+        // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
+        // std::cout << "(*mInputPtr)" << std::endl;
+        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+        // std::cout << "mOutput" << std::endl;
+        // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
     }
     else
     {
@@ -138,20 +140,20 @@ void ConvLayer::BackwardPass()
     mBackpropOutput = MatrixXd::Zero(mInputDims.Height * mInputDims.Width, mInputDims.Depth);
     dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), mBackpropOutput.data(), mOutputDims.Height, mOutputDims.Width, mFilterSize, mInputDims.Height, mInputDims.Width, mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
 
-    std::cout << "(*mInputPtr)" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+    // std::cout << "(*mInputPtr)" << std::endl;
+    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
 
-    std::cout << "mBackpropOutput" << std::endl;
-    std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
+    // std::cout << "mBackpropOutput" << std::endl;
+    // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
 
-    std::cout << "mWeights" << std::endl;
-    std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
+    // std::cout << "mWeights" << std::endl;
+    // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
 
-    std::cout << "mGradientsWeights" << std::endl;
-    std::cout << mGradientsWeights.rows() << " " << mGradientsWeights.cols() << std::endl;
+    // std::cout << "mGradientsWeights" << std::endl;
+    // std::cout << mGradientsWeights.rows() << " " << mGradientsWeights.cols() << std::endl;
 
-    std::cout << "mGradientsBiases" << std::endl;
-    std::cout << mGradientsBiases.rows() << " " << mGradientsBiases.cols() << std::endl;
+    // std::cout << "mGradientsBiases" << std::endl;
+    // std::cout << mGradientsBiases.rows() << " " << mGradientsBiases.cols() << std::endl;
 
     // Update.
     UpdateParams();

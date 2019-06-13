@@ -38,16 +38,16 @@ void SoftmaxLossLayer::ForwardPass()
         MatrixXd logprobs = -mGradientHelper.array().log();
         MatrixXd filtered = logprobs.cwiseProduct(mLabels);
 
-        std::cout << "(*mInputPtr)" << std::endl;
-        std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-        std::cout << "(*mInputPtr)" << std::endl;
-        std::cout << (*mInputPtr) << std::endl;
-        std::cout << "exp" << std::endl;
-        std::cout << exp << std::endl;
-        std::cout << "probs" << std::endl;
-        std::cout << mGradientHelper << std::endl;
-        std::cout << "filtered" << std::endl;
-        std::cout << filtered << std::endl;
+        // std::cout << "(*mInputPtr)" << std::endl;
+        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+        // std::cout << "(*mInputPtr)" << std::endl;
+        // std::cout << (*mInputPtr) << std::endl;
+        // std::cout << "exp" << std::endl;
+        // std::cout << exp << std::endl;
+        // std::cout << "probs" << std::endl;
+        // std::cout << mGradientHelper << std::endl;
+        // std::cout << "filtered" << std::endl;
+        // std::cout << filtered << std::endl;
         // Loss divided by number of examples
         mLoss = filtered.array().sum() / static_cast<double>(vOutputNum);
     }
@@ -59,9 +59,9 @@ void SoftmaxLossLayer::ForwardPass()
 void SoftmaxLossLayer::BackwardPass()
 {
     mBackpropOutput = mGradientHelper - mLabels;
-    std::cout << "(*mInputPtr)" << std::endl;
-    std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    std::cout << "mBackpropOutput" << std::endl;
-    std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
+    // std::cout << "(*mInputPtr)" << std::endl;
+    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+    // std::cout << "mBackpropOutput" << std::endl;
+    // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
 };
 #endif
