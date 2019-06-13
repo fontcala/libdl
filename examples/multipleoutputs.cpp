@@ -21,8 +21,8 @@ int main()
     FullyConnectedLayer secondLayer(2, 2);
     SigmoidActivationLayer firstSigmoidLayer;
     SigmoidActivationLayer secondSigmoidLayer;
-    L2LossLayer LossLayer;
-    //SoftmaxLossLayer LossLayer;
+    //L2LossLayer LossLayer;
+    SoftmaxLossLayer LossLayer;
 
     // // OPTIONAL Weights and biases made Public in case you want to set your own weights.
     // bool vManualSetWeights = false;

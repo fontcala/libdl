@@ -161,8 +161,8 @@ void ExampleModel::train(const size_t aBatchNum)
             fcLayer.ForwardPass();
             //std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
             lossLayer.ForwardPass();
-            std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-            std::cout << lossLayer.GetLoss() << std::endl;
+            // std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+            // std::cout << lossLayer.GetLoss() << std::endl;
             //std::cout << "---------start backward ---------" << std::endl;
             //std::cout << "lossLayer.BackwardPass()  ------" << std::endl;
             lossLayer.BackwardPass();
