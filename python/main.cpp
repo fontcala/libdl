@@ -194,7 +194,7 @@ void ExampleModel::runExample(const size_t aBatchNum)
         }
         if (vBatch % 1 == 0)
         {
-            std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+            std::cout << "lossLayer.GetLoss() of any givenn sample ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
             std::cout << lossLayer.GetLoss() << std::endl;
             std::cout << "Batch " << vBatch << std::endl;
         }
@@ -247,7 +247,7 @@ void ExampleModel::runExample(const size_t aBatchNum)
             // std::cout << maxColLabel << std::endl;
         }
         const double vAccuracy = static_cast<double>(vNumCorrectlyClassified)/static_cast<double>(vTotalTestSamples);
-        std::cout << "test Accuracy is " << vAccuracy << std::endl;
+        std::cout << "test Accuuracy is " << vAccuracy << std::endl;
 }
 
 namespace py = pybind11;
