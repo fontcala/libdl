@@ -34,10 +34,11 @@ void SoftmaxLossLayer::ForwardPass()
     {
         //Softmax
         MatrixXd exp = (*mInputPtr).array().exp();
-        mGradientHelper = exp.array().colwise() / exp.rowwise().sum().array();
-        MatrixXd logprobs = -mGradientHelper.array().log();
+        mOutput = exp.array().colwise() / exp.rowwise().sum().array();
+        MatrixXd logprobs = -mOutput.array().log();
         MatrixXd filtered = logprobs.cwiseProduct(mLabels);
 
+        //mOutput = mGradientHelper;
         // std::cout << "(*mInputPtr)" << std::endl;
         // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
         // std::cout << "(*mInputPtr)" << std::endl;
@@ -58,7 +59,7 @@ void SoftmaxLossLayer::ForwardPass()
 };
 void SoftmaxLossLayer::BackwardPass()
 {
-    mBackpropOutput = mGradientHelper - mLabels;
+    mBackpropOutput = mOutput - mLabels;
     // std::cout << "(*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
     // std::cout << "mBackpropOutput" << std::endl;

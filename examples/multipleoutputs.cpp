@@ -119,7 +119,7 @@ int main()
                 std::cout << "----- Total Loss: ----" << std::endl;
                 std::cout << LossLayer.GetLoss() << std::endl;
                 std::cout << "----- Total Out: -----" << std::endl;
-                std::cout << *(secondSigmoidLayer.GetOutput()) << std::endl;
+                std::cout << *(LossLayer.GetOutput()) << std::endl;
                 std::cout << "----- Total Labels: --" << std::endl;
                 std::cout << inputLabels << std::endl;
             }

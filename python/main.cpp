@@ -27,8 +27,11 @@ public:
     const Eigen::MatrixXd &viewMatrix() { return someMat; }
 };
 
+// Super stupid class to quickly debug achieve the milestone, a better wrapper will come.
 class ExampleModel
 {
+    MatrixXd mTestInput;
+    MatrixXd mTestLabels;
     MatrixXd mTrainInput;
     MatrixXd mTrainLabels;
     size_t mInputDepth;
@@ -38,32 +41,38 @@ class ExampleModel
     double mLearningRate = 0.01;
 
 public:
-    void setInputs(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
+    void setTrainInputs(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
     {
         mTrainInput = aInput;
         mInputDepth = aInputDepth;
         mInputHeight = aInputHeight;
         mInputWidth = aInputWidth;
     }
-    void setLabels(const MatrixXd &aInput, const size_t aNumCategories)
+    void setTrainLabels(const MatrixXd &aInput, const size_t aNumCategories)
     {
         mTrainLabels = aInput;
         mNumCategories = aNumCategories;
+    }
+    void setTestInputs(const MatrixXd &aInput)
+    {
+        mTestInput = aInput;
+    }
+    void setTestLabels(const MatrixXd &aInput)
+    {
+        mTestLabels = aInput;
     }
     void setLearningRate(const double aLearningRate)
     {
         mLearningRate = aLearningRate;
     }
-    void train(const size_t aBatchNum);
+    void runExample(const size_t aBatchNum);
 };
-void ExampleModel::train(const size_t aBatchNum)
+void ExampleModel::runExample(const size_t aBatchNum)
 {
-    const size_t vTotalSamples = mTrainInput.cols();
-    std::vector<size_t> vIndexVector(vTotalSamples);
-    std::iota(std::begin(vIndexVector), std::end(vIndexVector), 0); // Fill with 0, 1, ..., N.
+    // NETWORK DESIGN
     const size_t vInputSampleNumber = 1;
 
-    // CONV 1
+    // Conv 1
     const size_t vFilterHeight1 = 5;
     const size_t vFilterWidth1 = 5;
     const size_t vPaddingHeight1 = 1;
@@ -133,10 +142,14 @@ void ExampleModel::train(const size_t aBatchNum)
     secondConvLayer.mLearningRate = mLearningRate;
     fcLayer.mLearningRate = mLearningRate;
 
+    // TRAIN
+    const size_t vTotalTrainSamples = mTrainInput.cols();
+    std::vector<size_t> vIndexTrainVector(vTotalTrainSamples);
+    std::iota(std::begin(vIndexTrainVector), std::end(vIndexTrainVector), 0); // Fill with 0, 1, ..., N.
     for (size_t vBatch = 0; vBatch < aBatchNum; vBatch++)
     {
-        std::random_shuffle(vIndexVector.begin(), vIndexVector.end());
-        for (const auto &vIndex : vIndexVector)
+        std::random_shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end());
+        for (const auto &vIndex : vIndexTrainVector)
         {
             MatrixXd Input = mTrainInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
             MatrixXd Label = mTrainLabels.block(vIndex, 0, 1, mNumCategories);
@@ -186,6 +199,55 @@ void ExampleModel::train(const size_t aBatchNum)
             std::cout << "Batch " << vBatch << std::endl;
         }
     }
+
+    //TEST
+    const size_t vTotalTestSamples = mTestInput.cols();
+    size_t vNumCorrectlyClassified = 0;
+    std::vector<size_t> vIndexTestVector(vTotalTestSamples);
+    std::iota(std::begin(vIndexTestVector), std::end(vIndexTestVector), 0); // Fill with 0, 1, ..., N.
+    for (const auto &vIndex : vIndexTestVector)
+        {
+            MatrixXd Input = mTestInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
+            MatrixXd Label = mTestLabels.block(vIndex, 0, 1, mNumCategories);
+            // std::cout << "Input" << std::endl;
+            // std::cout << Input.rows() << " " << Input.cols() << std::endl;
+            // std::cout << "Label" << std::endl;
+            // std::cout << Label << std::endl;
+            //std::cout << "---------start forward ---------" << std::endl;
+            firstConvLayer.SetInput(Input);
+            lossLayer.SetLabels(Label);
+            //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
+            firstConvLayer.ForwardPass();
+            //std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
+            firstSigmoidLayer.ForwardPass();
+            //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
+            secondConvLayer.ForwardPass();
+            //std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
+            secondSigmoidLayer.ForwardPass();
+            //std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
+            flattenLayer.ForwardPass();
+            //std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
+            fcLayer.ForwardPass();
+            //std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
+            lossLayer.ForwardPass();
+
+            // Compare with labels
+            MatrixXd vScores = *(lossLayer.GetOutput());
+            MatrixXd::Index maxColScores,maxRowScores;
+            const double maxScores = vScores.maxCoeff(&maxRowScores, &maxColScores);
+            MatrixXd::Index maxColLabel,maxRowLabel;
+            const double maxLabels = Label.maxCoeff(&maxRowLabel, &maxColLabel);
+            if(maxColScores == maxColLabel)
+            {
+                ++vNumCorrectlyClassified;
+            }
+            // std::cout << "Cat scores" << std::endl;
+            // std::cout << maxColScores << std::endl;
+            // std::cout << "Cat label" << std::endl;
+            // std::cout << maxColLabel << std::endl;
+        }
+        const double vAccuracy = static_cast<double>(vNumCorrectlyClassified)/static_cast<double>(vTotalTestSamples);
+        std::cout << "test Accuracy is " << vAccuracy << std::endl;
 }
 
 namespace py = pybind11;
@@ -199,10 +261,12 @@ PYBIND11_MODULE(pybindings, m)
         .def("set_matrix", &MyClass::setMatrix, "set");
     py::class_<ExampleModel>(m, "ExampleModel")
         .def(py::init<>())
-        .def("setInputs", &ExampleModel::setInputs, "set In")
-        .def("setLabels", &ExampleModel::setLabels, "set Lb")
+        .def("setTrainInputs", &ExampleModel::setTrainInputs, "set In")
+        .def("setTrainLabels", &ExampleModel::setTrainLabels, "set Lb")
+        .def("setTestInputs", &ExampleModel::setTestInputs, "set Int")
+        .def("setTestLabels", &ExampleModel::setTestLabels, "set Lbt")
         .def("setLearningRate", &ExampleModel::setLearningRate, "set Lr")
-        .def("train", &ExampleModel::train,
+        .def("runExample", &ExampleModel::runExample,
              py::call_guard<py::scoped_ostream_redirect,
                             py::scoped_estream_redirect>());
 }
