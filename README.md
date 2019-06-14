@@ -4,6 +4,7 @@ Deep Learning Library
 
 ## Deliverables for the DLFS course
 For the MNIST milestone, you'll need to:
+
 Clone the repository and run
 ```
 make
@@ -13,6 +14,7 @@ or
 make pybindings
 ```
 in the build folder (just like in the CI). The important target is pybindings, this generates the python wrapper module.
+
 Then open Jupyter notebook in the folder /python and run the script pythontest.ipynb. This file runs an Example architecture with parameters that seem to work. the code for this architecture can be seen in the file /python/main.cpp in the method, but looks like this:
 ```
 
@@ -67,7 +69,9 @@ Then open Jupyter notebook in the folder /python and run the script pythontest.i
     SoftmaxLossLayer lossLayer;
 ```
 **Note:** To convince yourself that my code works and there is a learning actually taking place I suggest doing the following: Set the Learning rate to a higher value (eg: in the order of 0.1) and you will see the network doesn't learn anything and the accuracy is around 0.1, which is basically just the same as random. Reset the original Learning (0.005) and the accuracy should be around 0.9.
+
 **Note:** python script runs without problem with version 3.7.1 (and some of the newest scikit sklearn functionality) and ubuntu. Not sure how to check multiplatfrom behaviour.
+
 **Note:** I am not at all proud of the wrapper that I made here, just want to have the milestone covered before doing big changes in the whole library.
 
 ## IMPORTANT NOTE
