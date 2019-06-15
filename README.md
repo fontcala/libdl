@@ -3,6 +3,7 @@
 Deep Learning Library 
 
 ## Deliverables for the DLFS course
+BRANCH:  Milestone-MNIST-working
 For the MNIST milestone, you'll need to:
 
 Clone the repository and run
