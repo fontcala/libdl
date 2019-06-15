@@ -10,8 +10,9 @@
 #include <libdl/FlattenLayer.h>
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
-#include <algorithm> // std::random_shuffle
-#include <vector>    // std::vector
+#include <random>
+#include <algorithm>
+#include <vector>
 
 int hello_py(std::string const &name)
 {
@@ -65,9 +66,9 @@ public:
     {
         mLearningRate = aLearningRate;
     }
-    void runExample(const size_t aBatchNum);
+    std::vector<size_t> runExample(const size_t aEpochNum);
 };
-void ExampleModel::runExample(const size_t aBatchNum)
+std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
 {
     // NETWORK DESIGN
     const size_t vInputSampleNumber = 1;
@@ -143,12 +144,14 @@ void ExampleModel::runExample(const size_t aBatchNum)
     fcLayer.mLearningRate = mLearningRate;
 
     // TRAIN
+    std::random_device rd;
+    std::mt19937 g(rd());
     const size_t vTotalTrainSamples = mTrainInput.cols();
     std::vector<size_t> vIndexTrainVector(vTotalTrainSamples);
     std::iota(std::begin(vIndexTrainVector), std::end(vIndexTrainVector), 0); // Fill with 0, 1, ..., N.
-    for (size_t vBatch = 0; vBatch < aBatchNum; vBatch++)
+    for (size_t vEpoch = 0; vEpoch < aEpochNum; vEpoch++)
     {
-        std::random_shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end());
+        std::shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end(), g);
         for (const auto &vIndex : vIndexTrainVector)
         {
             MatrixXd Input = mTrainInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
@@ -192,62 +195,65 @@ void ExampleModel::runExample(const size_t aBatchNum)
             //std::cout << "firstConvLayer.BackwardPass()  ------" << std::endl;
             firstConvLayer.BackwardPass();
         }
-        if (vBatch % 1 == 0)
+        if (vEpoch % 1 == 0)
         {
-            std::cout << "lossLayer.GetLoss() of any givenn sample ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+            std::cout << "lossLayer.GetLoss() of any given sample ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
             std::cout << lossLayer.GetLoss() << std::endl;
-            std::cout << "Batch " << vBatch << std::endl;
+            std::cout << "Epoch " << vEpoch << std::endl;
         }
     }
 
     //TEST
+    std::vector<size_t> vTestResults;
     const size_t vTotalTestSamples = mTestInput.cols();
     size_t vNumCorrectlyClassified = 0;
     std::vector<size_t> vIndexTestVector(vTotalTestSamples);
     std::iota(std::begin(vIndexTestVector), std::end(vIndexTestVector), 0); // Fill with 0, 1, ..., N.
     for (const auto &vIndex : vIndexTestVector)
-        {
-            MatrixXd Input = mTestInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
-            MatrixXd Label = mTestLabels.block(vIndex, 0, 1, mNumCategories);
-            // std::cout << "Input" << std::endl;
-            // std::cout << Input.rows() << " " << Input.cols() << std::endl;
-            // std::cout << "Label" << std::endl;
-            // std::cout << Label << std::endl;
-            //std::cout << "---------start forward ---------" << std::endl;
-            firstConvLayer.SetInput(Input);
-            lossLayer.SetLabels(Label);
-            //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
-            firstConvLayer.ForwardPass();
-            //std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
-            firstSigmoidLayer.ForwardPass();
-            //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
-            secondConvLayer.ForwardPass();
-            //std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
-            secondSigmoidLayer.ForwardPass();
-            //std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
-            flattenLayer.ForwardPass();
-            //std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
-            fcLayer.ForwardPass();
-            //std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
-            lossLayer.ForwardPass();
+    {
+        MatrixXd Input = mTestInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
+        MatrixXd Label = mTestLabels.block(vIndex, 0, 1, mNumCategories);
+        // std::cout << "Input" << std::endl;
+        // std::cout << Input.rows() << " " << Input.cols() << std::endl;
+        // std::cout << "Label" << std::endl;
+        // std::cout << Label << std::endl;
+        //std::cout << "---------start forward ---------" << std::endl;
+        firstConvLayer.SetInput(Input);
+        lossLayer.SetLabels(Label);
+        //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
+        firstConvLayer.ForwardPass();
+        //std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
+        firstSigmoidLayer.ForwardPass();
+        //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
+        secondConvLayer.ForwardPass();
+        //std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
+        secondSigmoidLayer.ForwardPass();
+        //std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
+        flattenLayer.ForwardPass();
+        //std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
+        fcLayer.ForwardPass();
+        //std::cout << "lossLayer.ForwardPass()  ------" << std::endl;
+        lossLayer.ForwardPass();
 
-            // Compare with labels
-            MatrixXd vScores = *(lossLayer.GetOutput());
-            MatrixXd::Index maxColScores,maxRowScores;
-            const double maxScores = vScores.maxCoeff(&maxRowScores, &maxColScores);
-            MatrixXd::Index maxColLabel,maxRowLabel;
-            const double maxLabels = Label.maxCoeff(&maxRowLabel, &maxColLabel);
-            if(maxColScores == maxColLabel)
-            {
-                ++vNumCorrectlyClassified;
-            }
-            // std::cout << "Cat scores" << std::endl;
-            // std::cout << maxColScores << std::endl;
-            // std::cout << "Cat label" << std::endl;
-            // std::cout << maxColLabel << std::endl;
+        // Compare with labels
+        MatrixXd vScores = *(lossLayer.GetOutput());
+        MatrixXd::Index maxColScores, maxRowScores;
+        const double maxScores = vScores.maxCoeff(&maxRowScores, &maxColScores);
+        MatrixXd::Index maxColLabel, maxRowLabel;
+        vTestResults.push_back(maxColScores);
+        const double maxLabels = Label.maxCoeff(&maxRowLabel, &maxColLabel);
+        if (maxColScores == maxColLabel)
+        {
+            ++vNumCorrectlyClassified;
         }
-        const double vAccuracy = static_cast<double>(vNumCorrectlyClassified)/static_cast<double>(vTotalTestSamples);
-        std::cout << "test Accuuracy is " << vAccuracy << std::endl;
+        // std::cout << "Cat scores" << std::endl;
+        // std::cout << maxColScores << std::endl;
+        // std::cout << "Cat label" << std::endl;
+        // std::cout << maxColLabel << std::endl;
+    }
+    const double vAccuracy = static_cast<double>(vNumCorrectlyClassified) / static_cast<double>(vTotalTestSamples);
+    std::cout << "test Accuracy is " << vAccuracy << std::endl;
+    return vTestResults;
 }
 
 namespace py = pybind11;
