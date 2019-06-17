@@ -9,7 +9,8 @@
 @class L2LossLayer
 @brief L2 Loss Layer.
  */
-class L2LossLayer : public LossBaseLayer
+template <class DataType>
+class L2LossLayer : public LossBaseLayer<DataType>
 {
 protected:
 
@@ -23,9 +24,11 @@ public:
     void BackwardPass();
 };
 
-L2LossLayer::L2LossLayer(){};
+template <class DataType>
+L2LossLayer<DataType>::L2LossLayer(){};
 
-void L2LossLayer::ForwardPass()
+template <class DataType>
+void L2LossLayer<DataType>::ForwardPass()
 {
     //check same number of training samples.
     const size_t vLabelNum = mLabels.rows();
@@ -42,7 +45,9 @@ void L2LossLayer::ForwardPass()
         throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
     }
 };
-void L2LossLayer::BackwardPass()
+
+template <class DataType>
+void L2LossLayer<DataType>::BackwardPass()
 {
     mBackpropOutput = mGradientHelper;
 };

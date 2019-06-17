@@ -9,18 +9,21 @@
 @class ConnectedBaseLayer
 @brief Base Connected Layer introduces the parameter of cumputation layers
  */
-template <class DimType>
-class ConnectedBaseLayer : public BaseLayer<DimType,DimType,MatrixXd>
+template <class DimType, class ActivationFunctionType, class DataType>
+class ConnectedBaseLayer : public BaseLayer<DimType, DimType, DataType>
 {
 protected:
-    MatrixXd mGradientsWeights;
-    MatrixXd mGradientsBiases;
+
+    ActivationFunctionType ActivationFunction;
+    
+    DataType mGradientsWeights;
+    DataType mGradientsBiases;
 
     // Weights to be modified often.
-    MatrixXd mWeights;
-    MatrixXd mBiases;
-    MatrixXd mMomentumUpdateWeights;
-    MatrixXd mMomentumUpdateBiases;
+    DataType mWeights;
+    DataType mBiases;
+    DataType mMomentumUpdateWeights;
+    DataType mMomentumUpdateBiases;
 
 public:
     double mLearningRate;
@@ -31,10 +34,11 @@ public:
     @function InitParams
     @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
     */
-    void InitParams(size_t aInputDim, size_t aOutputDim,double aInitVariance);
+    void InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance);
     void UpdateParams();
     // Constructor
     ConnectedBaseLayer();
+    ConnectedBaseLayer(const DimType& aInputDims, const DimType& aOutputDims);
 
     // TODO method that checks validity
     // TODO disharcode gradient update (maybe with lambda or sth)
@@ -44,32 +48,36 @@ public:
     virtual void BackwardPass() = 0;
 };
 
-template <class DimType>
-ConnectedBaseLayer<DimType>::ConnectedBaseLayer(){};
+template <class DimType, class ActivationFunctionType, class DataType>
+ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::ConnectedBaseLayer(){};
 
-template <class DimType>
-void ConnectedBaseLayer<DimType>::InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance)
+template <class DimType, class ActivationFunctionType, class DataType>
+ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::ConnectedBaseLayer(const DimType& aInputDims, const DimType& aOutputDims):BaseLayer<DimType, DimType, DataType>(aInputDims,aOutputDims){};
+
+template <class DimType, class ActivationFunctionType, class DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance)
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, 1.0); // TODO which distribution?
-    mWeights = MatrixXd::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
-    mBiases = MatrixXd::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
-    mMomentumUpdateWeights = MatrixXd::Zero(aInputDim, aOutputDim);
-    mMomentumUpdateBiases = MatrixXd::Zero(1, aOutputDim);
+    std::normal_distribution<float> vRandDistr(0, 1.0); // TODO which distribution? (maybe try Ho / Xavier initialization)
+    mWeights = DataType::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
+    mBiases = DataType::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
+    mMomentumUpdateWeights = DataType::Zero(aInputDim, aOutputDim);
+    mMomentumUpdateBiases = DataType::Zero(1, aOutputDim);
     mLearningRate = 0.05;
     mMomentumUpdateParam = 0.9;
     this->mInitializedFlag = true;
 }
-template <class DimType>
-void ConnectedBaseLayer<DimType>::UpdateParams()
+
+template <class DimType, class ActivationFunctionType, class DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::UpdateParams()
 {
     // TODO User specified
     // Nesterov-Momentum
-    MatrixXd vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
+    DataType vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
     mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
     mWeights = mWeights + (-mMomentumUpdateParam * vPreviousMomentumUpdateWeights) + (1 + mMomentumUpdateParam) * mMomentumUpdateWeights;
-    MatrixXd vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
+    DataType vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
     mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
     mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam) * mMomentumUpdateBiases;
 

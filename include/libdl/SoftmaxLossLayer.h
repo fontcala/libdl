@@ -9,7 +9,8 @@
 @class SoftmaxLossLayer
 @brief Softmax Loss Layer.
  */
-class SoftmaxLossLayer : public LossBaseLayer
+template <class DataType>
+class SoftmaxLossLayer : public LossBaseLayer<DataType>
 {
 protected:
     // Data
@@ -23,20 +24,22 @@ public:
     void BackwardPass();
 };
 
-SoftmaxLossLayer::SoftmaxLossLayer(){};
+template <class DataType>
+SoftmaxLossLayer<DataType>::SoftmaxLossLayer(){};
 
-void SoftmaxLossLayer::ForwardPass()
+template <class DataType>
+void SoftmaxLossLayer<DataType>::ForwardPass()
 {
     //check same number of training samples.
-    const size_t vLabelNum = mLabels.rows();
-    const size_t vOutputNum = (*mInputPtr).rows();
+    const size_t vLabelNum = this->mLabels.rows();
+    const size_t vOutputNum = this->mInputPtr->rows();
     if (vLabelNum == vOutputNum)
     {
         //Softmax
-        MatrixXd exp = (*mInputPtr).array().exp();
-        mOutput = exp.array().colwise() / exp.rowwise().sum().array();
-        MatrixXd logprobs = -mOutput.array().log();
-        MatrixXd filtered = logprobs.cwiseProduct(mLabels);
+        MatrixXd exp = (*(this->mInputPtr)).array().exp();
+        this->mOutput = exp.array().colwise() / exp.rowwise().sum().array();
+        MatrixXd logprobs = -this->mOutput.array().log();
+        MatrixXd filtered = logprobs.cwiseProduct(this->mLabels);
 
         //mOutput = mGradientHelper;
         // std::cout << "(*mInputPtr)" << std::endl;
@@ -50,19 +53,20 @@ void SoftmaxLossLayer::ForwardPass()
         // std::cout << "filtered" << std::endl;
         // std::cout << filtered << std::endl;
         // Loss divided by number of examples
-        mLoss = filtered.array().sum() / static_cast<double>(vOutputNum);
+        this->mLoss = filtered.array().sum() / static_cast<double>(vOutputNum);
     }
     else
     {
         throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
     }
 };
-void SoftmaxLossLayer::BackwardPass()
+template <class DataType>
+void SoftmaxLossLayer<DataType>::BackwardPass()
 {
-    mBackpropOutput = mOutput - mLabels;
+    this->mBackpropOutput = this->mOutput - this->mLabels;
     // std::cout << "(*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    // std::cout << "mBackpropOutput" << std::endl;
-    // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
+    std::cout << "mBackpropOutput" << std::endl;
+    std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
 };
 #endif

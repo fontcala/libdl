@@ -9,7 +9,8 @@
 @class LossBaseLayer
 @brief L2 Loss Layer.
  */
-class LossBaseLayer : public BaseLayer<size_t,size_t,MatrixXd>
+template <class DataType>
+class LossBaseLayer : public BaseLayer<size_t,size_t, DataType>
 { 
 protected:
     double mLoss;
@@ -28,14 +29,17 @@ public:
     virtual void BackwardPass() = 0;
 };
 
-LossBaseLayer::LossBaseLayer(){};
+template <class DataType>
+LossBaseLayer<DataType>::LossBaseLayer(){};
 
-void LossBaseLayer::SetLabels(const MatrixXd &aLabels)
+template <class DataType>
+void LossBaseLayer<DataType>::SetLabels(const MatrixXd &aLabels)
 {
     mLabels = aLabels;
 }
 
-double LossBaseLayer::GetLoss() const
+template <class DataType>
+double LossBaseLayer<DataType>::GetLoss() const
 {
   return mLoss;
 };

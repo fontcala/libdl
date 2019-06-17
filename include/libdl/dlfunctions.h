@@ -130,6 +130,7 @@ MatrixXd flatten(const MatrixXd &aInput, const size_t aNumberCuts)
 MatrixXd unflatten(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
 {
     size_t vNumberSamples = aInput.rows();
+    std::cout << aInput.rows() << std::endl;
     size_t vUnflatSampleSize = aInputHeight * aInputWidth / vNumberSamples;
     MatrixXd vToBeReturned(vNumberSamples * vUnflatSampleSize, aInputDepth);
     for (int i = 0; i < vNumberSamples; ++i)

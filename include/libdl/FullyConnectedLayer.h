@@ -17,13 +17,9 @@
 @note Loss Function still hardcoded.
 @note Gradient Update still hardcoded.
  */
-class FullyConnectedLayer : public ConnectedBaseLayer<size_t>
+template <class ActivationFunctionType, class DataType>
+class FullyConnectedLayer : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
-protected:
-  // Layer-specific Properties
-  const size_t mInputDim;
-  const size_t mOutputDim;
-
 public:
   // Constructors
   FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim);
@@ -33,35 +29,37 @@ public:
   void BackwardPass();
 };
 
-FullyConnectedLayer::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : mInputDim(aInputDim), mOutputDim(aOutputDim)
+template <class ActivationFunctionType, class DataType>
+FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim)
 {
-  InitParams(aInputDim,aOutputDim,aInputDim );
+  this->InitParams(aInputDim, aOutputDim, aInputDim);
 };
 
-void FullyConnectedLayer::ForwardPass()
+template <class ActivationFunctionType, class DataType>
+void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
-  if (mInitializedFlag)
+  if (this->mInitializedFlag)
   {
     // TODO This can be rewritten as single matrix product. TODO look into coefficient-wise sum (solve with array() method)
-    mOutput = (*mInputPtr) * mWeights + mBiases.replicate(mInputPtr->rows(), 1);
-
+    (this->mOutput) = *(this->mInputPtr) * this->mWeights + this->mBiases.replicate((this->mInputPtr)->rows(), 1);
+    this->ActivationFunction.Activate(this->mOutput);
     //TODO Erase all this
     // std::cout << "- (*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
-    // std::cout << "mOutput" << std::endl;
-    // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+    // std::cout << "(this->mOutput)" << std::endl;
+    // std::cout << (this->mOutput).rows() << " " << (this->mOutput).cols() << std::endl;
     // std::cout << "- mWeights:" << std::endl;
     // std::cout << mWeights << std::endl;
     // std::cout << "- mBiases:" << std::endl;
     // std::cout << mBiases << std::endl;
-    // std::cout << "- mOutput:" << std::endl;
-    // std::cout << mOutput << std::endl;
+    // std::cout << "- (this->mOutput):" << std::endl;
+    // std::cout << (this->mOutput) << std::endl;
 
     // Activation Function
-    //ActivationFunction(mOutput);
+    //ActivationFunction((this->mOutput));
 
-    // std::cout << "- mOutput after activation:" << std::endl;
-    // std::cout << mOutput << std::endl;
+    // std::cout << "- (this->mOutput) after activation:" << std::endl;
+    // std::cout << (this->mOutput) << std::endl;
   }
   else
   {
@@ -69,25 +67,26 @@ void FullyConnectedLayer::ForwardPass()
   };
 };
 
-void FullyConnectedLayer::BackwardPass()
+template <class ActivationFunctionType, class DataType>
+void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
-  // TODO this as a function of the input and then no need specialization.
-  MatrixXd vBackpropInput = *mBackpropInputPtr;
-
+  DataType vBackpropInput = *(this->mBackpropInputPtr);
+  std::cout << "- vBackpropOutput" << std::endl;
+  std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
+  this->ActivationFunction.Backpropagate(vBackpropInput);
+  std::cout << "- vBackpropOutput" << std::endl;
+  std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
   // times Sigmoid Derivative
-  //MatrixXd vDerivatedBackPropInput = vBackpropInput.array() * (mOutput.array() * (1 - mOutput.array()));
+  //DataType vDerivatedBackPropInput = vBackpropInput.array() * ((this->mOutput).array() * (1 - (this->mOutput).array()));
 
   // times ReLu Derivative
-  //MatrixXd vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
+  //DataType vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
+  this->mGradientsWeights = this->mInputPtr->transpose() * vBackpropInput;
+  this->mGradientsBiases = vBackpropInput.colwise().sum();
+  this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
 
-  mGradientsWeights = (*mInputPtr).transpose() * vBackpropInput;
-  mGradientsBiases = vBackpropInput.colwise().sum();
-  mBackpropOutput = vBackpropInput * mWeights.transpose();
-
-
-  
   // std::cout << "- mBackpropOutput" << std::endl;
-  // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols()<< std::endl;
+  // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols()<< std::endl;
   // std::cout << "(*mInputPtr)" << std::endl;
   // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
   // std::cout << "- *vBackPropInput" << std::endl;
@@ -97,6 +96,6 @@ void FullyConnectedLayer::BackwardPass()
   // std::cout << "- *mGradientsWeights" << std::endl;
   // std::cout << mGradientsWeights << std::endl;
 
-  UpdateParams();
+  this->UpdateParams();
 };
 #endif

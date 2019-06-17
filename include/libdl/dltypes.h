@@ -42,33 +42,42 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 {
 }
 
-template <class DimType, class DataType>
-class DataPtr
-{
-public:
-    DataPtr(DataType *aPtr, DimType aDims)
-        : mPtr(aPtr), mDims(aDims) {}
-    DataPtr()
-        : mPtr(NULL), mDims() {}
+// Make non copyable and non movable?
+// template <class DimType, class DataType>
+// class DataWrapper
+// {
+// public:
+//     DataWrapper(DataType , DimType aDims)
+//         : mPtr(aPtr), mDims(aDims) {}
+//     DataWrapper()
+//         : mPtr(), mDims() {}
 
-    DataType *operator->() const { return mPtr; }
-    DataType &operator*() const { return *mPtr; }
-    DimType IndexToArr() const { return mDims; }
-
-private:
-    DataType *mPtr;
-    DimType mDims;
-};
+//     const DimType &Dimensions() const { return mDims; }
+    
+// private:
+//     DataType mData;
+//     DimType mDims;
+// };
 
 // My classes templated with an activation function class?
 class SigmoidActivation
 {
 private:
-    MatrixXd mSigmoidOutput;
+    MatrixXd mSigmoidHelper;
 
 public:
-    void Activate();
-    MatrixXd BackpropagationFactor();
+    void Activate(MatrixXd& aInput);
+    void Backpropagate(MatrixXd& aBackpropInput);
 };
-
+void SigmoidActivation::Activate(MatrixXd& aInput){
+    aInput = 1 / (1 + exp(-1 * aInput.array()));
+    mSigmoidHelper = aInput; // helper for backprop
+}
+void SigmoidActivation::Backpropagate(MatrixXd& aBackpropInput){
+    // std::cout << "- mSigmoidHelper" << std::endl;
+    // std::cout << mSigmoidHelper.rows() << " " << mSigmoidHelper.cols()<< std::endl;
+    aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
+    // std::cout << "- aBackpropOutput" << std::endl;
+    // std::cout << aBackpropInput.rows() << " " << aBackpropInput.cols()<< std::endl;
+}
 #endif

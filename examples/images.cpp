@@ -1,7 +1,7 @@
 #include <iostream>
 #include <libdl/dlfunctions.h>
+#include <libdl/dltypes.h>
 #include <libdl/ConvLayer.h>
-#include <libdl/SigmoidActivationLayer.h>
 #include <libdl/FlattenLayer.h>
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
@@ -28,19 +28,16 @@ int main()
   const size_t vStride1 = 2;
   const size_t vOutputDepth1 = 6;
 
-  ConvLayer firstConvLayer(vFilterHeight1,
-                           vFilterWidth1,
-                           vPaddingHeight1,
-                           vPaddingWidth1,
-                           vStride1,
-                           vInputDepth1,
-                           vInputHeight1,
-                           vInputWidth1,
-                           vOutputDepth1,
-                           vInputSampleNumber);
-
-  // Sigmoid.
-  SigmoidActivationLayer firstSigmoidLayer;
+  ConvLayer<SigmoidActivation, MatrixXd> firstConvLayer(vFilterHeight1,
+                                                        vFilterWidth1,
+                                                        vPaddingHeight1,
+                                                        vPaddingWidth1,
+                                                        vStride1,
+                                                        vInputDepth1,
+                                                        vInputHeight1,
+                                                        vInputWidth1,
+                                                        vOutputDepth1,
+                                                        vInputSampleNumber);
 
   // Conv 2
   const size_t vFilterHeight2 = 3;
@@ -49,41 +46,35 @@ int main()
   const size_t vPaddingWidth2 = 1;
   const size_t vStride2 = 2;
   const size_t vOutputDepth2 = 7;
-  ConvLayer secondConvLayer(vFilterHeight2,
-                            vFilterWidth2,
-                            vPaddingHeight2,
-                            vPaddingWidth2,
-                            vStride2,
-                            firstConvLayer.GetOutputDims(),
-                            vOutputDepth2,
-                            vInputSampleNumber);
+  ConvLayer<SigmoidActivation, MatrixXd> secondConvLayer(vFilterHeight2,
+                                                         vFilterWidth2,
+                                                         vPaddingHeight2,
+                                                         vPaddingWidth2,
+                                                         vStride2,
+                                                         firstConvLayer.GetOutputDims(),
+                                                         vOutputDepth2,
+                                                         vInputSampleNumber);
 
-  // Sigmoid
-  SigmoidActivationLayer secondSigmoidLayer;
 
   // flatten layer
-  FlattenLayer flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
+  FlattenLayer<MatrixXd> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
 
   // fullyconnectedlayer
-  FullyConnectedLayer fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
+  FullyConnectedLayer<SigmoidActivation, MatrixXd> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
 
   // losslayer
-  SoftmaxLossLayer lossLayer;
+  SoftmaxLossLayer<MatrixXd> lossLayer;
   lossLayer.SetLabels(Label);
 
   // Connect
   firstConvLayer.SetInput(Input);
-  firstSigmoidLayer.SetInput(firstConvLayer.GetOutput());
-  secondConvLayer.SetInput(firstSigmoidLayer.GetOutput());
-  secondSigmoidLayer.SetInput(secondConvLayer.GetOutput());
-  flattenLayer.SetInput(secondSigmoidLayer.GetOutput());
+  secondConvLayer.SetInput(firstConvLayer.GetOutput());
+  flattenLayer.SetInput(secondConvLayer.GetOutput());
   fcLayer.SetInput(flattenLayer.GetOutput());
   lossLayer.SetInput(fcLayer.GetOutput());
 
-  firstConvLayer.SetBackpropInput(firstSigmoidLayer.GetBackpropOutput());
-  firstSigmoidLayer.SetBackpropInput(secondConvLayer.GetBackpropOutput());
-  secondConvLayer.SetBackpropInput(secondSigmoidLayer.GetBackpropOutput());
-  secondSigmoidLayer.SetBackpropInput(flattenLayer.GetBackpropOutput());
+  firstConvLayer.SetBackpropInput(secondConvLayer.GetBackpropOutput());
+  secondConvLayer.SetBackpropInput(flattenLayer.GetBackpropOutput());
   flattenLayer.SetBackpropInput(fcLayer.GetBackpropOutput());
   fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
 
@@ -92,12 +83,8 @@ int main()
     std::cout << "---------start forward ---------" << std::endl;
     std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
     firstConvLayer.ForwardPass();
-    std::cout << "firstSigmoidLayer.ForwardPass()  ------" << std::endl;
-    firstSigmoidLayer.ForwardPass();
     std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
     secondConvLayer.ForwardPass();
-    std::cout << "secondSigmoidLayer.ForwardPass()  ------" << std::endl;
-    secondSigmoidLayer.ForwardPass();
     std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
     flattenLayer.ForwardPass();
     std::cout << "fcLayer.ForwardPass()  ------" << std::endl;
@@ -114,12 +101,8 @@ int main()
     fcLayer.BackwardPass();
     std::cout << "flattenLayer.BackwardPass()  ------" << std::endl;
     flattenLayer.BackwardPass();
-    std::cout << "secondSigmoidLayer.BackwardPass()  ------" << std::endl;
-    secondSigmoidLayer.BackwardPass();
     std::cout << "secondConv.BackwardPass()  ------" << std::endl;
     secondConvLayer.BackwardPass();
-    std::cout << "firstSigmoidLayer.BackwardPass()  ------" << std::endl;
-    firstSigmoidLayer.BackwardPass();
     std::cout << "firstConvLayer.BackwardPass()  ------" << std::endl;
     firstConvLayer.BackwardPass();
   }

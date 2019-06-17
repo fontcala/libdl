@@ -9,11 +9,10 @@
 @class FlattenLayer
 @brief Flatten Layer.
  */
-class FlattenLayer : public BaseLayer<ConvDataDims, size_t, MatrixXd>
+template <class DataType>
+class FlattenLayer : public BaseLayer<ConvDataDims, size_t, DataType>
 {
 private:
-    const ConvDataDims mInputDims;
-    const size_t mOutputDims;
     const size_t mInputSampleNumber;
 
 public:
@@ -22,27 +21,29 @@ public:
     FlattenLayer(const ConvDataDims aInputDims, const size_t aInputSampleNumber);
     void ForwardPass();
     void BackwardPass();
-    size_t GetOutputDims();
 };
 
-FlattenLayer::FlattenLayer(const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth, const size_t aInputSampleNumber) : mInputDims(aInputDepth, aInputHeight, aInputWidth),
-                                                                                                                                             mOutputDims(aInputDepth * aInputHeight * aInputWidth),
-                                                                                                                                             mInputSampleNumber(aInputSampleNumber){};
-FlattenLayer::FlattenLayer(const ConvDataDims aInputDims, const size_t aInputSampleNumber) : mInputDims(aInputDims),
-                                                                                             mOutputDims(aInputDims.Depth * aInputDims.Height * aInputDims.Width),
-                                                                                             mInputSampleNumber(aInputSampleNumber){};
+template <class DataType>
+FlattenLayer<DataType>::FlattenLayer(const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth, const size_t aInputSampleNumber) : BaseLayer<ConvDataDims, size_t, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth),(aInputDepth * aInputHeight * aInputWidth)),
+                                                                                                                                                        mInputSampleNumber(aInputSampleNumber){};
 
-void FlattenLayer::ForwardPass()
+template <class DataType>
+FlattenLayer<DataType>::FlattenLayer(const ConvDataDims aInputDims, const size_t aInputSampleNumber) : BaseLayer<ConvDataDims, size_t, DataType>(aInputDims, (aInputDims.Depth * aInputDims.Height * aInputDims.Width)),
+                                                                                                       mInputSampleNumber(aInputSampleNumber){};
+
+template <class DataType>
+void FlattenLayer<DataType>::ForwardPass()
 {
-    mOutput = dlfunctions::flatten((*mInputPtr), mInputSampleNumber);
+    this->mOutput = dlfunctions::flatten(*(this->mInputPtr), mInputSampleNumber);
     // std::cout << "(*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
     // std::cout << "mOutput" << std::endl;
     // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
 };
-void FlattenLayer::BackwardPass()
+template <class DataType>
+void FlattenLayer<DataType>::BackwardPass()
 {
-    mBackpropOutput = dlfunctions::unflatten((*mBackpropInputPtr), mInputDims.Depth, mInputDims.Height, mInputDims.Width);
+    this->mBackpropOutput = dlfunctions::unflatten(*(this->mBackpropInputPtr), this->mInputDims.Depth, this->mInputDims.Height, this->mInputDims.Width);
     // std::cout << "(*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
     // std::cout << "mBackpropOutput" << std::endl;
@@ -52,9 +53,4 @@ void FlattenLayer::BackwardPass()
     // std::cout << "mOutput" << std::endl;
     // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
 };
-size_t FlattenLayer::GetOutputDims()
-{
-
-    return mOutputDims;
-}
 #endif
