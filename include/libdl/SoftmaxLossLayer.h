@@ -66,7 +66,7 @@ void SoftmaxLossLayer<DataType>::BackwardPass()
     this->mBackpropOutput = this->mOutput - this->mLabels;
     // std::cout << "(*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    std::cout << "mBackpropOutput" << std::endl;
-    std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
+    // std::cout << "mBackpropOutput" << std::endl;
+    // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
 };
 #endif

@@ -43,11 +43,12 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 }
 
 // Make non copyable and non movable?
-// template <class DimType, class DataType>
+// template <class DimType, class MatrixXd>
 // class DataWrapper
+
 // {
 // public:
-//     DataWrapper(DataType , DimType aDims)
+//     DataWrapper(MatrixXd , DimType aDims)
 //         : mPtr(aPtr), mDims(aDims) {}
 //     DataWrapper()
 //         : mPtr(), mDims() {}
@@ -55,11 +56,32 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 //     const DimType &Dimensions() const { return mDims; }
     
 // private:
-//     DataType mData;
+//     MatrixXd mData;
 //     DimType mDims;
 // };
 
-// My classes templated with an activation function class?
+// My classes templated with an activation function class, make all of this classes base of one given class?
+// template <class MatrixXd>
+// class SigmoidActivation
+// {
+// private:
+//     MatrixXd mSigmoidHelper;
+
+// public:
+//     void Activate(MatrixXd& aInput);
+//     void Backpropagate(MatrixXd& aBackpropInput);
+// };
+// template <class MatrixXd>
+// void SigmoidActivation::Activate(MatrixXd& aInput){
+//     aInput = 1 / (1 + exp(-1 * aInput.array()));
+//     mSigmoidHelper = aInput; // helper for backprop
+// }
+// template <class MatrixXd>
+// void SigmoidActivation::Backpropagate(MatrixXd& aBackpropInput){
+//     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
+
+// }
+
 class SigmoidActivation
 {
 private:
@@ -74,10 +96,20 @@ void SigmoidActivation::Activate(MatrixXd& aInput){
     mSigmoidHelper = aInput; // helper for backprop
 }
 void SigmoidActivation::Backpropagate(MatrixXd& aBackpropInput){
-    // std::cout << "- mSigmoidHelper" << std::endl;
-    // std::cout << mSigmoidHelper.rows() << " " << mSigmoidHelper.cols()<< std::endl;
     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
-    // std::cout << "- aBackpropOutput" << std::endl;
-    // std::cout << aBackpropInput.rows() << " " << aBackpropInput.cols()<< std::endl;
+
+}
+
+class LinearActivation
+{
+private:
+
+public:
+    void Activate(MatrixXd& aInput);
+    void Backpropagate(MatrixXd& aBackpropInput);
+};
+void LinearActivation::Activate(MatrixXd& aInput){
+}
+void LinearActivation::Backpropagate(MatrixXd& aBackpropInput){
 }
 #endif

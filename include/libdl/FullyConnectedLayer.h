@@ -71,11 +71,9 @@ template <class ActivationFunctionType, class DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
   DataType vBackpropInput = *(this->mBackpropInputPtr);
-  std::cout << "- vBackpropOutput" << std::endl;
-  std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
   this->ActivationFunction.Backpropagate(vBackpropInput);
-  std::cout << "- vBackpropOutput" << std::endl;
-  std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
+  // std::cout << "- vBackpropOutput" << std::endl;
+  // std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
   // times Sigmoid Derivative
   //DataType vDerivatedBackPropInput = vBackpropInput.array() * ((this->mOutput).array() * (1 - (this->mOutput).array()));
 

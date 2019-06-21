@@ -60,7 +60,7 @@ int main()
   FlattenLayer<MatrixXd> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
 
   // fullyconnectedlayer
-  FullyConnectedLayer<SigmoidActivation, MatrixXd> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
+  FullyConnectedLayer<LinearActivation, MatrixXd> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
 
   // losslayer
   SoftmaxLossLayer<MatrixXd> lossLayer;
