@@ -43,12 +43,12 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 }
 
 // Make non copyable and non movable?
-// template <class DimType, class MatrixXd>
+// template <class DimType, class DataType>
 // class DataWrapper
 
 // {
 // public:
-//     DataWrapper(MatrixXd , DimType aDims)
+//     DataWrapper(DataType , DimType aDims)
 //         : mPtr(aPtr), mDims(aDims) {}
 //     DataWrapper()
 //         : mPtr(), mDims() {}
@@ -56,60 +56,44 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 //     const DimType &Dimensions() const { return mDims; }
     
 // private:
-//     MatrixXd mData;
+//     DataType mData;
 //     DimType mDims;
 // };
 
 // My classes templated with an activation function class, make all of this classes base of one given class?
-// template <class MatrixXd>
-// class SigmoidActivation
-// {
-// private:
-//     MatrixXd mSigmoidHelper;
-
-// public:
-//     void Activate(MatrixXd& aInput);
-//     void Backpropagate(MatrixXd& aBackpropInput);
-// };
-// template <class MatrixXd>
-// void SigmoidActivation::Activate(MatrixXd& aInput){
-//     aInput = 1 / (1 + exp(-1 * aInput.array()));
-//     mSigmoidHelper = aInput; // helper for backprop
-// }
-// template <class MatrixXd>
-// void SigmoidActivation::Backpropagate(MatrixXd& aBackpropInput){
-//     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
-
-// }
-
+template <class DataType>
 class SigmoidActivation
 {
 private:
-    MatrixXd mSigmoidHelper;
+    DataType mSigmoidHelper;
 
 public:
-    void Activate(MatrixXd& aInput);
-    void Backpropagate(MatrixXd& aBackpropInput);
+    void Activate(DataType& aInput);
+    void Backpropagate(DataType& aBackpropInput);
 };
-void SigmoidActivation::Activate(MatrixXd& aInput){
+template <class DataType>
+void SigmoidActivation<DataType>::Activate(DataType& aInput){
     aInput = 1 / (1 + exp(-1 * aInput.array()));
     mSigmoidHelper = aInput; // helper for backprop
 }
-void SigmoidActivation::Backpropagate(MatrixXd& aBackpropInput){
+template <class DataType>
+void SigmoidActivation<DataType>::Backpropagate(DataType& aBackpropInput){
     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
 
 }
 
+template <class DataType>
 class LinearActivation
 {
-private:
-
 public:
-    void Activate(MatrixXd& aInput);
-    void Backpropagate(MatrixXd& aBackpropInput);
+    void Activate(DataType& aInput);
+    void Backpropagate(DataType& aBackpropInput);
 };
-void LinearActivation::Activate(MatrixXd& aInput){
+template <class DataType>
+void LinearActivation<DataType>::Activate(DataType& aInput){
 }
-void LinearActivation::Backpropagate(MatrixXd& aBackpropInput){
+template <class DataType>
+void LinearActivation<DataType>::Backpropagate(DataType& aBackpropInput){
 }
+
 #endif

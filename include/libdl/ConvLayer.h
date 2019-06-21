@@ -10,7 +10,7 @@
 @class ConvLayer
 @brief Conv Class for Network Layer elements.
  */
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 class ConvLayer : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
 protected:
@@ -21,7 +21,7 @@ protected:
     const size_t mPaddingWidth;
     const size_t mStride;
 
-    const size_t mInputSampleNumber; //TODO: could be deduced in the flatten Layer!
+    const size_t mInputSampleNumber;
     const size_t mFilterSize;
 
 public:
@@ -50,7 +50,7 @@ public:
     void ForwardPass();
     void BackwardPass();
 };
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
@@ -72,7 +72,7 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
     this->InitParams(mFilterSize, this->mOutputDims.Depth, mFilterSize);
 };
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
@@ -92,7 +92,7 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
     this->InitParams(mFilterSize, this->mOutputDims.Depth, mFilterSize);
 };
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mInitializedFlag)
@@ -114,7 +114,7 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
     };
 }
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     // Backprop input from previous layer.

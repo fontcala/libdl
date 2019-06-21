@@ -9,12 +9,12 @@
 @class ConnectedBaseLayer
 @brief Base Connected Layer introduces the parameter of cumputation layers
  */
-template <class DimType, class ActivationFunctionType, class DataType>
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 class ConnectedBaseLayer : public BaseLayer<DimType, DimType, DataType>
 {
 protected:
 
-    ActivationFunctionType ActivationFunction;
+    ActivationFunctionType<DataType> ActivationFunction;
     
     DataType mGradientsWeights;
     DataType mGradientsBiases;
@@ -48,13 +48,13 @@ public:
     virtual void BackwardPass() = 0;
 };
 
-template <class DimType, class ActivationFunctionType, class DataType>
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::ConnectedBaseLayer(){};
 
-template <class DimType, class ActivationFunctionType, class DataType>
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::ConnectedBaseLayer(const DimType& aInputDims, const DimType& aOutputDims):BaseLayer<DimType, DimType, DataType>(aInputDims,aOutputDims){};
 
-template <class DimType, class ActivationFunctionType, class DataType>
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance)
 {
     std::random_device rd;
@@ -69,7 +69,7 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(si
     this->mInitializedFlag = true;
 }
 
-template <class DimType, class ActivationFunctionType, class DataType>
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::UpdateParams()
 {
     // TODO User specified

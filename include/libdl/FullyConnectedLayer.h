@@ -17,7 +17,7 @@
 @note Loss Function still hardcoded.
 @note Gradient Update still hardcoded.
  */
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 class FullyConnectedLayer : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
 public:
@@ -29,13 +29,13 @@ public:
   void BackwardPass();
 };
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim)
 {
   this->InitParams(aInputDim, aOutputDim, aInputDim);
 };
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
   if (this->mInitializedFlag)
@@ -67,7 +67,7 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
   };
 };
 
-template <class ActivationFunctionType, class DataType>
+template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
   DataType vBackpropInput = *(this->mBackpropInputPtr);
