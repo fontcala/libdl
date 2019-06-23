@@ -54,7 +54,7 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 //         : mPtr(), mDims() {}
 
 //     const DimType &Dimensions() const { return mDims; }
-    
+
 // private:
 //     DataType mData;
 //     DimType mDims;
@@ -65,35 +65,38 @@ template <class DataType>
 class SigmoidActivation
 {
 private:
-    DataType mSigmoidHelper;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mSigmoidHelper;
 
 public:
-    void Activate(DataType& aInput);
-    void Backpropagate(DataType& aBackpropInput);
+    void Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
 };
 template <class DataType>
-void SigmoidActivation<DataType>::Activate(DataType& aInput){
+void SigmoidActivation<DataType>::Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+{
     aInput = 1 / (1 + exp(-1 * aInput.array()));
     mSigmoidHelper = aInput; // helper for backprop
 }
 template <class DataType>
-void SigmoidActivation<DataType>::Backpropagate(DataType& aBackpropInput){
+void SigmoidActivation<DataType>::Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+{
     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
-
 }
 
 template <class DataType>
 class LinearActivation
 {
 public:
-    void Activate(DataType& aInput);
-    void Backpropagate(DataType& aBackpropInput);
+    void Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
 };
 template <class DataType>
-void LinearActivation<DataType>::Activate(DataType& aInput){
+void LinearActivation<DataType>::Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+{
 }
 template <class DataType>
-void LinearActivation<DataType>::Backpropagate(DataType& aBackpropInput){
+void LinearActivation<DataType>::Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+{
 }
 
 #endif

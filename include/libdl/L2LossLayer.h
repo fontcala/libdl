@@ -9,12 +9,12 @@
 @class L2LossLayer
 @brief L2 Loss Layer.
  */
-template <class DataType>
+template <class DataType = double>
 class L2LossLayer : public LossBaseLayer<DataType>
 {
 protected:
 
-    MatrixXd mGradientHelper;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mGradientHelper;
 
 public:
     // Constructors

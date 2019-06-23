@@ -9,7 +9,7 @@
 @class FlattenLayer
 @brief Flatten Layer.
  */
-template <class DataType>
+template <class DataType = double>
 class FlattenLayer : public BaseLayer<ConvDataDims, size_t, DataType>
 {
 private:

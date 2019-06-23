@@ -9,12 +9,12 @@
 @class SoftmaxLossLayer
 @brief Softmax Loss Layer.
  */
-template <class DataType>
+template <class DataType = double>
 class SoftmaxLossLayer : public LossBaseLayer<DataType>
 {
 protected:
     // Data
-    MatrixXd mGradientHelper;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mGradientHelper;
 
 public:
     // Constructors
@@ -36,10 +36,10 @@ void SoftmaxLossLayer<DataType>::ForwardPass()
     if (vLabelNum == vOutputNum)
     {
         //Softmax
-        MatrixXd exp = (*(this->mInputPtr)).array().exp();
+        Eigen::Matrix<DataType, Dynamic, Dynamic> exp = (*(this->mInputPtr)).array().exp();
         this->mOutput = exp.array().colwise() / exp.rowwise().sum().array();
-        MatrixXd logprobs = -this->mOutput.array().log();
-        MatrixXd filtered = logprobs.cwiseProduct(this->mLabels);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> logprobs = -this->mOutput.array().log();
+        Eigen::Matrix<DataType, Dynamic, Dynamic> filtered = logprobs.cwiseProduct(this->mLabels);
 
         //mOutput = mGradientHelper;
         // std::cout << "(*mInputPtr)" << std::endl;

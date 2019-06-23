@@ -6,6 +6,7 @@
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
 
+using Eigen::MatrixXd;
 int main()
 {
   const size_t vInputSampleNumber = 1;
@@ -28,16 +29,16 @@ int main()
   const size_t vStride1 = 2;
   const size_t vOutputDepth1 = 6;
 
-  ConvLayer<SigmoidActivation, MatrixXd> firstConvLayer(vFilterHeight1,
-                                                        vFilterWidth1,
-                                                        vPaddingHeight1,
-                                                        vPaddingWidth1,
-                                                        vStride1,
-                                                        vInputDepth1,
-                                                        vInputHeight1,
-                                                        vInputWidth1,
-                                                        vOutputDepth1,
-                                                        vInputSampleNumber);
+  ConvLayer<SigmoidActivation> firstConvLayer(vFilterHeight1,
+                                                      vFilterWidth1,
+                                                      vPaddingHeight1,
+                                                      vPaddingWidth1,
+                                                      vStride1,
+                                                      vInputDepth1,
+                                                      vInputHeight1,
+                                                      vInputWidth1,
+                                                      vOutputDepth1,
+                                                      vInputSampleNumber);
 
   // Conv 2
   const size_t vFilterHeight2 = 3;
@@ -46,7 +47,7 @@ int main()
   const size_t vPaddingWidth2 = 1;
   const size_t vStride2 = 2;
   const size_t vOutputDepth2 = 7;
-  ConvLayer<SigmoidActivation, MatrixXd> secondConvLayer(vFilterHeight2,
+  ConvLayer<SigmoidActivation> secondConvLayer(vFilterHeight2,
                                                          vFilterWidth2,
                                                          vPaddingHeight2,
                                                          vPaddingWidth2,
@@ -55,15 +56,14 @@ int main()
                                                          vOutputDepth2,
                                                          vInputSampleNumber);
 
-
   // flatten layer
-  FlattenLayer<MatrixXd> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
+  FlattenLayer flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
 
   // fullyconnectedlayer
-  FullyConnectedLayer<LinearActivation, MatrixXd> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
+  FullyConnectedLayer<LinearActivation> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
 
   // losslayer
-  SoftmaxLossLayer<MatrixXd> lossLayer;
+  SoftmaxLossLayer lossLayer;
   lossLayer.SetLabels(Label);
 
   // Connect

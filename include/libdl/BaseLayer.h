@@ -19,16 +19,16 @@ protected:
     // Flags
     bool mInitializedFlag = false;
     bool mValidInput = false;
-    
+
     // Data
-    DataType mOutput;
-    DataType mBackpropOutput;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mOutput;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mBackpropOutput;
 
     // Readonly data from other layers
-    const DataType *mInputPtr;
-    const DataType *mBackpropInputPtr;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *mInputPtr;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *mBackpropInputPtr;
 
-    // Data dimensions  
+    // Data dimensions
     const InputDimType mInputDims;
     const BackpropInputDimType mOutputDims;
 
@@ -39,18 +39,18 @@ protected:
 public:
     // Constructors
     BaseLayer();
-    BaseLayer(const InputDimType& aInputDims, const BackpropInputDimType& aOutputDims);
+    BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims);
 
     // Every Layer element must implement these
     virtual void ForwardPass() = 0;
     virtual void BackwardPass() = 0;
 
     // Helpers to connect Layers
-    void SetInput(const DataType &aInput);
-    virtual void SetInput(const DataType *aInput);
-    virtual void SetBackpropInput(const DataType *aOutput);
-    virtual const DataType *GetOutput() const;
-    virtual const DataType *GetBackpropOutput() const;
+    void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput);
+    virtual void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput);
+    virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const;
+    virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const;
     const BackpropInputDimType &GetOutputDims() const;
 };
 
@@ -61,13 +61,13 @@ BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer() : mInputPtr
                                                                        mOutputDims(){};
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer(const InputDimType& aInputDims, const BackpropInputDimType& aOutputDims) : mInputPtr(NULL),
-                                                                                                                                            mBackpropInputPtr(NULL),
-                                                                                                                                            mInputDims(aInputDims),
-                                                                                                                                            mOutputDims(aOutputDims){};
+BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims) : mInputPtr(NULL),
+                                                                                                                                              mBackpropInputPtr(NULL),
+                                                                                                                                              mInputDims(aInputDims),
+                                                                                                                                              mOutputDims(aOutputDims){};
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const DataType *aInput)
+void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput)
 {
     // TODO check validity
     mInputPtr = aInput;
@@ -75,27 +75,27 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Dat
 
 // TODO: using this one indicates it is the first layer, so no need for mBackpropagateOutput update (set a Flag)
 template <class InputDimType, class BackpropInputDimType, class DataType>
-void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const DataType &aInput)
+void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
     // TODO check validity
     mInputPtr = &aInput;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetBackpropInput(const DataType *aBackpropInput)
+void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aBackpropInput)
 {
     // TODO check validity
     mBackpropInputPtr = aBackpropInput;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-const DataType *BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetOutput() const
+const Eigen::Matrix<DataType, Dynamic, Dynamic> *BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetOutput() const
 {
     return &mOutput;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-const DataType *BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetBackpropOutput() const
+const Eigen::Matrix<DataType, Dynamic, Dynamic> *BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetBackpropOutput() const
 {
     return &mBackpropOutput;
 };

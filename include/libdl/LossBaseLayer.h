@@ -13,14 +13,14 @@ template <class DataType>
 class LossBaseLayer : public BaseLayer<size_t,size_t, DataType>
 { 
 protected:
-    double mLoss;
-    MatrixXd mLabels;
+    DataType mLoss;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mLabels;
 
 public:
     // Constructor
     LossBaseLayer();
     // Assume one-hot encoding Labels
-    void SetLabels(const MatrixXd &aLabels);
+    void SetLabels(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels);
     double GetLoss() const;
     // TODO method that checks validity
     // TODO Do something about GetOutput
@@ -33,7 +33,7 @@ template <class DataType>
 LossBaseLayer<DataType>::LossBaseLayer(){};
 
 template <class DataType>
-void LossBaseLayer<DataType>::SetLabels(const MatrixXd &aLabels)
+void LossBaseLayer<DataType>::SetLabels(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
 {
     mLabels = aLabels;
 }

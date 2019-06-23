@@ -17,7 +17,7 @@
 @note Loss Function still hardcoded.
 @note Gradient Update still hardcoded.
  */
-template <template <typename> class ActivationFunctionType, typename DataType>
+template <template <typename> class ActivationFunctionType, typename DataType = double>
 class FullyConnectedLayer : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
 public:
@@ -70,7 +70,7 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
 template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
-  DataType vBackpropInput = *(this->mBackpropInputPtr);
+  Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
   this->ActivationFunction.Backpropagate(vBackpropInput);
   // std::cout << "- vBackpropOutput" << std::endl;
   // std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;

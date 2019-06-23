@@ -8,14 +8,12 @@
 #include <Eigen/Core>
 //#include <spdlog/spdlog.h>
 
-using Eigen::MatrixXd;
-// TODO Homogeneous style! size_t, const, hungarian, ...
+using Eigen::Dynamic;
 namespace dlfunctions
 {
-// First attempt.
-// If the input is in format: images stacked horizontally, however does not support padding
+// First attempt at im2col. If the input is in format: images stacked horizontally (expects padded input).
 template <int FilterHeight, int FilterWidth>
-void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, const size_t aNumChannels, const size_t aImHeight, const size_t aImWidth)
+void im2col(Eigen::Matrix<double, Dynamic, Dynamic> *aOutput, const Eigen::Matrix<double, Dynamic, Dynamic> *aInput, const size_t aStride, const size_t aNumChannels, const size_t aImHeight, const size_t aImWidth)
 {
     // TODO Check dims right
     size_t limitRow = aImHeight - FilterHeight + 1;
@@ -37,7 +35,8 @@ void im2col(MatrixXd *aOutput, const MatrixXd *aInput, const size_t aStride, con
 // Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
 // If the input is in format vectorized images stacked horizontally, can be aeasily made to support padding and multiple inputs
 // TODO Homogeneous coding style.
-void im2col(const int FilterHeight, const int FilterWidth, const double *img, double *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
+template<class DataType>
+void im2col(const int FilterHeight, const int FilterWidth, const DataType *img, DataType *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
             int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     //std::cout << FilterHeight << FilterWidth << aOutHeight << aOutWidth << aOutFields << height << width << channels<< "padw " << pad_w << "padh " << pad_h << "stride " << aStride << "samp " << aNumSamples << std::endl;
@@ -73,7 +72,8 @@ void im2col(const int FilterHeight, const int FilterWidth, const double *img, do
 // Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
 // This is not just a reshaping, it aggregates for locations that have more than one filter in them!
 // Also here harder to support multiple images!
-void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const double *aColData, double *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
+template<class DataType>
+void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
             const size_t height, const size_t width, const size_t channels,
             const size_t pad_w, const size_t pad_h,
             const size_t aStride, const size_t aNumSamples)
@@ -97,12 +97,13 @@ void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const double 
     }
 }
 
-MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
+template<class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> flip(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aFilters, const size_t aNumberCuts)
 {
     size_t vFilterSize = aFilters.rows();
     size_t vOutputDepth = aFilters.cols();
     size_t v2DFilterSize = vFilterSize / aNumberCuts;
-    MatrixXd vToBeReturned = aFilters;
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vToBeReturned = aFilters;
 
     for (int i = 0; i < aNumberCuts; ++i)
     {
@@ -111,41 +112,45 @@ MatrixXd flip(const MatrixXd &aFilters, const size_t aNumberCuts)
     return vToBeReturned;
 }
 
-MatrixXd flatten(const MatrixXd &aInput, const size_t aNumberCuts)
+template<class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> flatten(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput, const size_t aNumberCuts)
 {
     size_t vInputDim1 = aInput.rows();
     size_t vInputDim2 = aInput.cols();
     size_t vBlockSize = vInputDim1 / aNumberCuts;
     size_t vOutputCols = vInputDim2 * vBlockSize;
-    MatrixXd vToBeReturned(aNumberCuts, vOutputCols);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vToBeReturned(aNumberCuts, vOutputCols);
 
     for (int i = 0; i < aNumberCuts; ++i)
     {
-        MatrixXd vSampleBlock = aInput.block(i * vBlockSize, 0, vBlockSize, vInputDim2);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vSampleBlock = aInput.block(i * vBlockSize, 0, vBlockSize, vInputDim2);
         vSampleBlock.resize(1, vOutputCols);
         vToBeReturned.row(i) = vSampleBlock;
     }
     return vToBeReturned;
 }
-MatrixXd unflatten(const MatrixXd &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
+
+template<class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> unflatten(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput, const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth)
 {
     size_t vNumberSamples = aInput.rows();
     size_t vUnflatSampleSize = aInputHeight * aInputWidth / vNumberSamples;
-    MatrixXd vToBeReturned(vNumberSamples * vUnflatSampleSize, aInputDepth);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vToBeReturned(vNumberSamples * vUnflatSampleSize, aInputDepth);
     for (int i = 0; i < vNumberSamples; ++i)
     {
-        MatrixXd vSampleBlock = aInput.row(i);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vSampleBlock = aInput.row(i);
         vSampleBlock.resize(vUnflatSampleSize, aInputDepth);
         vToBeReturned.block(i * vUnflatSampleSize, 0, vUnflatSampleSize, aInputDepth) = vSampleBlock;
     }
     return vToBeReturned;
 }
 
-void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const MatrixXd &aFilters, const int aFilterHeight, const int aFilterWidth, const MatrixXd &aInputImage, int height, int width, int channels,
+template<class DataType>
+void convolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aFilters, const int aFilterHeight, const int aFilterWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInputImage, int height, int width, int channels,
                  int pad_w, int pad_h, int aStride, size_t aNumSamples)
 {
     size_t vOutFields = aFilterHeight * aFilterWidth * channels;
-    MatrixXd im2ColImage(aOutHeight * aOutWidth, vOutFields);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(aOutHeight * aOutWidth, vOutFields);
 
     dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, channels, pad_w, pad_h, aStride, aNumSamples);
     // std::cout << "im2ColImage" << std::endl;
@@ -153,14 +158,16 @@ void convolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidt
     aConvolutedOutput = im2ColImage * aFilters;
 }
 
-void fullconvolution(MatrixXd &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const MatrixXd &aFilters, const int aFilterHeight, const int aFilterWidth, const MatrixXd &aInputImage, int height, int width, int channels,
+template<class DataType>
+void fullconvolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aFilters, const int aFilterHeight, const int aFilterWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInputImage, int height, int width, int channels,
                      int aStride, size_t aNumSamples)
 {
     size_t vPadHeight = aFilterHeight - 1;
     size_t vPadWidth = aFilterWidth - 1;
     dlfunctions::convolution(aConvolutedOutput, aOutHeight, aOutWidth, aFilters, aFilterHeight, aFilterWidth, aInputImage, height, width, channels, vPadHeight, vPadWidth, aStride, aNumSamples);
 }
-void ReLUActivationFunction(MatrixXd &aOutput)
+template<class DataType>
+void ReLUActivationFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aOutput)
 {
     aOutput = aOutput.cwiseMax(0);
 }

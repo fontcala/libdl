@@ -14,6 +14,7 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
 
+using Eigen::MatrixXd;
 int hello_py(std::string const &name)
 {
     return hello(name);
@@ -81,7 +82,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vStride1 = 2;
     const size_t vOutputDepth1 = 6;
 
-    ConvLayer<SigmoidActivation, MatrixXd> firstConvLayer(vFilterHeight1,
+    ConvLayer<SigmoidActivation, double> firstConvLayer(vFilterHeight1,
                              vFilterWidth1,
                              vPaddingHeight1,
                              vPaddingWidth1,
@@ -100,7 +101,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vPaddingWidth2 = 1;
     const size_t vStride2 = 2;
     const size_t vOutputDepth2 = 8;
-    ConvLayer<SigmoidActivation, MatrixXd> secondConvLayer(vFilterHeight2,
+    ConvLayer<SigmoidActivation, double> secondConvLayer(vFilterHeight2,
                               vFilterWidth2,
                               vPaddingHeight2,
                               vPaddingWidth2,
@@ -111,13 +112,13 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
 
 
     // flatten layer
-    FlattenLayer<MatrixXd> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
+    FlattenLayer<double> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
 
     // fullyconnectedlayer
-    FullyConnectedLayer<LinearActivation, MatrixXd> fcLayer(flattenLayer.GetOutputDims(), mNumCategories);
+    FullyConnectedLayer<LinearActivation, double> fcLayer(flattenLayer.GetOutputDims(), mNumCategories);
 
     // losslayer
-    SoftmaxLossLayer<MatrixXd> lossLayer;
+    SoftmaxLossLayer<double> lossLayer;
 
     // Connect
     secondConvLayer.SetInput(firstConvLayer.GetOutput());

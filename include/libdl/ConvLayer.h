@@ -10,7 +10,7 @@
 @class ConvLayer
 @brief Conv Class for Network Layer elements.
  */
-template <template <typename> class ActivationFunctionType, typename DataType>
+template <template <typename> class ActivationFunctionType, typename DataType = double>
 class ConvLayer : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
 protected:
@@ -97,7 +97,7 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mInitializedFlag)
     {
-        DataType vOutputConvolution(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vOutputConvolution(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth);
         dlfunctions::convolution(vOutputConvolution, this->mOutputDims.Height, this->mOutputDims.Width, this->mWeights, mFilterHeight, mFilterWidth, *(this->mInputPtr), this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
         this->mOutput = vOutputConvolution + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
         this->ActivationFunction.Activate(this->mOutput);
@@ -118,22 +118,22 @@ template <template <typename> class ActivationFunctionType, typename DataType>
 void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     // Backprop input from previous layer.
-    DataType vBackpropInput = *(this->mBackpropInputPtr);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
     this->ActivationFunction.Backpropagate(vBackpropInput);
 
-    DataType vBackpropInputTranspose = vBackpropInput.transpose();
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
 
     // derivative wrt to bias
     this->mGradientsBiases = vBackpropInputTranspose.rowwise().sum().transpose();
 
     // derivative wrt filters (dOut/df = In conv Out)
-    DataType im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
     dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
     this->mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
 
     // derivative wrt to input
-    DataType colImage = this->mWeights * vBackpropInputTranspose;
-    this->mBackpropOutput = DataType::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = this->mWeights * vBackpropInputTranspose;
+    this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
     dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
 
     // std::cout << "(*mInputPtr)" << std::endl;
