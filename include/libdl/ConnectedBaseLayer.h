@@ -60,7 +60,7 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(si
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, 1.0); // TODO which distribution? (maybe try Ho / Xavier initialization)
+    std::normal_distribution<float> vRandDistr(0, sqrt(2/aInitVariance)); // TODO which distribution? (maybe try Ho / Xavier initialization)
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDim);

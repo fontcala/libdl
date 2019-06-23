@@ -29,7 +29,7 @@ int main()
   const size_t vStride1 = 2;
   const size_t vOutputDepth1 = 6;
 
-  ConvLayer<SigmoidActivation> firstConvLayer(vFilterHeight1,
+  ConvLayer<ReLUActivation> firstConvLayer(vFilterHeight1,
                                                       vFilterWidth1,
                                                       vPaddingHeight1,
                                                       vPaddingWidth1,
@@ -47,7 +47,7 @@ int main()
   const size_t vPaddingWidth2 = 1;
   const size_t vStride2 = 2;
   const size_t vOutputDepth2 = 7;
-  ConvLayer<SigmoidActivation> secondConvLayer(vFilterHeight2,
+  ConvLayer<ReLUActivation> secondConvLayer(vFilterHeight2,
                                                          vFilterWidth2,
                                                          vPaddingHeight2,
                                                          vPaddingWidth2,

@@ -31,14 +31,14 @@ template <class DataType>
 void L2LossLayer<DataType>::ForwardPass()
 {
     //check same number of training samples.
-    const size_t vLabelNum = mLabels.rows();
-    const size_t vOutputNum = (*mInputPtr).rows();
+    const size_t vLabelNum = this->mLabels.rows();
+    const size_t vOutputNum = (*(this->mInputPtr)).rows();
     if (vLabelNum == vOutputNum)
     {
         //L2
-        mGradientHelper = (*mInputPtr) - mLabels;
+        mGradientHelper = *(this->mInputPtr) - this->mLabels;
         // Loss divided by number of examples;
-        mLoss = (0.5/static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
+        this->mLoss = (0.5/static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
     }
     else
     {
@@ -49,6 +49,6 @@ void L2LossLayer<DataType>::ForwardPass()
 template <class DataType>
 void L2LossLayer<DataType>::BackwardPass()
 {
-    mBackpropOutput = mGradientHelper;
+    this->mBackpropOutput = mGradientHelper;
 };
 #endif

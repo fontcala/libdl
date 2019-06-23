@@ -1,8 +1,11 @@
 #include <iostream>
-#include "libdl/FullyConnectedLayer.h"
-#include "libdl/SigmoidActivationLayer.h"
-#include "libdl/L2LossLayer.h"
+#include <libdl/dlfunctions.h>
+#include <libdl/dltypes.h>
+#include <libdl/SoftmaxLossLayer.h>
+#include <libdl/FullyConnectedLayer.h>
+#include <libdl/L2LossLayer.h>
 
+using Eigen::MatrixXd;
 int main()
 {
     MatrixXd inputData(4, 2);
@@ -16,10 +19,8 @@ int main()
     // 1 1    0
 
     // Construct the Layers
-    FullyConnectedLayer firstLayer(2, 2);
-    FullyConnectedLayer secondLayer(2, 1);
-    SigmoidActivationLayer firstSigmoidLayer;
-    SigmoidActivationLayer secondSigmoidLayer;
+    FullyConnectedLayer<SigmoidActivation> firstLayer(2, 2);
+    FullyConnectedLayer<SigmoidActivation> secondLayer(2, 1);
     L2LossLayer L2Layer;
 
     // // OPTIONAL Weights and biases made Public in case you want to set your own weights.
@@ -55,15 +56,12 @@ int main()
     else
     {
         
-        firstSigmoidLayer.SetInput(firstLayer.GetOutput());
-        secondLayer.SetInput(firstSigmoidLayer.GetOutput());
-        secondSigmoidLayer.SetInput(secondLayer.GetOutput());
-        L2Layer.SetInput(secondSigmoidLayer.GetOutput());
 
-        firstLayer.SetBackpropInput(firstSigmoidLayer.GetBackpropOutput());
-        firstSigmoidLayer.SetBackpropInput(secondLayer.GetBackpropOutput());
-        secondLayer.SetBackpropInput(secondSigmoidLayer.GetBackpropOutput());
-        secondSigmoidLayer.SetBackpropInput(L2Layer.GetBackpropOutput());
+        secondLayer.SetInput(firstLayer.GetOutput());
+        L2Layer.SetInput(secondLayer.GetOutput());
+
+        firstLayer.SetBackpropInput(secondLayer.GetBackpropOutput());
+        secondLayer.SetBackpropInput(L2Layer.GetBackpropOutput());
 
         firstLayer.mLearningRate = 0.05;
         secondLayer.mLearningRate = 0.05;
@@ -87,22 +85,14 @@ int main()
             L2Layer.SetLabels(inputLabels);
             //std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
             firstLayer.ForwardPass();
-            //std::cout << "---- firstSigmoidLayer.ForwardPass() ----" << std::endl;
-            firstSigmoidLayer.ForwardPass();
             //std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
             secondLayer.ForwardPass();
-            //std::cout << "---- secondSigmoidLayer.ForwardPass() ----" << std::endl;
-            secondSigmoidLayer.ForwardPass();
             //std::cout << "---- secondLayer.ComputeLoss() ----" << std::endl;
             L2Layer.ForwardPass();
-            //std::cout << "---- secondLayer.BackwardPass() ----" << std::endl;
+            //std::cout << "---- L2Layer.ComputeLoss() ----" << std::endl;
             L2Layer.BackwardPass();
-            //
-            secondSigmoidLayer.BackwardPass();
-            //
+            //std::cout << "---- secondLayer.BackwardPass() ----" << std::endl;
             secondLayer.BackwardPass();
-            //std::cout << "---- firstSigmoidLayer.BackwardPass() ----" << std::endl;
-            firstSigmoidLayer.BackwardPass();
             //std::cout << "---- firstLayer.BackwardPass() ----" << std::endl;
             firstLayer.BackwardPass();
             if (i % 100 == 0)
@@ -110,14 +100,10 @@ int main()
                 firstLayer.SetInput(inputData);
                 L2Layer.SetLabels(inputLabels);
                 firstLayer.ForwardPass();
-                firstSigmoidLayer.ForwardPass();
                 secondLayer.ForwardPass();
-                secondSigmoidLayer.ForwardPass();
                 L2Layer.ForwardPass();
                 std::cout << "----- Total Loss: ----" << std::endl;
                 std::cout << L2Layer.GetLoss() << std::endl;
-                std::cout << "----- Total Out: -----" << std::endl;
-                std::cout << *(secondSigmoidLayer.GetOutput()) << std::endl;
                 std::cout << "----- Total Labels: --" << std::endl;
                 std::cout << inputLabels << std::endl;
             }

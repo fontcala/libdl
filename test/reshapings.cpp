@@ -3,6 +3,7 @@
 #include "libdl/dlfunctions.h"
 
 // TODO make scenarios for different stride, sizes etc...
+using Eigen::MatrixXd;
 TEST_CASE("shapes", "3D horizontal stacked im2col")
 {
 

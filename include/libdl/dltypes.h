@@ -3,6 +3,10 @@
 
 #include "dlfunctions.h"
 
+/**
+@class ConvDataDims.
+@brief encapsulates dimensions of convolutional data.
+ */
 struct ConvDataDims
 {
     const size_t Depth;
@@ -42,6 +46,7 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 {
 }
 
+// Data Structure to pass pointer and dimensions too.
 // Make non copyable and non movable?
 // template <class DimType, class DataType>
 // class DataWrapper
@@ -61,6 +66,31 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 // };
 
 // My classes templated with an activation function class, make all of this classes base of one given class?
+
+/**
+@class LinearActivation.
+@brief linear activation.
+ */
+template <class DataType>
+class LinearActivation
+{
+public:
+    void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
+};
+template <class DataType>
+void LinearActivation<DataType>::ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+{
+}
+template <class DataType>
+void LinearActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+{
+}
+
+/**
+@class SigmoidActivation.
+@brief sigmoid activation.
+ */
 template <class DataType>
 class SigmoidActivation
 {
@@ -68,35 +98,45 @@ private:
     Eigen::Matrix<DataType, Dynamic, Dynamic> mSigmoidHelper;
 
 public:
-    void Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
-    void Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
+    void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
 };
 template <class DataType>
-void SigmoidActivation<DataType>::Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void SigmoidActivation<DataType>::ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
     aInput = 1 / (1 + exp(-1 * aInput.array()));
     mSigmoidHelper = aInput; // helper for backprop
 }
 template <class DataType>
-void SigmoidActivation<DataType>::Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+void SigmoidActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
 {
     aBackpropInput = aBackpropInput.array() * (mSigmoidHelper.array() * (1 - mSigmoidHelper.array()));
 }
 
+/**
+@class ReLUActivation.
+@brief ReLU activation.
+ */
 template <class DataType>
-class LinearActivation
+class ReLUActivation
 {
+private:
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mReLUHelper;
 public:
-    void Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
-    void Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
+    void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
 };
 template <class DataType>
-void LinearActivation<DataType>::Activate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void ReLUActivation<DataType>::ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
+    mReLUHelper = aInput;
+    aInput = aInput.cwiseMax(0);
 }
 template <class DataType>
-void LinearActivation<DataType>::Backpropagate(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+void ReLUActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
 {
+    Eigen::Matrix<bool, Dynamic, Dynamic> vDerivative = (mReLUHelper.array() > 0);
+    aBackpropInput = aBackpropInput.array() * vDerivative.cast<DataType>().array();
 }
 
 #endif

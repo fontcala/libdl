@@ -1,7 +1,6 @@
 #include <libdl/hello.h>
 #include <libdl/dlfunctions.h>
 #include <libdl/ConvLayer.h>
-#include <libdl/SigmoidActivationLayer.h>
 #include <libdl/FlattenLayer.h>
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
@@ -82,7 +81,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vStride1 = 2;
     const size_t vOutputDepth1 = 6;
 
-    ConvLayer<SigmoidActivation, double> firstConvLayer(vFilterHeight1,
+    ConvLayer<ReLUActivation, double> firstConvLayer(vFilterHeight1,
                              vFilterWidth1,
                              vPaddingHeight1,
                              vPaddingWidth1,
@@ -101,7 +100,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vPaddingWidth2 = 1;
     const size_t vStride2 = 2;
     const size_t vOutputDepth2 = 8;
-    ConvLayer<SigmoidActivation, double> secondConvLayer(vFilterHeight2,
+    ConvLayer<ReLUActivation, double> secondConvLayer(vFilterHeight2,
                               vFilterWidth2,
                               vPaddingHeight2,
                               vPaddingWidth2,
@@ -168,8 +167,8 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
             lossLayer.ForwardPass();
             // std::cout << "lossLayer.GetLoss() ++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
             // std::cout << lossLayer.GetLoss() << std::endl;
-            //std::cout << "---------start backward ---------" << std::endl;
-            //std::cout << "lossLayer.BackwardPass()  ------" << std::endl;
+            // std::cout << "---------start backward ---------" << std::endl;
+            // std::cout << "lossLayer.BackwardPass()  ------" << std::endl;
             lossLayer.BackwardPass();
             //std::cout << "fcLayer.BackwardPass()  ------" << std::endl;
             fcLayer.BackwardPass();

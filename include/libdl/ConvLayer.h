@@ -100,7 +100,7 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         Eigen::Matrix<DataType, Dynamic, Dynamic> vOutputConvolution(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth);
         dlfunctions::convolution(vOutputConvolution, this->mOutputDims.Height, this->mOutputDims.Width, this->mWeights, mFilterHeight, mFilterWidth, *(this->mInputPtr), this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
         this->mOutput = vOutputConvolution + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
-        this->ActivationFunction.Activate(this->mOutput);
+        this->ActivationFunction.ForwardFunction(this->mOutput);
         // std::cout << "mWeights" << std::endl;
         // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
         // std::cout << "(*mInputPtr)" << std::endl;
@@ -119,7 +119,7 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     // Backprop input from previous layer.
     Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
-    this->ActivationFunction.Backpropagate(vBackpropInput);
+    this->ActivationFunction.BackwardFunction(vBackpropInput);
 
     Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
 

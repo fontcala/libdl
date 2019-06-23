@@ -42,7 +42,7 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
   {
     // TODO This can be rewritten as single matrix product. TODO look into coefficient-wise sum (solve with array() method)
     (this->mOutput) = *(this->mInputPtr) * this->mWeights + this->mBiases.replicate((this->mInputPtr)->rows(), 1);
-    this->ActivationFunction.Activate(this->mOutput);
+    this->ActivationFunction.ForwardFunction(this->mOutput);
     //TODO Erase all this
     // std::cout << "- (*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
@@ -71,7 +71,7 @@ template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
   Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
-  this->ActivationFunction.Backpropagate(vBackpropInput);
+  this->ActivationFunction.BackwardFunction(vBackpropInput);
   // std::cout << "- vBackpropOutput" << std::endl;
   // std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
   // times Sigmoid Derivative

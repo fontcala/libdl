@@ -2,6 +2,7 @@
 #include "catch2/catch.hpp"
 #include "libdl/dlfunctions.h"
 
+using Eigen::MatrixXd;
 TEST_CASE("conv", "convolution")
 {
     // Input
