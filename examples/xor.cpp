@@ -21,7 +21,7 @@ int main()
     // Construct the Layers
     FullyConnectedLayer<SigmoidActivation> firstLayer(2, 2);
     FullyConnectedLayer<SigmoidActivation> secondLayer(2, 1);
-    L2LossLayer L2Layer;
+    L2LossLayer L2Layer{};
 
     // // OPTIONAL Weights and biases made Public in case you want to set your own weights.
     // bool vManualSetWeights = false;
