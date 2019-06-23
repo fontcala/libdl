@@ -10,12 +10,7 @@
 
 /**
 @class FullyConnectedLayer
-@brief Base Class for Network Layer elements.
-
-@note Weight Initialization random but factor and distribution still hardcoded.
-@note Activation Function still hardcoded.
-@note Loss Function still hardcoded.
-@note Gradient Update still hardcoded.
+@brief Fully connected layer for dense layer elements.
  */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class FullyConnectedLayer : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
@@ -38,11 +33,12 @@ FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const
 template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
-  if (this->mInitializedFlag)
+  if (this->mValidInputFlag)
   {
     // TODO This can be rewritten as single matrix product. TODO look into coefficient-wise sum (solve with array() method)
     (this->mOutput) = *(this->mInputPtr) * this->mWeights + this->mBiases.replicate((this->mInputPtr)->rows(), 1);
     this->ActivationFunction.ForwardFunction(this->mOutput);
+
     //TODO Erase all this
     // std::cout << "- (*mInputPtr)" << std::endl;
     // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
@@ -54,46 +50,42 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
     // std::cout << mBiases << std::endl;
     // std::cout << "- (this->mOutput):" << std::endl;
     // std::cout << (this->mOutput) << std::endl;
-
-    // Activation Function
-    //ActivationFunction((this->mOutput));
-
-    // std::cout << "- (this->mOutput) after activation:" << std::endl;
-    // std::cout << (this->mOutput) << std::endl;
   }
   else
   {
-    throw(std::runtime_error("ForwardPass(): weights not initialized (FullyConnectedLayer)"));
+    throw(std::runtime_error("ForwardPass(): invalid input"));
   };
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
-  Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
-  this->ActivationFunction.BackwardFunction(vBackpropInput);
-  // std::cout << "- vBackpropOutput" << std::endl;
-  // std::cout << vBackpropInput.rows() << " " << vBackpropInput.cols()<< std::endl;
-  // times Sigmoid Derivative
-  //DataType vDerivatedBackPropInput = vBackpropInput.array() * ((this->mOutput).array() * (1 - (this->mOutput).array()));
 
-  // times ReLu Derivative
-  //DataType vDerivatedBackPropInput = vBackpropInput.cwiseMax(0);
-  this->mGradientsWeights = this->mInputPtr->transpose() * vBackpropInput;
-  this->mGradientsBiases = vBackpropInput.colwise().sum();
-  this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
+  if (this->mValidBackpropInputFlag)
+  {
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
+    this->ActivationFunction.BackwardFunction(vBackpropInput);
+    this->mGradientsWeights = this->mInputPtr->transpose() * vBackpropInput;
+    this->mGradientsBiases = vBackpropInput.colwise().sum();
+    this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
 
-  // std::cout << "- mBackpropOutput" << std::endl;
-  // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols()<< std::endl;
-  // std::cout << "(*mInputPtr)" << std::endl;
-  // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
-  // std::cout << "- *vBackPropInput" << std::endl;
-  // std::cout << vBackpropInput << std::endl;
-  // std::cout << "- *vDerivatedBackPropInput" << std::endl;
-  // std::cout << vDerivatedBackPropInput << std::endl;
-  // std::cout << "- *mGradientsWeights" << std::endl;
-  // std::cout << mGradientsWeights << std::endl;
+    //TODO Erase all this
+    // std::cout << "- mBackpropOutput" << std::endl;
+    // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols()<< std::endl;
+    // std::cout << "(*mInputPtr)" << std::endl;
+    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
+    // std::cout << "- *vBackPropInput" << std::endl;
+    // std::cout << vBackpropInput << std::endl;
+    // std::cout << "- *vDerivatedBackPropInput" << std::endl;
+    // std::cout << vDerivatedBackPropInput << std::endl;
+    // std::cout << "- *mGradientsWeights" << std::endl;
+    // std::cout << mGradientsWeights << std::endl;
 
-  this->UpdateParams();
+    this->UpdateParams();
+  }
+  else
+  {
+    throw(std::runtime_error("BackwardPass(): invalid input"));
+  };
 };
 #endif

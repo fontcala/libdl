@@ -7,7 +7,7 @@
 #include "BaseLayer.h"
 /**
 @class LossBaseLayer
-@brief L2 Loss Layer.
+@brief Base Layer for Loss function classes, introduces label inputs and getters.
  */
 template <class DataType>
 class LossBaseLayer : public BaseLayer<size_t,size_t, DataType>

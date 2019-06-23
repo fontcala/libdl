@@ -7,7 +7,7 @@
 #include "BaseLayer.h"
 /**
 @class FlattenLayer
-@brief Flatten Layer.
+@brief Flatten Layer, necessary interface between convolutional layers and fully connected layers.
  */
 template <class DataType = double>
 class FlattenLayer : public BaseLayer<ConvDataDims, size_t, DataType>

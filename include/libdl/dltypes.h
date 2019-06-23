@@ -46,7 +46,7 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 {
 }
 
-// Data Structure to pass pointer and dimensions too.
+// TODO: Data Structure to pass pointer and dimensions too.
 // Make non copyable and non movable?
 // template <class DimType, class DataType>
 // class DataWrapper
@@ -66,10 +66,11 @@ ConvDataDims::ConvDataDims(const size_t aOutDepth,
 // };
 
 // My classes templated with an activation function class, make all of this classes base of one given class?
+// Idea of this is to make the weight initialization for each layer dependant on which activation function class used.
 
 /**
 @class LinearActivation.
-@brief linear activation.
+@brief linear activation, mainly for use in the layer before loss layer.
  */
 template <class DataType>
 class LinearActivation

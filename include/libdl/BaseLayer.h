@@ -18,7 +18,8 @@ class BaseLayer
 protected:
     // Flags
     bool mInitializedFlag = false;
-    bool mValidInput = false;
+    bool mValidInputFlag = false;
+    bool mValidBackpropInputFlag = false;
 
     // Data
     Eigen::Matrix<DataType, Dynamic, Dynamic> mOutput;
@@ -55,22 +56,29 @@ public:
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer() : mInputPtr(NULL),
-                                                                       mBackpropInputPtr(NULL),
+BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer() : mInputPtr(nullptr),
+                                                                       mBackpropInputPtr(nullptr),
                                                                        mInputDims(),
                                                                        mOutputDims(){};
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims) : mInputPtr(NULL),
-                                                                                                                                              mBackpropInputPtr(NULL),
+BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims) : mInputPtr(nullptr),
+                                                                                                                                              mBackpropInputPtr(nullptr),
                                                                                                                                               mInputDims(aInputDims),
                                                                                                                                               mOutputDims(aOutputDims){};
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
 void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput)
 {
-    // TODO check validity
-    mInputPtr = aInput;
+    if (aInput != nullptr)
+    {
+        mInputPtr = aInput;
+        mValidInputFlag = true;
+    }
+    else
+    {
+        throw(std::runtime_error("SetInput(): layer parameters not initialized"));
+    }
 };
 
 // TODO: using this one indicates it is the first layer, so no need for mBackpropagateOutput update (set a Flag)
@@ -79,13 +87,21 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eig
 {
     // TODO check validity
     mInputPtr = &aInput;
+    mValidInputFlag = true;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
 void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aBackpropInput)
 {
-    // TODO check validity
-    mBackpropInputPtr = aBackpropInput;
+    if (aBackpropInput != nullptr)
+    {
+        mBackpropInputPtr = aBackpropInput;
+        mValidBackpropInputFlag = true;
+    }
+    else
+    {
+        throw(std::runtime_error("SetBackpropInput(): layer parameters not initialized"));
+    }
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>

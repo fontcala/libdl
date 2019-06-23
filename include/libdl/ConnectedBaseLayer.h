@@ -7,7 +7,10 @@
 #include "BaseLayer.h"
 /**
 @class ConnectedBaseLayer
-@brief Base Connected Layer introduces the parameter of cumputation layers
+@brief Base Layer for classes with parameters, introduces the parameters, their update and initialization.
+
+@note Weight Initialization is He Initialization.
+@note Gradient Update is SGD with nesterov momentum.
  */
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 class ConnectedBaseLayer : public BaseLayer<DimType, DimType, DataType>
@@ -34,6 +37,7 @@ public:
     /**
     @function InitParams
     @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
+    @note He Initialization dependent on layer type with the parameter  \c aInitVariance
     */
     void InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance);
     void UpdateParams();
@@ -60,7 +64,7 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(si
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, sqrt(2/aInitVariance)); // TODO which distribution? (maybe try Ho / Xavier initialization)
+    std::normal_distribution<float> vRandDistr(0, sqrt(2/aInitVariance));
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
     mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDim);
