@@ -63,7 +63,7 @@ int main()
   FullyConnectedLayer<LinearActivation> fcLayer(flattenLayer.GetOutputDims(), vNumCategories);
 
   // losslayer
-  SoftmaxLossLayer lossLayer;
+  SoftmaxLossLayer lossLayer{};
   lossLayer.SetLabels(Label);
 
   // Connect

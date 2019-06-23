@@ -81,7 +81,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vStride1 = 2;
     const size_t vOutputDepth1 = 6;
 
-    ConvLayer<ReLUActivation, double> firstConvLayer(vFilterHeight1,
+    ConvLayer<ReLUActivation> firstConvLayer(vFilterHeight1,
                              vFilterWidth1,
                              vPaddingHeight1,
                              vPaddingWidth1,
@@ -100,7 +100,7 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
     const size_t vPaddingWidth2 = 1;
     const size_t vStride2 = 2;
     const size_t vOutputDepth2 = 8;
-    ConvLayer<ReLUActivation, double> secondConvLayer(vFilterHeight2,
+    ConvLayer<ReLUActivation> secondConvLayer(vFilterHeight2,
                               vFilterWidth2,
                               vPaddingHeight2,
                               vPaddingWidth2,
@@ -111,13 +111,13 @@ std::vector<size_t> ExampleModel::runExample(const size_t aEpochNum)
 
 
     // flatten layer
-    FlattenLayer<double> flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
+    FlattenLayer flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
 
     // fullyconnectedlayer
-    FullyConnectedLayer<LinearActivation, double> fcLayer(flattenLayer.GetOutputDims(), mNumCategories);
+    FullyConnectedLayer<LinearActivation> fcLayer(flattenLayer.GetOutputDims(), mNumCategories);
 
     // losslayer
-    SoftmaxLossLayer<double> lossLayer;
+    SoftmaxLossLayer lossLayer{};
 
     // Connect
     secondConvLayer.SetInput(firstConvLayer.GetOutput());
