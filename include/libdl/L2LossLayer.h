@@ -13,7 +13,6 @@ template <class DataType = double>
 class L2LossLayer : public LossBaseLayer<DataType>
 {
 protected:
-
     Eigen::Matrix<DataType, Dynamic, Dynamic> mGradientHelper;
 
 public:
@@ -30,20 +29,27 @@ L2LossLayer<DataType>::L2LossLayer(){};
 template <class DataType>
 void L2LossLayer<DataType>::ForwardPass()
 {
-    //check same number of training samples.
-    const size_t vLabelNum = this->mLabels.rows();
-    const size_t vOutputNum = (*(this->mInputPtr)).rows();
-    if (vLabelNum == vOutputNum)
+    if (this->mValidInputFlag)
     {
-        //L2
-        mGradientHelper = *(this->mInputPtr) - this->mLabels;
-        // Loss divided by number of examples;
-        this->mLoss = (0.5/static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
+        //check same number of training samples.
+        const size_t vLabelNum = this->mLabels.rows();
+        const size_t vOutputNum = (*(this->mInputPtr)).rows();
+        if (vLabelNum == vOutputNum)
+        {
+            //L2
+            mGradientHelper = *(this->mInputPtr) - this->mLabels;
+            // Loss divided by number of examples;
+            this->mLoss = (0.5 / static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
+        }
+        else
+        {
+            throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
+        }
     }
     else
     {
-        throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
-    }
+        throw(std::runtime_error("ForwardPass(): invalid input"));
+    };
 };
 
 template <class DataType>

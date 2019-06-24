@@ -3,6 +3,7 @@
 #include <libdl/dltypes.h>
 #include <libdl/ConvLayer.h>
 #include <libdl/FlattenLayer.h>
+#include <libdl/MaxPoolLayer.h>
 #include <libdl/SoftmaxLossLayer.h>
 #include <libdl/FullyConnectedLayer.h>
 
@@ -30,15 +31,22 @@ int main()
   const size_t vOutputDepth1 = 6;
 
   ConvLayer<ReLUActivation> firstConvLayer(vFilterHeight1,
-                                                      vFilterWidth1,
-                                                      vPaddingHeight1,
-                                                      vPaddingWidth1,
-                                                      vStride1,
-                                                      vInputDepth1,
-                                                      vInputHeight1,
-                                                      vInputWidth1,
-                                                      vOutputDepth1,
-                                                      vInputSampleNumber);
+                                           vFilterWidth1,
+                                           vPaddingHeight1,
+                                           vPaddingWidth1,
+                                           vStride1,
+                                           vInputDepth1,
+                                           vInputHeight1,
+                                           vInputWidth1,
+                                           vOutputDepth1,
+                                           vInputSampleNumber);
+
+  const size_t vPoolSize = 2;
+  const size_t vStridePool = 2;
+  MaxPoolLayer mpLayer(firstConvLayer.GetOutputDims(),
+                       vPoolSize,
+                       vStridePool,
+                       vInputSampleNumber);
 
   // Conv 2
   const size_t vFilterHeight2 = 3;
@@ -48,13 +56,13 @@ int main()
   const size_t vStride2 = 2;
   const size_t vOutputDepth2 = 7;
   ConvLayer<ReLUActivation> secondConvLayer(vFilterHeight2,
-                                                         vFilterWidth2,
-                                                         vPaddingHeight2,
-                                                         vPaddingWidth2,
-                                                         vStride2,
-                                                         firstConvLayer.GetOutputDims(),
-                                                         vOutputDepth2,
-                                                         vInputSampleNumber);
+                                            vFilterWidth2,
+                                            vPaddingHeight2,
+                                            vPaddingWidth2,
+                                            vStride2,
+                                            mpLayer.GetOutputDims(),
+                                            vOutputDepth2,
+                                            vInputSampleNumber);
 
   // flatten layer
   FlattenLayer flattenLayer(secondConvLayer.GetOutputDims(), vInputSampleNumber);
@@ -68,12 +76,14 @@ int main()
 
   // Connect
   firstConvLayer.SetInput(Input);
-  secondConvLayer.SetInput(firstConvLayer.GetOutput());
+  mpLayer.SetInput(firstConvLayer.GetOutput());
+  secondConvLayer.SetInput(mpLayer.GetOutput());
   flattenLayer.SetInput(secondConvLayer.GetOutput());
   fcLayer.SetInput(flattenLayer.GetOutput());
   lossLayer.SetInput(fcLayer.GetOutput());
 
-  firstConvLayer.SetBackpropInput(secondConvLayer.GetBackpropOutput());
+  firstConvLayer.SetBackpropInput(mpLayer.GetBackpropOutput());
+  mpLayer.SetBackpropInput(secondConvLayer.GetBackpropOutput());
   secondConvLayer.SetBackpropInput(flattenLayer.GetBackpropOutput());
   flattenLayer.SetBackpropInput(fcLayer.GetBackpropOutput());
   fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
@@ -83,6 +93,8 @@ int main()
     std::cout << "---------start forward ---------" << std::endl;
     std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
     firstConvLayer.ForwardPass();
+    std::cout << "mpLayer.ForwardPass()  ------" << std::endl;
+    mpLayer.ForwardPass();
     std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
     secondConvLayer.ForwardPass();
     std::cout << "flattenLayer.ForwardPass()  ------" << std::endl;
@@ -103,6 +115,8 @@ int main()
     flattenLayer.BackwardPass();
     std::cout << "secondConv.BackwardPass()  ------" << std::endl;
     secondConvLayer.BackwardPass();
+    std::cout << "mpLayer.BackwardPass()  ------" << std::endl;
+    mpLayer.BackwardPass();
     std::cout << "firstConvLayer.BackwardPass()  ------" << std::endl;
     firstConvLayer.BackwardPass();
   }

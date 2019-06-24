@@ -19,6 +19,11 @@ struct ConvDataDims
     ConvDataDims(const size_t aOutDepth,
                  const size_t aInHeight,
                  const size_t aInWidth,
+                 const size_t aPoolSize,
+                 const size_t aStride);
+    ConvDataDims(const size_t aOutDepth,
+                 const size_t aInHeight,
+                 const size_t aInWidth,
                  const size_t aFilterHeight,
                  const size_t aFilterWidth,
                  const size_t aPaddingHeight,
@@ -33,6 +38,13 @@ ConvDataDims::ConvDataDims(const size_t aDepth,
                            const size_t aWidth) : Depth(aDepth),
                                                   Height(aHeight),
                                                   Width(aWidth) {}
+ConvDataDims::ConvDataDims(const size_t aInDepth,
+                           const size_t aInHeight,
+                           const size_t aInWidth,
+                           const size_t aPoolSize,
+                           const size_t aStride) : Depth(aInDepth),
+                                                   Height((aInHeight - aPoolSize) / aStride + 1),
+                                                   Width((aInWidth - aPoolSize) / aStride + 1) {}
 ConvDataDims::ConvDataDims(const size_t aOutDepth,
                            const size_t aInHeight,
                            const size_t aInWidth,
@@ -123,6 +135,7 @@ class ReLUActivation
 {
 private:
     Eigen::Matrix<DataType, Dynamic, Dynamic> mReLUHelper;
+
 public:
     void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
     void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);

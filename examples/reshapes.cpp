@@ -1,6 +1,7 @@
 #include <iostream>
 #include <type_traits>
 #include <libdl/dlfunctions.h>
+#include <libdl/MaxPoolLayer.h>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -44,7 +45,7 @@ int main()
     std::cout << InputVol << std::endl;
 
     // Parameters
-    const size_t tFILTERSIZE = 2; // Both sides
+    const size_t tFILTERSIZE = 2;
     size_t vNumChannelsVol = 3;
     size_t vImageHeightVol = 4;
     size_t vImageWidthVol = 4;
@@ -54,36 +55,16 @@ int main()
     size_t vOutWidthVol = (vImageWidthVol - tFILTERSIZE + 2 * vPaddingVol) / vStrideVol + 1;
     size_t vOutFieldsVol = tFILTERSIZE * tFILTERSIZE;
     size_t vNumSamples = 1;
-    MatrixXd OutputVol(vOutHeightVol * vOutWidthVol, vNumChannelsVol);
-    for (size_t vChannelIndex = 0; vChannelIndex < vNumChannelsVol; vChannelIndex++)
-    {
-        OutputVol.col(vChannelIndex) = dlfunctions::im2pool(tFILTERSIZE, InputVol.col(vChannelIndex).data(), vOutHeightVol, vOutWidthVol, vImageHeightVol, vImageWidthVol, vStrideVol, vNumSamples);
-    }
-    std::cout << "OutputVol" << std::endl;
-    std::cout << OutputVol << std::endl;
 
-    // Backward Pass
-    MatrixXd BackpropOutputSingleVol(vOutHeightVol * vOutWidthVol, vOutFieldsVol);
-    MatrixXd BackpropOutputAll(vOutHeightVol * vOutWidthVol, vOutFieldsVol * vNumChannelsVol);
-    for (size_t vChannelIndex = 0; vChannelIndex < vNumChannelsVol; vChannelIndex++)
-    {
-        dlfunctions::im2colpool(tFILTERSIZE, InputVol.col(vChannelIndex).data(), BackpropOutputSingleVol.data(), vOutHeightVol, vOutWidthVol, vImageHeightVol, vImageWidthVol, vStrideVol, vNumSamples);
-        Eigen::Matrix<double, Dynamic, Dynamic> someMat = BackpropOutputSingleVol.colwise() - BackpropOutputSingleVol.rowwise().maxCoeff();
-        Eigen::Matrix<bool, Dynamic, Dynamic> someMatBool = someMat.cwiseAbs().array() < std::numeric_limits<double>::epsilon();
-        Eigen::Matrix<double, Dynamic, Dynamic> backRel = (OutputVol.col(vChannelIndex).replicate(1, vOutFieldsVol));
-        BackpropOutputAll.block(0, vOutFieldsVol * vChannelIndex, vOutHeightVol * vOutWidthVol, vOutFieldsVol) = backRel.array() * someMatBool.cast<double>().array();
-    }
-    std::cout << "BackpropOutputAll" << std::endl;
-    std::cout << BackpropOutputAll << std::endl;
-    MatrixXd BackpropVol(16, 3);
-    size_t vBackFieldsVol = tFILTERSIZE * tFILTERSIZE * vNumChannelsVol;
-    dlfunctions::colpool2im(tFILTERSIZE, BackpropOutputAll.data(), BackpropVol.data(), vOutHeightVol, vOutWidthVol, vBackFieldsVol, vImageHeightVol, vImageWidthVol, vStrideVol, vNumSamples);
-    std::cout << "BackpropVol" << std::endl;
-    std::cout << BackpropVol << std::endl;
-    // Eigen::Matrix<double, Dynamic, Dynamic> vDerivative = (InputVol1.colwise() - maxVal);
-    // std::cout << "vDerivative" << std::endl;
-    // std::cout << vDerivative<< std::endl;
-    // Eigen::Matrix<bool, Dynamic, Dynamic> vDerivativeBool = vDerivative.cwiseAbs().array() <= std::numeric_limits<double>::epsilon();
-    // std::cout << "vDerivativeBool" << std::endl;
-    // std::cout << vDerivativeBool<< std::endl;
+    MaxPoolLayer maxP(vNumChannelsVol,vImageHeightVol,vImageWidthVol,tFILTERSIZE,vStrideVol,vNumSamples);
+    maxP.SetInput(InputVol);
+    maxP.ForwardPass();
+    std::cout << "*(maxP.GetOutput())"<< std::endl;
+    std::cout << *(maxP.GetOutput())<< std::endl;
+    maxP.SetBackpropInput(maxP.GetOutput());
+    maxP.BackwardPass();
+    std::cout << "*(maxP.GetBackpropOutput())"<< std::endl;
+    std::cout << *(maxP.GetBackpropOutput())<< std::endl;
+
+ 
 }
