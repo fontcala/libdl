@@ -6,6 +6,7 @@
 /**
 @class ConvDataDims.
 @brief encapsulates dimensions of convolutional data.
+@note uses the Named Constructor Idiom.
  */
 struct ConvDataDims
 {
@@ -13,23 +14,66 @@ struct ConvDataDims
     const size_t Height;
     const size_t Width;
     ConvDataDims();
+    // Input Constructor
     ConvDataDims(const size_t aDepth,
                  const size_t aHeight,
                  const size_t aWidth);
+    // MaxPool output Constructor
     ConvDataDims(const size_t aOutDepth,
                  const size_t aInHeight,
                  const size_t aInWidth,
                  const size_t aPoolSize,
                  const size_t aStride);
-    ConvDataDims(const size_t aOutDepth,
-                 const size_t aInHeight,
-                 const size_t aInWidth,
-                 const size_t aFilterHeight,
-                 const size_t aFilterWidth,
-                 const size_t aPaddingHeight,
-                 const size_t aPaddingWidth,
-                 const size_t aStride);
+    // Normal Convolution output Constructor
+    static ConvDataDims NormalConv(
+        const size_t aOutDepth,
+        const size_t aInHeight,
+        const size_t aInWidth,
+        const size_t aFilterHeight,
+        const size_t aFilterWidth,
+        const size_t aPaddingHeight,
+        const size_t aPaddingWidth,
+        const size_t aStride);
+
+    static ConvDataDims TransposedConv(
+        const size_t aOutDepth,
+        const size_t aInHeight,
+        const size_t aInWidth,
+        const size_t aFilterHeight,
+        const size_t aFilterWidth,
+        const size_t aPaddingHeight,
+        const size_t aPaddingWidth,
+        const size_t aStride);
 };
+ConvDataDims ConvDataDims::NormalConv(
+    const size_t aOutDepth,
+    const size_t aInHeight,
+    const size_t aInWidth,
+    const size_t aFilterHeight,
+    const size_t aFilterWidth,
+    const size_t aPaddingHeight,
+    const size_t aPaddingWidth,
+    const size_t aStride)
+{
+    return ConvDataDims(aOutDepth,
+                        (aInHeight - aFilterHeight + 2 * aPaddingHeight) / aStride + 1,
+                        (aInWidth - aFilterWidth + 2 * aPaddingWidth) / aStride + 1);
+}
+ConvDataDims ConvDataDims::TransposedConv(
+    const size_t aOutDepth,
+    const size_t aInHeight,
+    const size_t aInWidth,
+    const size_t aFilterHeight,
+    const size_t aFilterWidth,
+    const size_t aPaddingHeight,
+    const size_t aPaddingWidth,
+    const size_t aStride)
+{
+    return ConvDataDims(aOutDepth,
+                        (aInHeight - 1) * aStride + aFilterHeight - 2 * aPaddingHeight,
+                        (aInWidth - 1) * aStride + aFilterWidth - 2 * aPaddingWidth);
+}
+
 ConvDataDims::ConvDataDims() : Depth(0),
                                Height(0),
                                Width(0) {}
@@ -45,18 +89,18 @@ ConvDataDims::ConvDataDims(const size_t aInDepth,
                            const size_t aStride) : Depth(aInDepth),
                                                    Height((aInHeight - aPoolSize) / aStride + 1),
                                                    Width((aInWidth - aPoolSize) / aStride + 1) {}
-ConvDataDims::ConvDataDims(const size_t aOutDepth,
-                           const size_t aInHeight,
-                           const size_t aInWidth,
-                           const size_t aFilterHeight,
-                           const size_t aFilterWidth,
-                           const size_t aPaddingHeight,
-                           const size_t aPaddingWidth,
-                           const size_t aStride) : Depth(aOutDepth),
-                                                   Height((aInHeight - aFilterHeight + 2 * aPaddingHeight) / aStride + 1),
-                                                   Width((aInWidth - aFilterWidth + 2 * aPaddingWidth) / aStride + 1)
-{
-}
+// ConvDataDims::ConvDataDims(const size_t aOutDepth,
+//                            const size_t aInHeight,
+//                            const size_t aInWidth,
+//                            const size_t aFilterHeight,
+//                            const size_t aFilterWidth,
+//                            const size_t aPaddingHeight,
+//                            const size_t aPaddingWidth,
+//                            const size_t aStride) : Depth(aOutDepth),
+//                                                    Height((aInHeight - aFilterHeight + 2 * aPaddingHeight) / aStride + 1),
+//                                                    Width((aInWidth - aFilterWidth + 2 * aPaddingWidth) / aStride + 1)
+// {
+// }
 
 // TODO: Data Structure to pass pointer and dimensions too.
 // Make non copyable and non movable?

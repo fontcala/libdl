@@ -7,7 +7,7 @@
 #include "BaseLayer.h"
 /**
 @class MaxPoolLayer
-@brief MaxPool Layer, .
+@brief MaxPool Layer.
  */
 template <class DataType = double>
 class MaxPoolLayer : public BaseLayer<ConvDataDims, ConvDataDims, DataType>
@@ -47,10 +47,10 @@ void MaxPoolLayer<DataType>::ForwardPass()
         {
             (this->mOutput).col(vChannelIndex) = dlfunctions::im2pool(mPoolSize, this->mInputPtr->col(vChannelIndex).data(), this->mOutputDims.Height, this->mOutputDims.Width, this->mInputDims.Height, this->mInputDims.Width, mStride, mInputSampleNumber);
         }
-        std::cout << "(*mInputPtr)" << std::endl;
-        std::cout << this->mInputPtr->rows() << " " << this->mInputPtr->cols() << std::endl;
-        std::cout << "mOutput" << std::endl;
-        std::cout << (this->mOutput).rows() << " " << (this->mOutput).cols() << std::endl;
+        // std::cout << "(*mInputPtr)" << std::endl;
+        // std::cout << this->mInputPtr->rows() << " " << this->mInputPtr->cols() << std::endl;
+        // std::cout << "mOutput" << std::endl;
+        // std::cout << (this->mOutput).rows() << " " << (this->mOutput).cols() << std::endl;
     }
     else
     {

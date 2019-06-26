@@ -60,7 +60,7 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aInputHeight,
                                                        const size_t aInputWidth,
                                                        const size_t aOutputDepth,
-                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
+                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
                                                                                           mFilterHeight(aFilterHeight),
                                                                                           mFilterWidth(aFilterWidth),
                                                                                           mPaddingHeight(aPaddingHeight),
@@ -80,7 +80,7 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aStride,
                                                        const ConvDataDims aInputDims,
                                                        const size_t aOutputDepth,
-                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(aInputDims, ConvDataDims(aOutputDepth, aInputDims.Height, aInputDims.Width, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
+                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(aInputDims, ConvDataDims::NormalConv(aOutputDepth, aInputDims.Height, aInputDims.Width, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
                                                                                           mFilterHeight(aFilterHeight),
                                                                                           mFilterWidth(aFilterWidth),
                                                                                           mPaddingHeight(aPaddingHeight),
@@ -97,6 +97,7 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mValidInputFlag)
     {
+        //TODO improve this, no need for intermediate matrix, use this->mOutput directly.
         Eigen::Matrix<DataType, Dynamic, Dynamic> vOutputConvolution(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth);
         dlfunctions::convolution(vOutputConvolution, this->mOutputDims.Height, this->mOutputDims.Width, this->mWeights, mFilterHeight, mFilterWidth, *(this->mInputPtr), this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
         this->mOutput = vOutputConvolution + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);

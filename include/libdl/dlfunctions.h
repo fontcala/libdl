@@ -66,7 +66,7 @@ void im2col(const int FilterHeight, const int FilterWidth, const DataType *img, 
 }
 
 // Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
-// This is not just a reshaping, it aggregates for locations that have more than one filter in them!
+// This is not just a reshaping, it aggregates for locations that have more than one filter in them (eg stride and so on)!
 // Also here harder to support multiple images!
 template <class DataType>
 void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
