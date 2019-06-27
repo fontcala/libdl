@@ -23,7 +23,7 @@ int main()
   const size_t vPaddingHeight1 = 1;
   const size_t vPaddingWidth1 = 1;
   const size_t vStride1 = 1;
-  const size_t vOutputDepth1 = 6;
+  const size_t vOutputDepth1 = 2;
 
   TransposedConvLayer<ReLUActivation> someLayer(vFilterHeight1,
                                                 vFilterWidth1,
@@ -41,7 +41,7 @@ int main()
   someLayer.BackwardPass();
 
   std::cout << "-----------------someLayer2------------" << std::endl;
-  const size_t vInputDepth2 = 6;
+  const size_t vInputDepth2 = 2;
   const size_t vInputHeight2 = 4;
   const size_t vInputWidth2 = 4;
   MatrixXd Input2 = MatrixXd::Random(vInputHeight2 * vInputWidth2, vInputDepth2);
