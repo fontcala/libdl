@@ -3,7 +3,7 @@
 #include "libdl/dlfunctions.h"
 
 using Eigen::MatrixXd;
-TEST_CASE("conv", "convolution")
+TEST_CASE("convolution with stacked Identity image kernels should be the same as the input", "convolution")
 {
     // Input
     MatrixXd InputVol1(16, 1);
@@ -40,7 +40,7 @@ TEST_CASE("conv", "convolution")
     SECTION("applying im2col manually")
     {
         MatrixXd OutputVol(vOutHeightVol * vOutWidthVol, vOutFieldsVol);
-        dlfunctions::im2col(tFILTERSIZE,tFILTERSIZE,InputVol.data(), OutputVol.data(), vOutHeightVol, vOutWidthVol, vOutFieldsVol, vImageHeightVol, vImageWidthVol, vNumChannelsVol, vPaddingVol, vPaddingVol, vStrideVol, vNumSamples);
+        dlfunctions::im2col(tFILTERSIZE,tFILTERSIZE,InputVol.data(), OutputVol.data(), vOutHeightVol, vOutWidthVol, vOutFieldsVol, vImageHeightVol, vImageWidthVol, vPaddingVol, vPaddingVol, vStrideVol);
         MatrixXd OutputConv = OutputVol * FilterVol;
 
         REQUIRE(OutputConv == InputVol);

@@ -36,8 +36,8 @@ void im2col(Eigen::Matrix<double, Dynamic, Dynamic> *aOutput, const Eigen::Matri
 // If the input is in format vectorized images stacked horizontally, can be aeasily made to support padding and multiple inputs
 // TODO Homogeneous coding style.
 template <class DataType>
-void im2col(const int FilterHeight, const int FilterWidth, const DataType *img, DataType *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width, int channels,
-            int pad_w, int pad_h, int aStride, size_t aNumSamples)
+void im2col(const int FilterHeight, const int FilterWidth, const DataType *img, DataType *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, int height, int width,
+            int pad_w, int pad_h, int aStride)
 {
     //std::cout << FilterHeight << FilterWidth << aOutHeight << aOutWidth << aOutFields << height << width << channels<< "padw " << pad_w << "padh " << pad_h << "stride " << aStride << "samp " << aNumSamples << std::endl;
     for (int c = 0; c < aOutFields; ++c)
@@ -70,9 +70,9 @@ void im2col(const int FilterHeight, const int FilterWidth, const DataType *img, 
 // Also here harder to support multiple images!
 template <class DataType>
 void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
-            const size_t height, const size_t width, const size_t channels,
+            const size_t height, const size_t width,
             const size_t pad_w, const size_t pad_h,
-            const size_t aStride, const size_t aNumSamples)
+            const size_t aStride)
 {
     for (size_t c = 0; c < aOutFields; ++c)
     {
@@ -147,10 +147,7 @@ void convolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutput, s
 {
     size_t vOutFields = aFilterHeight * aFilterWidth * channels;
     Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(aOutHeight * aOutWidth, vOutFields);
-
-    dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, channels, pad_w, pad_h, aStride, aNumSamples);
-    // std::cout << "im2ColImage" << std::endl;
-    // std::cout << im2ColImage << std::endl;
+    dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, pad_w, pad_h, aStride);
     aConvolutedOutput = im2ColImage * aFilters;
 }
 
@@ -160,7 +157,7 @@ void fullconvolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutpu
 {
     size_t vPadHeight = aFilterHeight - 1;
     size_t vPadWidth = aFilterWidth - 1;
-    dlfunctions::convolution(aConvolutedOutput, aOutHeight, aOutWidth, aFilters, aFilterHeight, aFilterWidth, aInputImage, height, width, channels, vPadHeight, vPadWidth, aStride, aNumSamples);
+    dlfunctions::convolution(aConvolutedOutput, aOutHeight, aOutWidth, aFilters, aFilterHeight, aFilterWidth, aInputImage, height, width, vPadHeight, vPadWidth, aStride, aNumSamples);
 }
 
 // Based on im2col, only 2D. TODO: Can be made more efficient

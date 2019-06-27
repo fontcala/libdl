@@ -80,34 +80,39 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aStride,
                                                        const ConvDataDims aInputDims,
                                                        const size_t aOutputDepth,
-                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(aInputDims, ConvDataDims::NormalConv(aOutputDepth, aInputDims.Height, aInputDims.Width, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
-                                                                                          mFilterHeight(aFilterHeight),
-                                                                                          mFilterWidth(aFilterWidth),
-                                                                                          mPaddingHeight(aPaddingHeight),
-                                                                                          mPaddingWidth(aPaddingWidth),
-                                                                                          mStride(aStride),
-                                                                                          mInputSampleNumber(aInputSampleNumber),
-                                                                                          mFilterSize(aFilterHeight * aFilterWidth * aInputDims.Depth)
-{
-    this->InitParams(mFilterSize, this->mOutputDims.Depth, mFilterSize);
-};
+                                                       const size_t aInputSampleNumber) : ConvLayer(aFilterHeight,
+                                                                                                    aFilterWidth,
+                                                                                                    aPaddingHeight,
+                                                                                                    aPaddingWidth,
+                                                                                                    aStride,
+                                                                                                    aInputDims.Depth,
+                                                                                                    aInputDims.Height,
+                                                                                                    aInputDims.Width,
+                                                                                                    aOutputDepth,
+                                                                                                    aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mValidInputFlag)
     {
-        //TODO improve this, no need for intermediate matrix, use this->mOutput directly.
-        Eigen::Matrix<DataType, Dynamic, Dynamic> vOutputConvolution(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth);
-        dlfunctions::convolution(vOutputConvolution, this->mOutputDims.Height, this->mOutputDims.Width, this->mWeights, mFilterHeight, mFilterWidth, *(this->mInputPtr), this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
-        this->mOutput = vOutputConvolution + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
+        // Compute the im2Col Matrix
+        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        // Compute Convolution
+        this->mOutput = im2ColImage * this->mWeights;
+        // Add biases
+        this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
+        // Activate
         this->ActivationFunction.ForwardFunction(this->mOutput);
-        // std::cout << "mWeights" << std::endl;
-        // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
+
+        // TODO Erase all this
+        std::cout << "mWeights" << std::endl;
+        std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
+        std::cout << "(*mInputPtr)" << std::endl;
+        std::cout << (*this->mInputPtr).rows() << " " << (*this->mInputPtr).cols() << std::endl;
+        std::cout << "mOutput" << std::endl;
+        std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
     }
     else
     {
@@ -120,39 +125,59 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     if (this->mValidBackpropInputFlag)
     {
-        // Backprop input from previous layer.
+        // Backprop input from next layer.
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
-        this->ActivationFunction.BackwardFunction(vBackpropInput);
 
+        // Backpropagation through activation function
+        std::cout << "vBackpropInput before" << std::endl;
+        std::cout << vBackpropInput << std::endl;
+        this->ActivationFunction.BackwardFunction(vBackpropInput);
+        std::cout << "vBackpropInput after" << std::endl;
+        std::cout << vBackpropInput << std::endl;
+        // --Derivative wrt to bias
+        this->mGradientsBiases = vBackpropInput.colwise().sum();
+
+        // --Transpose used below
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
 
-        // derivative wrt to bias
-        this->mGradientsBiases = vBackpropInputTranspose.rowwise().sum().transpose();
-
-        // derivative wrt filters (dOut/df = In conv Out)
+        // --Derivative wrt filters (dOut/df = In conv Out)
+        // Compute im2col (im2col computed again, otherwise might be too memory intense to save it and speed really matters in forward not backward.)
         Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        // Compute convolution
         this->mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
 
-        // derivative wrt to input
+        // Derivative wrt to input
         Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = this->mWeights * vBackpropInputTranspose;
         this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
-        dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, this->mInputDims.Depth, mPaddingHeight, mPaddingWidth, mStride, mInputSampleNumber);
+        dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
+        // TODO erase all this
+        std::cout << "(*mBackpropInputPtr)" << std::endl;
+        std::cout << (*this->mBackpropInputPtr).rows() << " " << (*this->mBackpropInputPtr).cols() << std::endl;
 
-        // std::cout << "mBackpropOutput" << std::endl;
-        // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
+        std::cout << "vBackpropInputTranspose" << std::endl;
+        std::cout << vBackpropInputTranspose.rows() << " " << vBackpropInputTranspose.cols() << std::endl;
 
-        // std::cout << "mWeights" << std::endl;
-        // std::cout << mWeights.rows() << " " << mWeights.cols() << std::endl;
+        std::cout << "vBackpropInputTranspose" << std::endl;
+        std::cout << vBackpropInputTranspose << std::endl;
 
-        // std::cout << "mGradientsWeights" << std::endl;
-        // std::cout << mGradientsWeights.rows() << " " << mGradientsWeights.cols() << std::endl;
 
-        // std::cout << "mGradientsBiases" << std::endl;
-        // std::cout << mGradientsBiases.rows() << " " << mGradientsBiases.cols() << std::endl;
+        std::cout << "mBackpropOutput" << std::endl;
+        std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
+        std::cout << this->mBackpropOutput << std::endl;
+
+        std::cout << "mWeights" << std::endl;
+        std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
+
+        std::cout << "colimage" << std::endl;
+        std::cout << colImage.rows() << " " << colImage.cols() << std::endl;
+
+        std::cout << "mGradientsWeights" << std::endl;
+        std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
+
+        std::cout << "mGradientsBiases" << std::endl;
+        std::cout << this->mGradientsBiases.rows() << " " << this->mGradientsBiases.cols() << std::endl;
 
         // Update.
         this->UpdateParams();
