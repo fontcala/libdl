@@ -46,6 +46,15 @@ public:
               const size_t aOutputDepth,
               const size_t aInputSampleNumber);
 
+    ConvLayer(const size_t aFilterHeight,
+              const size_t aFilterWidth,
+              const size_t aPaddingHeight,
+              const size_t aPaddingWidth,
+              const size_t aStride,
+              const ConvDataDims aInputDims,
+              const ConvDataDims aOutputDims,
+              const size_t aInputSampleNumber);
+
     // Layer-specific Forward-Backward passes.
     void ForwardPass();
     void BackwardPass();
@@ -89,6 +98,25 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                                                                     aInputDims.Height,
                                                                                                     aInputDims.Width,
                                                                                                     aOutputDepth,
+                                                                                                    aInputSampleNumber){};
+
+template <template <typename> class ActivationFunctionType, typename DataType>
+ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeight,
+                                                       const size_t aFilterWidth,
+                                                       const size_t aPaddingHeight,
+                                                       const size_t aPaddingWidth,
+                                                       const size_t aStride,
+                                                       const ConvDataDims aInputDims,
+                                                       const ConvDataDims aOutputDims,
+                                                       const size_t aInputSampleNumber) : ConvLayer(aFilterHeight,
+                                                                                                    aFilterWidth,
+                                                                                                    aPaddingHeight,
+                                                                                                    aPaddingWidth,
+                                                                                                    aStride,
+                                                                                                    aInputDims.Depth,
+                                                                                                    aInputDims.Height,
+                                                                                                    aInputDims.Width,
+                                                                                                    aOutputDims.Depth,
                                                                                                     aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
@@ -161,7 +189,6 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
 
         std::cout << "vBackpropInputTranspose" << std::endl;
         std::cout << vBackpropInputTranspose << std::endl;
-
 
         std::cout << "mBackpropOutput" << std::endl;
         std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;

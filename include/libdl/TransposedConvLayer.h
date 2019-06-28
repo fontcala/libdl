@@ -47,6 +47,15 @@ public:
                         const size_t aOutputDepth,
                         const size_t aInputSampleNumber);
 
+    TransposedConvLayer(const size_t aFilterHeight,
+                        const size_t aFilterWidth,
+                        const size_t aPaddingHeight,
+                        const size_t aPaddingWidth,
+                        const size_t aStride,
+                        const ConvDataDims aInputDims,
+                        const ConvDataDims aOutputDims,
+                        const size_t aInputSampleNumber);
+
     // Layer-specific Forward-Backward passes.
     void ForwardPass();
     void BackwardPass();
@@ -61,7 +70,7 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aInputHeight,
                                                                            const size_t aInputWidth,
                                                                            const size_t aOutputDepth,
-                                                                           const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
+                                                                           const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::TransposedConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
                                                                                                               mFilterHeight(aFilterHeight),
                                                                                                               mFilterWidth(aFilterWidth),
                                                                                                               mPaddingHeight(aPaddingHeight),
@@ -94,6 +103,25 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                                                                                   aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
+TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const size_t aFilterHeight,
+                                                                           const size_t aFilterWidth,
+                                                                           const size_t aPaddingHeight,
+                                                                           const size_t aPaddingWidth,
+                                                                           const size_t aStride,
+                                                                           const ConvDataDims aInputDims,
+                                                                           const ConvDataDims aOutputDims,
+                                                                           const size_t aInputSampleNumber) : TransposedConvLayer(aFilterHeight,
+                                                                                                                                  aFilterWidth,
+                                                                                                                                  aPaddingHeight,
+                                                                                                                                  aPaddingWidth,
+                                                                                                                                  aStride,
+                                                                                                                                  aInputDims.Depth,
+                                                                                                                                  aInputDims.Height,
+                                                                                                                                  aInputDims.Width,
+                                                                                                                                  aOutputDims.Depth,
+                                                                                                                                  aInputSampleNumber){};
+
+template <template <typename> class ActivationFunctionType, typename DataType>
 void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mValidInputFlag)
@@ -106,7 +134,7 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         std::cout << "mTransposedFilterSize" << std::endl;
         std::cout << mTransposedFilterSize << std::endl;
         std::cout << "mFilterSize" << std::endl;
-        std::cout << mFilterSize << std::endl; 
+        std::cout << mFilterSize << std::endl;
         std::cout << "mWeights" << std::endl;
         std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
         std::cout << "weights" << std::endl;
@@ -126,10 +154,10 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 
         //TODO SOLVE THE PROBLEM WITH BIASES! WTF SIZE SHOULD THEY BE??
         // Add biases
-        this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
+        // this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
+        
         // Activate
         this->ActivationFunction.ForwardFunction(this->mOutput);
-
     }
     else
     {
@@ -145,9 +173,8 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         //Backprop input from next layer.
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
 
-        // Backpropagation through activation function
+        // Backpropagation through activation functions
         this->ActivationFunction.BackwardFunction(vBackpropInput);
-
         // --Derivative wrt to bias ??
         //this->mGradientsBiases = vBackpropInput.colwise().sum();
         // --Transpose used below
@@ -161,7 +188,9 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         std::cout << vBackpropInputTranspose.rows() << " " << vBackpropInputTranspose.cols() << std::endl;
         std::cout << "colimageFilters" << std::endl;
         std::cout << im2ColImageFilters.rows() << " " << im2ColImageFilters.cols() << std::endl;
+
         this->mGradientsWeights = (vBackpropInputTranspose * im2ColImageFilters).transpose();
+        
         std::cout << "mWeights" << std::endl;
         std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
         std::cout << "mGradientsWeights" << std::endl;
@@ -178,9 +207,9 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         this->mBackpropOutput = im2ColImageOutput * this->mWeights;
 
         // // TODO erase all this
-        // std::cout << "mBackpropOutput" << std::endl;
-        // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
-        // std::cout << this->mBackpropOutput << std::endl;
+        std::cout << "mBackpropOutput" << std::endl;
+        std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
+        std::cout << this->mBackpropOutput << std::endl;
 
         // std::cout << "colimageFilters" << std::endl;
         // std::cout << im2ColImageFilters.rows() << " " << im2ColImageFilters.cols() << std::endl;

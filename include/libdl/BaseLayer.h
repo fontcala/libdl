@@ -50,9 +50,10 @@ public:
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
     virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput);
     virtual void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput);
-    virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const;
-    virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const;
     const BackpropInputDimType &GetOutputDims() const;
+    const InputDimType &GetInputDims() const;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
@@ -120,5 +121,11 @@ template <class InputDimType, class BackpropInputDimType, class DataType>
 const BackpropInputDimType &BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetOutputDims() const
 {
     return mOutputDims;
+};
+
+template <class InputDimType, class BackpropInputDimType, class DataType>
+const InputDimType &BaseLayer<InputDimType, BackpropInputDimType, DataType>::GetInputDims() const
+{
+    return mInputDims;
 };
 #endif
