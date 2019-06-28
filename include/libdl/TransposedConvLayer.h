@@ -8,7 +8,8 @@
 
 /**
 @class TransposedConvLayer
-@brief Conv Class for convolutional Layer elements.
+@brief Transposed Conv Class for transposed convolutional Layer elements.
+@note Honestly, still don't understand what transposed or fractionally strided means, this class is just based on the illustrations in https://github.com/vdumoulin/conv_arithmetic and made such that all dimensions are as expected (see testing)
  */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class TransposedConvLayer : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
@@ -155,7 +156,7 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         //TODO SOLVE THE PROBLEM WITH BIASES! WTF SIZE SHOULD THEY BE??
         // Add biases
         // this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
-        
+
         // Activate
         this->ActivationFunction.ForwardFunction(this->mOutput);
     }
@@ -180,21 +181,24 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         // --Transpose used below
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
 
-        // --Derivative wrt filters (dOut/df = In conv Out)
-        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageFilters(this->mOutputDims.Height * this->mOutputDims.Width, mTransposedFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImageFilters.data(), this->mOutputDims.Height, this->mOutputDims.Width, mTransposedFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        // --Derivative wrt filters (dOut/df = In conv Out) transpose means interchange in and out
+        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageFilters(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageFilters.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         // Compute convolution
+        this->mGradientsWeights = (this->mInputPtr->transpose() * im2ColImageFilters).transpose();
+
+        std::cout << "this->mInputPtr->transpose()" << std::endl;
+        std::cout << this->mInputPtr->transpose().rows() << " " << this->mInputPtr->transpose().cols() << std::endl;
         std::cout << "vBackpropInpuxxtTranspose" << std::endl;
         std::cout << vBackpropInputTranspose.rows() << " " << vBackpropInputTranspose.cols() << std::endl;
         std::cout << "colimageFilters" << std::endl;
         std::cout << im2ColImageFilters.rows() << " " << im2ColImageFilters.cols() << std::endl;
 
-        this->mGradientsWeights = (vBackpropInputTranspose * im2ColImageFilters).transpose();
-        
         std::cout << "mWeights" << std::endl;
         std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
         std::cout << "mGradientsWeights" << std::endl;
         std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
+        std::cout << this->mGradientsWeights << std::endl;
 
         // Derivative wrt input
         std::cout << "(*mBackpropInputPtr)" << std::endl;
