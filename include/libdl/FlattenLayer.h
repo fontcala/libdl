@@ -10,7 +10,7 @@
 @brief Flatten Layer, necessary interface between convolutional layers and fully connected layers.
  */
 template <class DataType = double>
-class FlattenLayer : public BaseLayer<ConvDataDims, size_t, DataType>
+class FlattenLayer final : public BaseLayer<ConvDataDims, size_t, DataType>
 {
 private:
     const size_t mInputSampleNumber;
@@ -19,8 +19,8 @@ public:
     // Constructors
     FlattenLayer(const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth, const size_t aInputSampleNumber);
     FlattenLayer(const ConvDataDims aInputDims, const size_t aInputSampleNumber);
-    void ForwardPass();
-    void BackwardPass();
+    void ForwardPass() override;
+    void BackwardPass() override;
 };
 
 template <class DataType>

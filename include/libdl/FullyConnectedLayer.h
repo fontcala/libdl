@@ -13,21 +13,21 @@
 @brief Fully connected layer for dense layer elements.
  */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
-class FullyConnectedLayer : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
+class FullyConnectedLayer final : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
 public:
   // Constructors
   FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim);
 
   // Layer-specific Forward-Backward passes.
-  void ForwardPass();
-  void BackwardPass();
+  void ForwardPass() override;
+  void BackwardPass() override;
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim)
 {
-  this->InitParams(aInputDim, aOutputDim, aInputDim);
+  this->InitParams(aInputDim, aOutputDim, aOutputDim, aInputDim);
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>

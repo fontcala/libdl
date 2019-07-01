@@ -5,15 +5,16 @@
 #define BASELAYER_H
 
 #include <memory>
+#include "NetworkElement.h"
 #include "dlfunctions.h"
 #include "dltypes.h"
 
 /**
 @class BaseLayer
-@brief Base Class for Network Layer elements.
+@brief Base Class for Network Layer eelements.
  */
 template <class InputDimType, class BackpropInputDimType, class DataType>
-class BaseLayer
+class BaseLayer : public NetworkElement<DataType>
 {
 protected:
     // Flags
@@ -46,12 +47,14 @@ public:
     virtual void ForwardPass() = 0;
     virtual void BackwardPass() = 0;
 
-    // Helpers to connect Layers
-    void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
-    virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput);
-    virtual void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput);
-    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const;
-    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const;
+    // Setter/Getters to connect Layers
+    void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;
+    void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) override;
+    void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) override;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const override;
+    const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const override;
+    
+    // Getter helpers
     const BackpropInputDimType &GetOutputDims() const;
     const InputDimType &GetInputDims() const;
 };

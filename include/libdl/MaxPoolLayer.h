@@ -10,7 +10,7 @@
 @brief MaxPool Layer.
  */
 template <class DataType = double>
-class MaxPoolLayer : public BaseLayer<ConvDataDims, ConvDataDims, DataType>
+class MaxPoolLayer final : public BaseLayer<ConvDataDims, ConvDataDims, DataType>
 {
 private:
     const size_t mPoolSize;
@@ -21,8 +21,8 @@ public:
     // Constructors
     MaxPoolLayer(const size_t aInputDepth, const size_t aInputHeight, const size_t aInputWidth, const size_t aPoolSize, const size_t aStride, const size_t aInputSampleNumber);
     MaxPoolLayer(const ConvDataDims aInputDims, const size_t aPoolSize, const size_t aStride, const size_t aInputSampleNumber);
-    void ForwardPass();
-    void BackwardPass();
+    void ForwardPass() override;
+    void BackwardPass() override;
 };
 
 template <class DataType>

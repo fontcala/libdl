@@ -11,7 +11,7 @@
 @brief Conv Class for convolutional Layer elements.
  */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
-class ConvLayer : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
+class ConvLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
 protected:
     // Layer-specific properties.
@@ -56,8 +56,8 @@ public:
               const size_t aInputSampleNumber);
 
     // Layer-specific Forward-Backward passes.
-    void ForwardPass();
-    void BackwardPass();
+    void ForwardPass() override;
+    void BackwardPass() override;
 };
 template <template <typename> class ActivationFunctionType, typename DataType>
 ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeight,
@@ -78,7 +78,9 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                                                           mInputSampleNumber(aInputSampleNumber),
                                                                                           mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
 {
-    this->InitParams(mFilterSize, this->mOutputDims.Depth, mFilterSize);
+    std::cout << aOutputDepth << " aOutputDepth " << aInputHeight << " aInputHeight " <<  " aInputWidth " << aFilterHeight << " aFilterHeight " << aFilterWidth << " aFilterWidth "  << aPaddingHeight << " aPaddingHeight "  << aPaddingWidth << " aPaddingWidth "  << aStride << " aStride " << std::endl;
+    std::cout << "this->mOutputDims.Height: " << this->mOutputDims.Height << " this->mOutputDims.Width: " << this->mOutputDims.Width << std::endl;
+    this->InitParams(mFilterSize, this->mOutputDims.Depth,this->mOutputDims.Depth, mFilterSize);
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
@@ -135,6 +137,7 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         this->ActivationFunction.ForwardFunction(this->mOutput);
 
         // TODO Erase all this
+        std::cout << "fwd conv" << std::endl;
         std::cout << "mWeights" << std::endl;
         std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
         std::cout << "(*mInputPtr)" << std::endl;
@@ -157,11 +160,11 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
 
         // Backpropagation through activation function
-        std::cout << "vBackpropInput before" << std::endl;
-        std::cout << vBackpropInput << std::endl;
+        // std::cout << "vBackpropInput before" << std::endl;
+        // std::cout << vBackpropInput << std::endl;
         this->ActivationFunction.BackwardFunction(vBackpropInput);
-        std::cout << "vBackpropInput after" << std::endl;
-        std::cout << vBackpropInput << std::endl;
+        // std::cout << "vBackpropInput after" << std::endl;
+        // std::cout << vBackpropInput << std::endl;
         // --Derivative wrt to bias
         this->mGradientsBiases = vBackpropInput.colwise().sum();
 
@@ -181,30 +184,39 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
         // TODO erase all this
+        std::cout << "bwd conv" << std::endl;
         std::cout << "(*mBackpropInputPtr)" << std::endl;
-        std::cout << (*this->mBackpropInputPtr).rows() << " " << (*this->mBackpropInputPtr).cols() << std::endl;
-
-        std::cout << "vBackpropInputTranspose" << std::endl;
-        std::cout << vBackpropInputTranspose.rows() << " " << vBackpropInputTranspose.cols() << std::endl;
-
-        std::cout << "vBackpropInputTranspose" << std::endl;
-        std::cout << vBackpropInputTranspose << std::endl;
-
+        std::cout << this->mBackpropInputPtr->rows() << " " << this->mBackpropInputPtr->cols() << std::endl;
         std::cout << "mBackpropOutput" << std::endl;
         std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
-        std::cout << this->mBackpropOutput << std::endl;
-
         std::cout << "mWeights" << std::endl;
         std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-
-        std::cout << "colimage" << std::endl;
-        std::cout << colImage.rows() << " " << colImage.cols() << std::endl;
-
         std::cout << "mGradientsWeights" << std::endl;
         std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
+        // std::cout << "(*mBackpropInputPtr)" << std::endl;
+        // std::cout << (*this->mBackpropInputPtr).rows() << " " << (*this->mBackpropInputPtr).cols() << std::endl;
 
-        std::cout << "mGradientsBiases" << std::endl;
-        std::cout << this->mGradientsBiases.rows() << " " << this->mGradientsBiases.cols() << std::endl;
+        // std::cout << "vBackpropInputTranspose" << std::endl;
+        // std::cout << vBackpropInputTranspose.rows() << " " << vBackpropInputTranspose.cols() << std::endl;
+
+        // std::cout << "vBackpropInputTranspose" << std::endl;
+        // std::cout << vBackpropInputTranspose << std::endl;
+
+        // std::cout << "mBackpropOutput" << std::endl;
+        // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
+        // std::cout << this->mBackpropOutput << std::endl;
+
+        // std::cout << "mWeights" << std::endl;
+        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
+
+        // std::cout << "colimage" << std::endl;
+        // std::cout << colImage.rows() << " " << colImage.cols() << std::endl;
+
+        // std::cout << "mGradientsWeights" << std::endl;
+        // std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
+
+        // std::cout << "mGradientsBiases" << std::endl;
+        // std::cout << this->mGradientsBiases.rows() << " " << this->mGradientsBiases.cols() << std::endl;
 
         // Update.
         this->UpdateParams();

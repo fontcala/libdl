@@ -10,7 +10,7 @@
 @brief Softmax Loss Layer.
  */
 template <class DataType = double>
-class SoftmaxLossLayer : public LossBaseLayer<DataType>
+class SoftmaxLossLayer final : public LossBaseLayer<DataType>
 {
 protected:
     // Data
@@ -20,8 +20,8 @@ public:
     // Constructors
     SoftmaxLossLayer();
 
-    void ForwardPass();
-    void BackwardPass();
+    void ForwardPass() override;
+    void BackwardPass() override;
 };
 
 template <class DataType>

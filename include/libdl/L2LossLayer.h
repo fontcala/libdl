@@ -10,7 +10,7 @@
 @brief L2 Loss Layer.
  */
 template <class DataType = double>
-class L2LossLayer : public LossBaseLayer<DataType>
+class L2LossLayer final : public LossBaseLayer<DataType>
 {
 protected:
     Eigen::Matrix<DataType, Dynamic, Dynamic> mGradientHelper;
@@ -19,8 +19,8 @@ public:
     // Constructors
     L2LossLayer();
 
-    void ForwardPass();
-    void BackwardPass();
+    void ForwardPass() override;
+    void BackwardPass() override;
 };
 
 template <class DataType>
@@ -38,7 +38,7 @@ void L2LossLayer<DataType>::ForwardPass()
         {
             //L2
             mGradientHelper = *(this->mInputPtr) - this->mLabels;
-            // Loss divided by number of examples;
+            // Loss divided by number of examples   ;
             this->mLoss = (0.5 / static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
         }
         else

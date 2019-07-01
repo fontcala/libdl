@@ -39,7 +39,7 @@ public:
     @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
     @note He Initialization dependent on layer type with the parameter  \c aInitVariance
     */
-    void InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance);
+    void InitParams(size_t aInputDim, size_t aOutputDimWeights ,size_t aOutputDimBiases, double aInitVariance);
     void UpdateParams();
     // Constructor
     ConnectedBaseLayer();
@@ -60,15 +60,15 @@ template <typename DimType, template <typename> class ActivationFunctionType, ty
 ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::ConnectedBaseLayer(const DimType& aInputDims, const DimType& aOutputDims):BaseLayer<DimType, DimType, DataType>(aInputDims,aOutputDims){};
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
-void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(size_t aInputDim, size_t aOutputDim, double aInitVariance)
+void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(size_t aInputDim, size_t aOutputDimWeights,size_t aOutputDimBiases, double aInitVariance)
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, sqrt(2/aInitVariance));
-    mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDim, [&]() { return vRandDistr(vRandom); });
-    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(1, aOutputDim, [&]() { return vRandDistr(vRandom); });
-    mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDim);
-    mMomentumUpdateBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDim);
+    mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDimWeights, [&]() { return vRandDistr(vRandom); });
+    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(1, aOutputDimBiases, [&]() { return vRandDistr(vRandom); });
+    mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDimWeights);
+    mMomentumUpdateBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
     mLearningRate = 0.05;
     mMomentumUpdateParam = 0.9;
     this->mInitializedFlag = true;
