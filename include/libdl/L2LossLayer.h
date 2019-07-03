@@ -38,12 +38,12 @@ void L2LossLayer<DataType>::ForwardPass()
         {
             //L2
             mGradientHelper = *(this->mInputPtr) - this->mLabels;
-            // Loss divided by number of examples   ;
+            // Loss divided by number of examples or number of pixels;
             this->mLoss = (0.5 / static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
         }
         else
         {
-            throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
+            throw(std::runtime_error("ForwardPass(): dimension mismatch"));
         }
     }
     else

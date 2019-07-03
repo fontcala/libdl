@@ -78,8 +78,8 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                                                           mInputSampleNumber(aInputSampleNumber),
                                                                                           mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
 {
-    std::cout << aOutputDepth << " aOutputDepth " << aInputHeight << " aInputHeight " <<  " aInputWidth " << aFilterHeight << " aFilterHeight " << aFilterWidth << " aFilterWidth "  << aPaddingHeight << " aPaddingHeight "  << aPaddingWidth << " aPaddingWidth "  << aStride << " aStride " << std::endl;
-    std::cout << "this->mOutputDims.Height: " << this->mOutputDims.Height << " this->mOutputDims.Width: " << this->mOutputDims.Width << std::endl;
+    // std::cout << aOutputDepth << " aOutputDepth " << aInputHeight << " aInputHeight " <<  " aInputWidth " << aFilterHeight << " aFilterHeight " << aFilterWidth << " aFilterWidth "  << aPaddingHeight << " aPaddingHeight "  << aPaddingWidth << " aPaddingWidth "  << aStride << " aStride " << std::endl;
+    std::cout << "this->mInputDims.Height:" << this->mInputDims.Height << " this->mInputDims.Width:" << this->mInputDims.Width << " this->mOutputDims.Height: " << this->mOutputDims.Height << " this->mOutputDims.Width: " << this->mOutputDims.Width << std::endl;
     this->InitParams(mFilterSize, this->mOutputDims.Depth,this->mOutputDims.Depth, mFilterSize);
 };
 
@@ -137,13 +137,13 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         this->ActivationFunction.ForwardFunction(this->mOutput);
 
         // TODO Erase all this
-        std::cout << "fwd conv" << std::endl;
-        std::cout << "mWeights" << std::endl;
-        std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-        std::cout << "(*mInputPtr)" << std::endl;
-        std::cout << (*this->mInputPtr).rows() << " " << (*this->mInputPtr).cols() << std::endl;
-        std::cout << "mOutput" << std::endl;
-        std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
+        // std::cout << "fwd conv" << std::endl;    
+        // std::cout << "mWeights" << std::endl;
+        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
+        // std::cout << "(*mInputPtr)" << std::endl;
+        // std::cout << (*this->mInputPtr).rows() << " " << (*this->mInputPtr).cols() << std::endl;
+        // std::cout << "mOutput" << std::endl;
+        // std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
     }
     else
     {
@@ -179,20 +179,20 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         this->mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
 
         // Derivative wrt to input
-        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = this->mWeights * vBackpropInputTranspose;
+        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * vBackpropInputTranspose).transpose();
         this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
         dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
         // TODO erase all this
-        std::cout << "bwd conv" << std::endl;
-        std::cout << "(*mBackpropInputPtr)" << std::endl;
-        std::cout << this->mBackpropInputPtr->rows() << " " << this->mBackpropInputPtr->cols() << std::endl;
-        std::cout << "mBackpropOutput" << std::endl;
-        std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
-        std::cout << "mWeights" << std::endl;
-        std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-        std::cout << "mGradientsWeights" << std::endl;
-        std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
+        // std::cout << "bwd conv" << std::endl;
+        // std::cout << "(*mBackpropInputPtr)" << std::endl;
+        // std::cout << this->mBackpropInputPtr->rows() << " " << this->mBackpropInputPtr->cols() << std::endl;
+        // std::cout << "mBackpropOutput" << std::endl;
+        // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
+        // std::cout << "mWeights" << std::endl;
+        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
+        // std::cout << "mGradientsWeights" << std::endl;
+        // std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
         // std::cout << "(*mBackpropInputPtr)" << std::endl;
         // std::cout << (*this->mBackpropInputPtr).rows() << " " << (*this->mBackpropInputPtr).cols() << std::endl;
 

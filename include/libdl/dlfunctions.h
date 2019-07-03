@@ -200,7 +200,7 @@ void colpool2im(const size_t aPoolSize, const DataType *aColData, DataType *aImD
                 const size_t height, const size_t width,
                 const size_t aStride, const size_t aNumSamples)
 {
-    std::cout << aPoolSize << aOutHeight << aOutWidth << aOutFields << height << width << "stride " << aStride << "samp " << aNumSamples << std::endl;
+    // std::cout << aPoolSize << aOutHeight << aOutWidth << aOutFields << height << width << "stride " << aStride << "samp " << aNumSamples << std::endl;
     for (size_t c = 0; c < aOutFields; ++c)
     {
         size_t w_offset = c % aPoolSize;

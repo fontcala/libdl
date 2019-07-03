@@ -66,7 +66,7 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(si
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, sqrt(2/aInitVariance));
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDimWeights, [&]() { return vRandDistr(vRandom); });
-    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(1, aOutputDimBiases, [&]() { return vRandDistr(vRandom); });
+    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases); //, aOutputDimBiases, [&]() { return vRandDistr(vRandom); });
     mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDimWeights);
     mMomentumUpdateBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
     mLearningRate = 0.05;
