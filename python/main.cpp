@@ -3,12 +3,14 @@
 #include <pybind11/iostream.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
-#include "pythonexamples.h"
+#include "ClassificationExamples.h"
+#include "AutoEncoderExamples.h"
 
 namespace py = pybind11;
 PYBIND11_MODULE(pybindings, m)
 {
     m.def("subtract", [](int i, int j) { return i - j; }, "substract");
+    
     py::class_<CNNClassificationExampleModel>(m, "CNNClassificationExampleModel")
         .def(py::init<>())
         .def("setTrainInputs", &CNNClassificationExampleModel::setTrainInputs, "set In")
@@ -17,6 +19,17 @@ PYBIND11_MODULE(pybindings, m)
         .def("setTestLabels", &CNNClassificationExampleModel::setTestLabels, "set Lbt")
         .def("setLearningRate", &CNNClassificationExampleModel::setLearningRate, "set Lr")
         .def("runExample", &CNNClassificationExampleModel::runExample,
+             py::call_guard<py::scoped_ostream_redirect,
+                            py::scoped_estream_redirect>());
+     
+    py::class_<CNNClassificationExampleModel2>(m, "CNNClassificationExampleModel2")
+        .def(py::init<>())
+        .def("setTrainInputs", &CNNClassificationExampleModel2::setTrainInputs, "set In")
+        .def("setTrainLabels", &CNNClassificationExampleModel2::setTrainLabels, "set Lb")
+        .def("setTestInputs", &CNNClassificationExampleModel2::setTestInputs, "set Int")
+        .def("setTestLabels", &CNNClassificationExampleModel2::setTestLabels, "set Lbt")
+        .def("setLearningRate", &CNNClassificationExampleModel2::setLearningRate, "set Lr")
+        .def("runExample", &CNNClassificationExampleModel2::runExample,
              py::call_guard<py::scoped_ostream_redirect,
                             py::scoped_estream_redirect>());
 

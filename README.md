@@ -2,8 +2,8 @@
 
 Deep Learning Library 
 
-## Deliverables for the DLFS course
-BRANCH:  Milestone-MNIST-working
+## Deliverable for the DLFS course
+BRANCH:  Master
 For the MNIST milestone, you'll need to:
 
 Clone the repository and run
@@ -16,7 +16,7 @@ make pybindings
 ```
 in the build folder (just like in the CI). The important target is pybindings, this generates the python wrapper module.
 
-Then open Jupyter notebook in the folder /python and run the script pythontest.ipynb. This file runs an Example architecture with parameters that seem to work. the code for this architecture can be seen in the file /python/main.cpp in the method, but looks like this:
+Then open Jupyter notebook in the folder /python and run the script Classifier_MNIST_Deliverable (this one is simple, big strides and no max pool, but gets good enough results) or Classifier_MNIST_Experimental (this one achieves better results by adding maxpooling and smaller strides, it is also slower). This files run an Example architecture with parameters that seem to work. the code for this architecture can be seen in the file /python/ClassifierExamples.h (lowest level example without network helper to run the code), but looks like this:
 ```
 
     // Conv 1
@@ -73,24 +73,33 @@ Then open Jupyter notebook in the folder /python and run the script pythontest.i
 
 **Note:** python script runs without problem with version 3.7.1 (and some of the newest scikit sklearn functionality) and ubuntu. Not sure how to check multiplatfrom behaviour.
 
-**Note:** I am not at all proud of the wrapper that I made here, just want to have the milestone covered before doing big changes in the whole library.
+**Note:** I am not at all proud of the wrapper that I made here, just trying to write the most little amout of python binding possible.
 
-## IMPORTANT NOTE
-
-There are still many TODOs, but solving them now is futile since I am considering to following big changes soon (**feedback apreciated**):
-
-* class NetworkElement
-    * class AggregationLayer
-        * class FullyConnectedLayer
-        * class ConvolutionalLayer
-    * class LossMeasureLayer 
-        * class L2Layer
-* class ActivationFunction
-    * class ReLUFunction
-    * class SigmoidFunction
+## Library Structure
 * class Network
+* class NetworkElement
+    * class BaseLayer
+            * class ConnectedBaseLayer
+                * class FullyConnectedLayer
+                * class ConvLayer
+                * class TransposedConvLayer
+        * class LossMeasureLayer 
+            * class L2Layer
+            * class SoftmaxLayer
+            * ...
+        * class MaxPoolLayer
+        * class FlattenLayer
 
-Then it would be easy to add more Activation Functions and Loss Measures.
+* class ReLUFunction
+* class SigmoidFunction
+* ...
+
+Every Layer Class inherits from BaseLayer and only needs to implement:
+```
+void ForwardPass()
+void BackwardPass()
+```
+Layers with parameters inherit from ConnectedBaseLayer and are templated over an activation Function. 
 
 
 ## Getting Started
