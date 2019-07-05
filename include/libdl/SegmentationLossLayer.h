@@ -7,7 +7,7 @@
 #include "LossBaseLayer.h"
 /**
 @class SegmentationLossLayer
-@brief Segmentation Loss Layer.
+@brief Segmentation Loss Layer. No particular method, looking for a useful loss for the purpose of segmentation
  */
 template <class DataType = double>
 class SegmentationLossLayer final : public LossBaseLayer<DataType>

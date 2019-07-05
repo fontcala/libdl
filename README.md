@@ -69,7 +69,7 @@ Then open Jupyter notebook in the folder /python and run the script Classifier_M
     // losslayer
     SoftmaxLossLayer lossLayer;
 ```
-**Note:** To convince yourself that my code works and there is a learning actually taking place I suggest doing the following: Set the Learning rate to a higher value (eg: in the order of 0.1) and you will see the network doesn't learn anything and the accuracy is around 0.1, which is basically just the same as random. Reset the original Learning (0.005) and the accuracy should be around 0.9.
+**Note:** To convince yourself that my code works and there is a learning actually taking place I suggest doing the following: Set the Learning rate to a higher value (eg: in the order of 0.1) and you will see the network doesn't learn anything and the accuracy is around 0.1, which is basically just the same as random. Reset the original Learning (0.005) and the accuracy should be above 0.9.
 
 **Note:** python script runs without problem with version 3.7.1 (and some of the newest scikit sklearn functionality) and ubuntu. Not sure how to check multiplatfrom behaviour.
 

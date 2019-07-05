@@ -59,7 +59,7 @@ void SoftmaxLossLayer<DataType>::ForwardPass()
         }
         else
         {
-            throw(std::runtime_error("ComputeLoss(): dimension mismatch"));
+            throw(std::runtime_error("ForwardPass(): dimension mismatch"));
         }
     }
     else

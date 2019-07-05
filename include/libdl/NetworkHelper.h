@@ -32,6 +32,7 @@ public:
     double mLearningRate;
     void FullForwardPass();
     void FullBackwardPass();
+    Eigen::Matrix<DataType, Dynamic, Dynamic> FullForwardTestPass();
     /**
     @function NetworkHelper
     @note input @code const std::initializer_list<NetworkElement<DataType> *> &
@@ -61,7 +62,7 @@ void NetworkHelper<DataType>::ConnectLayers()
 template <class DataType>
 void NetworkHelper<DataType>::FullBackwardPass()
 {
-    for (int vProcess = mNumberLayers; vProcess > 0; vProcess--)
+    for (size_t vProcess = mNumberLayers; vProcess > 0; vProcess--)
     {
         mNetwork[vProcess - 1]->BackwardPass();
     }
@@ -69,10 +70,20 @@ void NetworkHelper<DataType>::FullBackwardPass()
 template <class DataType>
 void NetworkHelper<DataType>::FullForwardPass()
 {
-    for (int vProcess = 0; vProcess < mNumberLayers; vProcess++)
+    for (size_t vProcess = 0; vProcess < mNumberLayers; vProcess++)
     {
         mNetwork[vProcess]->ForwardPass();
     }
+}
+template <class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::FullForwardTestPass()
+{
+    size_t vProcess;
+    for (vProcess = 0; vProcess < mNumberLayers-1; vProcess++)
+    {
+        mNetwork[vProcess]->ForwardPass();
+    }
+    return *(mNetwork[vProcess]->GetOutput());
 }
 
 #endif
