@@ -81,7 +81,7 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                                                               mFilterSize(aFilterHeight * aFilterWidth * aInputDepth),
                                                                                                               mTransposedFilterSize(aFilterHeight * aFilterWidth * aOutputDepth)
 {
-    std::cout << "this->mInputDims.Height:" << this->mInputDims.Height << " this->mInputDims.Width:" << this->mInputDims.Width << " this->mOutputDims.Height: " << this->mOutputDims.Height << " this->mOutputDims.Width: " << this->mOutputDims.Width << std::endl;
+    std::cout << "Tran " << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
     this->InitParams(mTransposedFilterSize,this->mInputDims.Depth,this->mOutputDims.Depth, mTransposedFilterSize);
 };
 

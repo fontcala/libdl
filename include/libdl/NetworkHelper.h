@@ -78,12 +78,12 @@ void NetworkHelper<DataType>::FullForwardPass()
 template <class DataType>
 Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::FullForwardTestPass()
 {
-    size_t vProcess;
-    for (vProcess = 0; vProcess < mNumberLayers-1; vProcess++)
+    for (size_t vProcess = 0; vProcess < mNumberLayers - 1; vProcess++)
     {
         mNetwork[vProcess]->ForwardPass();
     }
-    return *(mNetwork[vProcess]->GetOutput());
+    std::cout << (*(mNetwork[mNumberLayers - 2]->GetOutput())).rows() << "rows" << std::endl;
+    return *(mNetwork[mNumberLayers - 2]->GetOutput());
 }
 
 #endif

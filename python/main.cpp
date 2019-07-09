@@ -78,6 +78,17 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 
+     py::class_<AutoEncoderExample5>(m, "AutoEncoderExample5")
+         .def(py::init<int, int, int, int, int, int, int, int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &AutoEncoderExample5::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &AutoEncoderExample5::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
      py::class_<SegmentationExample1>(m, "SegmentationExample1")
          .def(py::init<int, int, int, int, int>(),
               py::call_guard<py::scoped_ostream_redirect,
@@ -86,6 +97,28 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>())
          .def("Train", &SegmentationExample1::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
+     py::class_<SegmentationExample2>(m, "SegmentationExample2")
+         .def(py::init<int, int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &SegmentationExample2::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &SegmentationExample2::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
+     py::class_<SegmentationExample3>(m, "SegmentationExample3")
+         .def(py::init<int, int, int, int, int, int, int, int, int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &SegmentationExample3::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &SegmentationExample3::Train,
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 }

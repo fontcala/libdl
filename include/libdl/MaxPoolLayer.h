@@ -35,7 +35,10 @@ template <class DataType>
 MaxPoolLayer<DataType>::MaxPoolLayer(const ConvDataDims aInputDims, const size_t aPoolSize, const size_t aStride, const size_t aInputSampleNumber) : BaseLayer<ConvDataDims, ConvDataDims, DataType>(aInputDims, ConvDataDims(aInputDims.Depth, aInputDims.Height, aInputDims.Width, aPoolSize, aStride)),
                                                                                                                                                      mPoolSize(aPoolSize),
                                                                                                                                                      mStride(aStride),
-                                                                                                                                                     mInputSampleNumber(aInputSampleNumber){};
+                                                                                                                                                     mInputSampleNumber(aInputSampleNumber)
+{
+        std::cout << "Maxp " << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
+};
 
 template <class DataType>
 void MaxPoolLayer<DataType>::ForwardPass()
