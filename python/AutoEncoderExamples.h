@@ -323,7 +323,7 @@ class AutoEncoderExample5
     TransposedConvLayer<ReLUActivation> tran4;
     TransposedConvLayer<ReLUActivation> tran3;
     TransposedConvLayer<ReLUActivation> tran2;
-    TransposedConvLayer<ReLUActivation> tran1;
+    TransposedConvLayer<LinearActivation> tran1;
     L2LossLayer<> loss;
     NetworkHelper<> net;
 

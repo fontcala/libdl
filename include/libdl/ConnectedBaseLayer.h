@@ -77,7 +77,6 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::InitParams(si
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::UpdateParams()
 {
-    // TODO User specified
     // Nesterov-Momentum
     Eigen::Matrix<DataType, Dynamic, Dynamic> vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
     mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
@@ -89,6 +88,9 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType,DataType>::UpdateParams(
     // Vanilla Descent
     // mWeights = mWeights - mLearningRate * mGradientsWeights;
     // mBiases = mBiases - mLearningRate * mGradientsBiases;
+
+    // adam
+    
 }
 
 #endif
