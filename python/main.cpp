@@ -34,6 +34,17 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 
+     py::class_<CNNClassificationExampleModel3>(m, "CNNClassificationExampleModel3")
+         .def(py::init<>())
+         .def("setTrainInputs", &CNNClassificationExampleModel3::setTrainInputs, "set In")
+         .def("setTrainLabels", &CNNClassificationExampleModel3::setTrainLabels, "set Lb")
+         .def("setTestInputs", &CNNClassificationExampleModel3::setTestInputs, "set Int")
+         .def("setTestLabels", &CNNClassificationExampleModel3::setTestLabels, "set Lbt")
+         .def("setLearningRate", &CNNClassificationExampleModel3::setLearningRate, "set Lr")
+         .def("runExample", &CNNClassificationExampleModel3::runExample,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
      py::class_<AutoEncoderExample>(m, "AutoEncoderExample")
          .def(py::init<int, int, int, int, int, int, int, int, int, int, int>(),
               py::call_guard<py::scoped_ostream_redirect,
@@ -89,6 +100,17 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 
+     py::class_<AutoEncoderExample6>(m, "AutoEncoderExample6")
+         .def(py::init<int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &AutoEncoderExample6::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &AutoEncoderExample6::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
      py::class_<SegmentationExample1>(m, "SegmentationExample1")
          .def(py::init<int, int, int, int, int>(),
               py::call_guard<py::scoped_ostream_redirect,
@@ -119,6 +141,28 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>())
          .def("Train", &SegmentationExample3::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
+     py::class_<SegmentationExample6>(m, "SegmentationExample6")
+         .def(py::init<int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &SegmentationExample6::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &SegmentationExample6::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
+     py::class_<SegmentationExample7>(m, "SegmentationExample7")
+         .def(py::init<int, int, int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &SegmentationExample7::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &SegmentationExample7::Train,
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 }

@@ -17,7 +17,7 @@ class FullyConnectedLayer final : public ConnectedBaseLayer<size_t, ActivationFu
 {
 public:
   // Constructors
-  FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim);
+  FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim, const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
   // Layer-specific Forward-Backward passes.
   void ForwardPass() override;
@@ -25,7 +25,7 @@ public:
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim)
+FullyConnectedLayer<ActivationFunctionType, DataType>::FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim, const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim, aUpdateMethod)
 {
   this->InitParams(aInputDim, aOutputDim, aOutputDim, aInputDim);
 };

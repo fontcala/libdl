@@ -134,7 +134,7 @@ class AutoEncoderExample
     ConvLayer<ReLUActivation> conv2;
     TransposedConvLayer<ReLUActivation> tran3;
     TransposedConvLayer<ReLUActivation> trmp1;
-    TransposedConvLayer<ReLUActivation> tran4;
+    TransposedConvLayer<SigmoidActivation> tran4;
     L2LossLayer<> l2;
     NetworkHelper<> net;
 
@@ -151,12 +151,12 @@ public:
                        const size_t aStride1,
                        const size_t aStride2) : mInputHeight(aInputHeight),
                                                 mInputWidth(aInputWidth),
-                                                conv1{aFilterSize1, aFilterSize1, aPadding1, aPadding1, aStride1, aInputDepth, aInputHeight, aInputWidth, aOutputDepth1, 1},
+                                                conv1{aFilterSize1, aFilterSize1, aPadding1, aPadding1, aStride1, aInputDepth, aInputHeight, aInputWidth, aOutputDepth1, 1, UpdateMethod::ADAM},
                                                 maxp1{conv1.GetOutputDims(), 2, 2, 1},
-                                                conv2{aFilterSize2, aFilterSize2, aPadding2, aPadding2, aStride2, maxp1.GetOutputDims(), aOutputDepth2, 1},
-                                                tran3{aFilterSize2, aFilterSize2, aPadding2, aPadding2, aStride2, conv2.GetOutputDims(), conv2.GetInputDims(), 1},
+                                                conv2{aFilterSize2, aFilterSize2, aPadding2, aPadding2, aStride2, maxp1.GetOutputDims(), aOutputDepth2, 1, UpdateMethod::ADAM},
+                                                tran3{aFilterSize2, aFilterSize2, aPadding2, aPadding2, aStride2, conv2.GetOutputDims(), conv2.GetInputDims(), 1, UpdateMethod::ADAM},
                                                 trmp1{2, 2, 0, 0, 2, tran3.GetOutputDims(), maxp1.GetInputDims(), 1},
-                                                tran4{aFilterSize1, aFilterSize1, aPadding1, aPadding1, aStride1, trmp1.GetOutputDims(), conv1.GetInputDims(), 1},
+                                                tran4{aFilterSize1, aFilterSize1, aPadding1, aPadding1, aStride1, trmp1.GetOutputDims(), conv1.GetInputDims(), 1, UpdateMethod::ADAM},
                                                 l2{},
                                                 net{{&conv1,
                                                      &maxp1,
@@ -411,6 +411,76 @@ public:
         tran3.mMomentumUpdateParam = 0.99;
         tran2.mMomentumUpdateParam = 0.99;
         tran1.mMomentumUpdateParam = 0.99;
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        const size_t vTotalTrainSamples = aInput.cols();
+        std::vector<size_t> vIndexTrainVector(vTotalTrainSamples);
+        std::iota(std::begin(vIndexTrainVector), std::end(vIndexTrainVector), 0); // Fill with 0, 1, ..., N.
+        for (size_t vEpoch = 0; vEpoch < aEpochNum; vEpoch++)
+        {
+            std::shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end(), g);
+            for (const auto &vIndex : vIndexTrainVector)
+            {
+                MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
+                conv1.SetInput(Input);
+                loss.SetLabels(Input);
+                net.FullForwardPass();
+                net.FullBackwardPass();
+            }
+            std::cout << "Loss of a given sample at epoch: " << vEpoch << std::endl;
+            std::cout << loss.GetLoss() << std::endl;
+        }
+    }
+
+    const MatrixXd Test(MatrixXd aInput)
+    {
+        std::cout << "testing:" << std::endl;
+        conv1.SetInput(aInput);
+        return net.FullForwardTestPass();
+    }
+};
+
+class AutoEncoderExample6
+{
+    const size_t mInputHeight;
+    const size_t mInputWidth;
+    ConvLayer<ReLUActivation> conv1;
+    MaxPoolLayer<> maxp1;
+    ConvLayer<ReLUActivation> conv2;
+    MaxPoolLayer<> maxp2;
+    TransposedConvLayer<ReLUActivation> tran3;
+    TransposedConvLayer<SigmoidActivation> tran4;
+    L2LossLayer<> loss;
+    NetworkHelper<> net;
+
+public:
+    AutoEncoderExample6(const size_t aInputHeight,
+                        const size_t aInputWidth,
+                        const size_t aInputDepth) : mInputHeight(aInputHeight),
+                                                    mInputWidth(aInputWidth),
+                                                    conv1{3, 3, 1, 1, 1, aInputDepth, aInputHeight, aInputWidth, 16, 1, UpdateMethod::ADAM},
+                                                    maxp1{conv1.GetOutputDims(), 2, 2, 1},
+                                                    conv2{3, 3, 1, 1, 1, maxp1.GetOutputDims(), 4, 1, UpdateMethod::ADAM},
+                                                    maxp2{conv2.GetOutputDims(), 2, 2, 1},
+                                                    tran3{2, 2, 0, 0, 2, maxp2.GetOutputDims(), 16, 1, UpdateMethod::ADAM},
+                                                    tran4{2, 2, 0, 0, 2, tran3.GetOutputDims(), 1, 1, UpdateMethod::ADAM},
+                                                    loss{},
+                                                    net{{&conv1,
+                                                         &maxp1,
+                                                         &conv2,
+                                                         &maxp2,
+                                                         &tran3,
+                                                         &tran4,
+                                                         &loss}}
+    {
+    }
+    void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aEpochNum)
+    {
+        conv1.mLearningRate = aLearningRate;
+        conv2.mLearningRate = aLearningRate;
+        tran3.mLearningRate = aLearningRate;
+        tran4.mLearningRate = aLearningRate;
 
         std::random_device rd;
         std::mt19937 g(rd());

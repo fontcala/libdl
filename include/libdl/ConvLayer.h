@@ -35,7 +35,8 @@ public:
               const size_t aInputHeight,
               const size_t aInputWidth,
               const size_t aOutputDepth,
-              const size_t aInputSampleNumber);
+              const size_t aInputSampleNumber,
+              const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     ConvLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
@@ -44,7 +45,8 @@ public:
               const size_t aStride,
               const ConvDataDims aInputDims,
               const size_t aOutputDepth,
-              const size_t aInputSampleNumber);
+              const size_t aInputSampleNumber,
+              const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     ConvLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
@@ -53,7 +55,8 @@ public:
               const size_t aStride,
               const ConvDataDims aInputDims,
               const ConvDataDims aOutputDims,
-              const size_t aInputSampleNumber);
+              const size_t aInputSampleNumber,
+              const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     // Layer-specific Forward-Backward passes.
     void ForwardPass() override;
@@ -69,7 +72,8 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aInputHeight,
                                                        const size_t aInputWidth,
                                                        const size_t aOutputDepth,
-                                                       const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
+                                                       const size_t aInputSampleNumber,
+                                                       const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride),aUpdateMethod),
                                                                                           mFilterHeight(aFilterHeight),
                                                                                           mFilterWidth(aFilterWidth),
                                                                                           mPaddingHeight(aPaddingHeight),
@@ -91,7 +95,8 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aStride,
                                                        const ConvDataDims aInputDims,
                                                        const size_t aOutputDepth,
-                                                       const size_t aInputSampleNumber) : ConvLayer(aFilterHeight,
+                                                       const size_t aInputSampleNumber,
+                                                       const UpdateMethod aUpdateMethod) : ConvLayer(aFilterHeight,
                                                                                                     aFilterWidth,
                                                                                                     aPaddingHeight,
                                                                                                     aPaddingWidth,
@@ -110,7 +115,8 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aStride,
                                                        const ConvDataDims aInputDims,
                                                        const ConvDataDims aOutputDims,
-                                                       const size_t aInputSampleNumber) : ConvLayer(aFilterHeight,
+                                                       const size_t aInputSampleNumber,
+                                                       const UpdateMethod aUpdateMethod) : ConvLayer(aFilterHeight,
                                                                                                     aFilterWidth,
                                                                                                     aPaddingHeight,
                                                                                                     aPaddingWidth,

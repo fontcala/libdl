@@ -37,7 +37,8 @@ public:
                         const size_t aInputHeight,
                         const size_t aInputWidth,
                         const size_t aOutputDepth,
-                        const size_t aInputSampleNumber);
+                        const size_t aInputSampleNumber,
+                        const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     TransposedConvLayer(const size_t aFilterHeight,
                         const size_t aFilterWidth,
@@ -46,7 +47,8 @@ public:
                         const size_t aStride,
                         const ConvDataDims aInputDims,
                         const size_t aOutputDepth,
-                        const size_t aInputSampleNumber);
+                        const size_t aInputSampleNumber,
+                        const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     TransposedConvLayer(const size_t aFilterHeight,
                         const size_t aFilterWidth,
@@ -55,7 +57,8 @@ public:
                         const size_t aStride,
                         const ConvDataDims aInputDims,
                         const ConvDataDims aOutputDims,
-                        const size_t aInputSampleNumber);
+                        const size_t aInputSampleNumber,
+                        const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     // Layer-specific Forward-Backward passes.
     void ForwardPass() override;
@@ -71,7 +74,8 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aInputHeight,
                                                                            const size_t aInputWidth,
                                                                            const size_t aOutputDepth,
-                                                                           const size_t aInputSampleNumber) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::TransposedConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride)),
+                                                                           const size_t aInputSampleNumber,
+                                                                           const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::TransposedConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride),aUpdateMethod),
                                                                                                               mFilterHeight(aFilterHeight),
                                                                                                               mFilterWidth(aFilterWidth),
                                                                                                               mPaddingHeight(aPaddingHeight),
@@ -93,7 +97,8 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aStride,
                                                                            const ConvDataDims aInputDims,
                                                                            const size_t aOutputDepth,
-                                                                           const size_t aInputSampleNumber) : TransposedConvLayer(aFilterHeight,
+                                                                           const size_t aInputSampleNumber,
+                                                                           const UpdateMethod aUpdateMethod) : TransposedConvLayer(aFilterHeight,
                                                                                                                                   aFilterWidth,
                                                                                                                                   aPaddingHeight,
                                                                                                                                   aPaddingWidth,
@@ -112,7 +117,8 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aStride,
                                                                            const ConvDataDims aInputDims,
                                                                            const ConvDataDims aOutputDims,
-                                                                           const size_t aInputSampleNumber) : TransposedConvLayer(aFilterHeight,
+                                                                           const size_t aInputSampleNumber,
+                                                                           const UpdateMethod aUpdateMethod) : TransposedConvLayer(aFilterHeight,
                                                                                                                                   aFilterWidth,
                                                                                                                                   aPaddingHeight,
                                                                                                                                   aPaddingWidth,

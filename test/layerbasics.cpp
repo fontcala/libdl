@@ -94,6 +94,7 @@ TEST_CASE("dimensions of convolution and upconvolution with same (carefully chos
   std::cout << transposedConvOutputDims.Depth << std::endl;
   std::cout << "convInput.Depth" << std::endl;
   std::cout << convInputDims.Depth << std::endl;
+
   REQUIRE(convInputDims.Height == transposedConvOutputDims.Height);
   REQUIRE(convInputDims.Width == transposedConvOutputDims.Width);
   REQUIRE(convInputDims.Depth == transposedConvOutputDims.Depth);
@@ -102,7 +103,6 @@ TEST_CASE("dimensions of convolution and upconvolution with same (carefully chos
   REQUIRE(transposedConvInputDims.Depth == convOutputDims.Depth);
   REQUIRE(someLayer.GetOutput()->cols() == transposedConvOutputDims.Depth);
   REQUIRE(someLayer2.GetOutput()->cols() == transposedConvInputDims.Depth);
-
 }
 TEST_CASE("network overfit (monotonically decreasing loss) a single noise sample, without maxpool", "network")
 {
@@ -334,7 +334,8 @@ TEST_CASE("maxpool basic tests", "network")
   InputVol1 << 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116;
   InputVol2 << 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216;
   MatrixXd InputVol(16, 3);
-  InputVol << InputVol1, InputVol2, InputVol3;
+  // One of the channels all negative
+  InputVol << -1 * InputVol1, InputVol2, InputVol3;
   std::cout << "InputVol" << std::endl;
   std::cout << InputVol << std::endl;
 
@@ -364,7 +365,7 @@ TEST_CASE("maxpool basic tests", "network")
   MatrixXd ShouldVol2(16, 1);
   MatrixXd ShouldVol3(16, 1);
   ShouldVol3 << 0, 0, 0, 0, 0, 306, 0, 308, 0, 0, 0, 0, 0, 314, 0, 316;
-  ShouldVol1 << 0, 0, 0, 0, 0, 106, 0, 108, 0, 0, 0, 0, 0, 114, 0, 116;
+  ShouldVol1 << -101, 0, -103, 0, 0, 0, 0, 0, -109, 0, -111, 0, 0, 0, 0, 0;
   ShouldVol2 << 0, 0, 0, 0, 0, 206, 0, 208, 0, 0, 0, 0, 0, 214, 0, 216;
   MatrixXd ShouldVol(16, 3);
   ShouldVol << ShouldVol1, ShouldVol2, ShouldVol3;
@@ -455,7 +456,7 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
 }
 TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one single example with network helper", "network")
 {
- 
+
   const size_t vInputDepth2 = 3;
   const size_t vInputHeight2 = 5;
   const size_t vInputWidth2 = 5;
@@ -501,8 +502,8 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
   L2LossLayer lossLayer{};
 
   NetworkHelper vNetworkExample({&conv1,
-                                    &trconv1,
-                                    &lossLayer});
+                                 &trconv1,
+                                 &lossLayer});
   conv1.mLearningRate = 0.005;
   trconv1.mLearningRate = 0.005;
 
