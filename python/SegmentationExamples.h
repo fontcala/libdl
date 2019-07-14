@@ -403,10 +403,10 @@ public:
                          const size_t aOutputDepth2,
                          const size_t aLabelDepth) : mInputHeight(aInputHeight),
                                                      mInputWidth(aInputWidth),
-                                                     conv1{3, 3, 0, 0, 1, aInputDepth, aInputHeight, aInputWidth, aOutputDepth1, 1,UpdateMethod::ADAM},
-                                                     conv2{3, 3, 0, 0, 1, conv1.GetOutputDims(), aOutputDepth2, 1,UpdateMethod::ADAM},
-                                                     tonv2{3, 3, 0, 0, 1, conv2.GetOutputDims(), aOutputDepth1, 1,UpdateMethod::ADAM},
-                                                     tonv1{3, 3, 0, 0, 1, tonv2.GetOutputDims(), aLabelDepth, 1,UpdateMethod::ADAM},
+                                                     conv1{3, 3, 0, 0, 1, aInputDepth, aInputHeight, aInputWidth, aOutputDepth1, 1},
+                                                     conv2{3, 3, 0, 0, 1, conv1.GetOutputDims(), aOutputDepth2, 1},
+                                                     tonv2{3, 3, 0, 0, 1, conv2.GetOutputDims(), aOutputDepth1, 1},
+                                                     tonv1{3, 3, 0, 0, 1, tonv2.GetOutputDims(), aLabelDepth, 1},
                                                      l2{},
                                                      net{{&conv1,
                                                           &conv2,
@@ -438,6 +438,99 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "Test Sample:" << std::endl;
+        conv1.SetInput(aInput);
+        return net.FullForwardTestPass();
+    }
+};
+
+class SegmentationExample8
+{
+    const size_t mInputHeight;
+    const size_t mInputWidth;
+    const size_t mInputDepth;
+    const size_t mLabelDepth;
+    ConvLayer<ReLUActivation> conv1;
+    ConvLayer<ReLUActivation> conv1s;
+    MaxPoolLayer<> maxp1;
+    ConvLayer<ReLUActivation> conv2;
+    ConvLayer<ReLUActivation> conv2s;
+    MaxPoolLayer<> maxp2;
+    TransposedConvLayer<ReLUActivation> tran3;
+    ConvLayer<ReLUActivation> conv3s;
+    TransposedConvLayer<SigmoidActivation> tran4;
+    ConvLayer<ReLUActivation> conv4s;
+    SoftmaxLossLayer<> loss;
+    NetworkHelper<> net;
+
+public:
+    SegmentationExample8(const size_t aInputHeight,
+                         const size_t aInputWidth,
+                         const size_t aInputDepth,
+                         const size_t aLabelDepth) : mInputHeight(aInputHeight),
+                                                     mInputWidth(aInputWidth),
+                                                     mInputDepth(aInputDepth),
+                                                     mLabelDepth(aLabelDepth),
+                                                     conv1{3, 3, 1, 1, 1, aInputDepth, aInputHeight, aInputWidth, 8, 1,UpdateMethod::NESTEROV},
+                                                     conv1s{3, 3, 1, 1, 1, conv1.GetOutputDims(), 16, 1,UpdateMethod::NESTEROV},
+                                                     maxp1{conv1s.GetOutputDims(), 2, 2, 1},
+                                                     conv2{3, 3, 1, 1, 1, maxp1.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
+                                                     conv2s{3, 3, 1, 1, 1, conv2.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
+                                                     maxp2{conv2s.GetOutputDims(), 2, 2, 1},
+                                                     tran3{2, 2, 0, 0, 2, maxp2.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
+                                                     conv3s{3, 3, 1, 1, 1, tran3.GetOutputDims(), 16, 1,UpdateMethod::NESTEROV},
+                                                     tran4{2, 2, 0, 0, 2, conv3s.GetOutputDims(), 8, 1,UpdateMethod::NESTEROV},
+                                                     conv4s{3, 3, 1, 1, 1, tran4.GetOutputDims(), 2, 1,UpdateMethod::NESTEROV},
+                                                     loss{},
+                                                     net{{&conv1,
+                                                          &conv1s,
+                                                          &maxp1,
+                                                          &conv2,
+                                                          &conv2s,
+                                                          &maxp2,
+                                                          &tran3,
+                                                          &conv3s,
+                                                          &tran4,
+                                                          &conv4s,
+                                                          &loss}}
+    {
+    }
+    void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aEpochNum)
+    {
+        conv1.mLearningRate = aLearningRate;
+        conv2.mLearningRate = aLearningRate;
+        conv1s.mLearningRate = aLearningRate;
+        conv2s.mLearningRate = aLearningRate;
+        conv3s.mLearningRate = aLearningRate;
+        conv4s.mLearningRate = aLearningRate;
+        tran4.mLearningRate = aLearningRate;
+        tran3.mLearningRate = aLearningRate;
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        const size_t vTotalTrainSamples = aInput.cols() / mInputDepth;
+        std::vector<size_t> vIndexTrainVector(vTotalTrainSamples);
+        std::iota(std::begin(vIndexTrainVector), std::end(vIndexTrainVector), 0); // Fill with 0, 1, ..., N.
+        for (size_t vEpoch = 0; vEpoch < aEpochNum; vEpoch++)
+        {
+            std::shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end(), g);
+            for (const auto &vIndex : vIndexTrainVector)
+            {
+                MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
+                MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
+
+                conv1.SetInput(Input);
+                loss.SetLabels(Labels);
+                net.FullForwardPass();
+                net.FullBackwardPass();
+            }
+            std::cout << "Loss of a given sample at epoch: " << vEpoch << std::endl;
+            std::cout << loss.GetLoss() << std::endl;
+        }
+    }
+
+    const MatrixXd Test(MatrixXd aInput)
+    {
+        std::cout << "testing:" << std::endl;
         conv1.SetInput(aInput);
         return net.FullForwardTestPass();
     }

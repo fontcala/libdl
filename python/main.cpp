@@ -165,4 +165,15 @@ PYBIND11_MODULE(pybindings, m)
          .def("Train", &SegmentationExample7::Train,
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
+
+     py::class_<SegmentationExample8>(m, "SegmentationExample8")
+         .def(py::init<int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &SegmentationExample8::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &SegmentationExample8::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
 }
