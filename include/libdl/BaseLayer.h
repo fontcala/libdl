@@ -44,8 +44,8 @@ public:
     BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims);
 
     // Every Layer element must implement these
-    virtual void ForwardPass() = 0;
-    virtual void BackwardPass() = 0;
+    // virtual void ForwardPass() = 0;
+    // virtual void BackwardPass() = 0;
 
     // Setter/Getters to connect Layers
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;

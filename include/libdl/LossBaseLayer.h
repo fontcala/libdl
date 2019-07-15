@@ -25,8 +25,8 @@ public:
     // TODO method that checks validity
     // TODO Do something about GetOutput
     // Every Layer must implement these
-    virtual void ForwardPass() = 0;
-    virtual void BackwardPass() = 0;
+    // virtual void ForwardPass() = 0;
+    // virtual void BackwardPass() = 0;
 };
 
 template <class DataType>

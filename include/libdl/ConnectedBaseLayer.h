@@ -60,8 +60,8 @@ public:
     ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod);
 
     // Every final Layer must implement these
-    virtual void ForwardPass() = 0;
-    virtual void BackwardPass() = 0;
+    // virtual void ForwardPass() = 0;
+    // virtual void BackwardPass() = 0;
 };
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
