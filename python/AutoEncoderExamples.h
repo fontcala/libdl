@@ -123,11 +123,7 @@ public:
         std::cout << l2.GetLoss() << std::endl;
         return *(tran1.GetOutput());
     }
-};
-
-class AutoEncoderExample
-{
-    const size_t mInputHeight;
+};    const size_t mInputHeight;
     const size_t mInputWidth;
     ConvLayer<ReLUActivation> conv1;
     MaxPoolLayer<> maxp1;
@@ -136,7 +132,11 @@ class AutoEncoderExample
     TransposedConvLayer<ReLUActivation> trmp1;
     TransposedConvLayer<SigmoidActivation> tran4;
     L2LossLayer<> l2;
-    NetworkHelper<> net;
+    NetworkHelper<> net;    
+
+class AutoEncoderExample
+{
+
 
 public:
     AutoEncoderExample(const size_t aInputHeight,

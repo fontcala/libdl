@@ -33,7 +33,7 @@ void im2col(Eigen::Matrix<double, Dynamic, Dynamic> *aOutput, const Eigen::Matri
     }
 }
 // Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
-// If the input is in format vectorized images stacked horizontally, can be aeasily made to support padding and multiple inputs
+// If the input is in format vectorized images stacked horizontally, can be easily made to support padding and multiple inputs
 // Careful! To avoid nasty errors, make sure aOutFields is equal to the number of columns in col *col
 // TODO Homogeneous coding style.
 template <class DataType>

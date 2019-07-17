@@ -11,7 +11,7 @@
 
 /**
 @class BaseLayer
-@brief Base Class for Network Layer eelements.
+@brief Base Class for Network Layer Elements.
  */
 template <class InputDimType, class BackpropInputDimType, class DataType>
 class BaseLayer : public NetworkElement<DataType>
@@ -42,7 +42,7 @@ public:
     BaseLayer();
     BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims);
 
-    // Every Layer element must implement these
+    // Every final Layer element must implement these
     // virtual void ForwardPass() = 0;
     // virtual void BackwardPass() = 0;
 

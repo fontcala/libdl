@@ -5,7 +5,7 @@
 
 // TODO make scenarios for different stride, sizes etc...
 using Eigen::MatrixXd;
-TEST_CASE("shapes", "3D horizontal stacked im2col")
+TEST_CASE(" im2col Hardcoded Example with Expected result", "3D horizontal stacked im2col")
 {
 
     const size_t vInputSampleNumber = 1;
@@ -46,7 +46,7 @@ TEST_CASE("shapes", "3D horizontal stacked im2col")
     // std::cout << col2ImImage << std::endl;
 }
 
-TEST_CASE("2D Data", "image im2col")
+TEST_CASE("im2col with 2D Data and hardcoded example", "image im2col")
 {
 
     // Template parameter vFilterSize = 2
@@ -70,7 +70,7 @@ TEST_CASE("2D Data", "image im2col")
     REQUIRE(Output == vExpectedOutput);
 }
 
-TEST_CASE("3D Data", "image im2col")
+TEST_CASE("im2com with 3D Data and hardcoded example", "image im2col")
 {
 
     // Template parameter vFilterSize = 2
@@ -128,7 +128,7 @@ TEST_CASE("flip", "flip")
     }
 }
 
-TEST_CASE("flatten and unflatten", "flattenLayer")
+TEST_CASE("flatten and unflatten one after the other should return the input", "flattenLayer")
 {
     // Input
     MatrixXd InputVol1(16, 1);
@@ -150,7 +150,7 @@ TEST_CASE("flatten and unflatten", "flattenLayer")
     REQUIRE(unflattened == InputVol);
 }
 
-TEST_CASE("forward and backward maxpool", "maxpool")
+TEST_CASE("forward and backward maxpool elements", "maxpool")
 {
 
         // Input

@@ -104,6 +104,49 @@ TEST_CASE("dimensions of convolution and upconvolution with same (carefully chos
   REQUIRE(someLayer.GetOutput()->cols() == transposedConvOutputDims.Depth);
   REQUIRE(someLayer2.GetOutput()->cols() == transposedConvInputDims.Depth);
 }
+TEST_CASE("Symmetry - If all elements of weight matrix are the same, a Forward Pass should return N filters that are the same", "network symmetry")
+{
+
+  const size_t vInputSampleNumber = 1;
+  const size_t vNumCategories = 2;
+  // Input
+  const size_t vInputDepth1 = 3;
+  const size_t vInputHeight1 = 10;
+  const size_t vInputWidth1 = 9;
+  MatrixXd Input = MatrixXd::Random(vInputHeight1 * vInputWidth1, vInputDepth1);
+  MatrixXd Label(vInputSampleNumber, vNumCategories);
+  Label << 0, 1;
+  //std::cout << "Input" << std::endl;
+  //std::cout << Input << std::endl;
+
+  // CONV 1
+  const size_t vFilterHeight1 = 3;
+  const size_t vFilterWidth1 = 3;
+  const size_t vPaddingHeight1 = 1;
+  const size_t vPaddingWidth1 = 1;
+  const size_t vStride1 = 2;
+  const size_t vOutputDepth1 = 6;
+
+  ConvLayer<ReLUActivation> firstConvLayer(vFilterHeight1,
+                                           vFilterWidth1,
+                                           vPaddingHeight1,
+                                           vPaddingWidth1,
+                                           vStride1,
+                                           vInputDepth1,
+                                           vInputHeight1,
+                                           vInputWidth1,
+                                           vOutputDepth1,
+                                           vInputSampleNumber);
+  double vSomeConstantValue = 0.45;
+  MatrixXd vCustomWeights = MatrixXd::Constant(3 * 3 * 3, 6, vSomeConstantValue);
+  MatrixXd vCustomBiases = MatrixXd::Zero(1, 6);
+  firstConvLayer.SetCustomParams(vCustomWeights, vCustomBiases, 0.005);
+  // Connect
+  firstConvLayer.SetInput(Input);
+  firstConvLayer.ForwardPass();
+  MatrixXd vOutput = *(firstConvLayer.GetOutput());
+  REQUIRE(vOutput.block<25,1>(0,1) == vOutput.block<25,1>(0,2));
+}
 TEST_CASE("network overfit (monotonically decreasing loss) a single noise sample, without maxpool", "network")
 {
   const size_t vInputSampleNumber = 1;
