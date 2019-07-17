@@ -37,10 +37,6 @@ void FlattenLayer<DataType>::ForwardPass()
     if (this->mValidInputFlag)
     {
         this->mOutput = dlfunctions::flatten(*(this->mInputPtr), mInputSampleNumber);
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
     }
     else
     {
@@ -53,14 +49,6 @@ void FlattenLayer<DataType>::BackwardPass()
     if (this->mValidBackpropInputFlag)
     {
         this->mBackpropOutput = dlfunctions::unflatten(*(this->mBackpropInputPtr), this->mInputDims.Depth, this->mInputDims.Height, this->mInputDims.Width);
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-        // std::cout << "mBackpropOutput" << std::endl;
-        // std::cout << mBackpropOutput.rows() << " " << mBackpropOutput.cols() << std::endl;
-        // std::cout << "(*mBackpropInputPtr)" << std::endl;
-        // std::cout << (*mBackpropInputPtr).rows() << " " << (*mBackpropInputPtr).cols() << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << mOutput.rows() << " " << mOutput.cols() << std::endl;
     }
     else
     {

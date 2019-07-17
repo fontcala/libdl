@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch2/catch.hpp"
 #include "libdl/dlfunctions.h"
+#include "libdl/dltypes.h"
 
 using Eigen::MatrixXd;
 TEST_CASE("convolution with stacked Identity image kernels should be the same as the input", "convolution")
@@ -54,4 +55,17 @@ TEST_CASE("convolution with stacked Identity image kernels should be the same as
 
         REQUIRE(OutputVolCnv == InputVol);
     }
+}
+TEST_CASE("convolution dimensions should be comparable", "convolution")
+{
+      ConvDataDims A(3,4,5);
+      ConvDataDims B(3,4,7);
+      REQUIRE(A != B);
+      ConvDataDims C(0,4,5);
+      REQUIRE(A != C);
+      ConvDataDims D(3,4,0);
+      REQUIRE(A != D);
+      ConvDataDims E(3,4,5);
+      REQUIRE(A == E);
+
 }

@@ -25,7 +25,8 @@ template <typename DimType, template <typename> class ActivationFunctionType, ty
 class ConnectedBaseLayer : public BaseLayer<DimType, DimType, DataType>
 {
 protected:
-    // todo make this dependent on DataType instead.
+    bool mInitializedFlag = false;
+
     ActivationFunctionType<DataType> ActivationFunction;
 
     Eigen::Matrix<DataType, Dynamic, Dynamic> mGradientsWeights;
@@ -41,6 +42,8 @@ protected:
     Eigen::Matrix<DataType, Dynamic, Dynamic> mSecondMomentumUpdateWeights;
     Eigen::Matrix<DataType, Dynamic, Dynamic> mSecondMomentumUpdateBiases;
 
+    void InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aLearningRate, double aMomentumUpdateParam, double aSecondMomentumUpdateParam);
+
 public:
     DataType mLearningRate;
     DataType mMomentumUpdateParam;
@@ -50,11 +53,18 @@ public:
     // Processing
     /**
     @function InitParams
-    @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights and biases.
-    @note He Initialization dependent on layer type with the parameter  \c aInitVariance
+    @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights (using eigen's random is not random enough). According to cs231n biases are better initialized to 0
+    @note He Initialization dependent on layer type with the parameter  \c aInitVariance to control the variance of weights
     */
     void InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance);
     void UpdateParams();
+
+    /**
+    @function SetCustomParams
+    @brief Initialization of parameters with a user defined value (eg: Pretrained weights).
+    @note Care must be taken when using this function, you should ensure the matrix dimensions match the ones expected given the layer parameters.
+    */
+    void SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases, double aLearningRate);
     // Constructor
     ConnectedBaseLayer();
     ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod);
@@ -77,64 +87,85 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitParams(s
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, sqrt(2 / aInitVariance));
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDimWeights, [&]() { return vRandDistr(vRandom); });
-    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases); //, aOutputDimBiases, [&]() { return vRandDistr(vRandom); }); // Biases should be initialized to 0 apparently.
-    mLearningRate = 0.05;
+    mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
+    InitUpdateParams(aInputDim, aOutputDimWeights, aOutputDimBiases,0.05,0.9,0.999);
+    mInitializedFlag = true;
+}
+
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aLearningRate, double aMomentumUpdateParam, double aSecondMomentumUpdateParam)
+{
+    mLearningRate = aLearningRate;
     if (mUpdateMethod != UpdateMethod::VANILLA)
     {
         mMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDimWeights);
         mMomentumUpdateBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
-        mMomentumUpdateParam = 0.9;
+        mMomentumUpdateParam = aMomentumUpdateParam;
         if (mUpdateMethod == UpdateMethod::ADAM)
         {
             mStep = 0;
             mSecondMomentumUpdateWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(aInputDim, aOutputDimWeights);
             mSecondMomentumUpdateBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
-            mSecondMomentumUpdateParam = 0.999;
+            mSecondMomentumUpdateParam = aSecondMomentumUpdateParam;
         }
     }
-    this->mInitializedFlag = true;
 }
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::UpdateParams()
 {
-
-    if (mUpdateMethod == UpdateMethod::ADAM)
+    if (mInitializedFlag)
     {
-        // Adam
-        mStep++;
+        if (mUpdateMethod == UpdateMethod::ADAM)
+        {
+            // Adam
+            mStep++;
 
-        mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights + (1 - mMomentumUpdateParam) * mGradientsWeights;
-        Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateWeights = mMomentumUpdateWeights.array() / (1 - pow(mMomentumUpdateParam, mStep));
-        mSecondMomentumUpdateWeights = mSecondMomentumUpdateParam * mSecondMomentumUpdateWeights.array() + (1 - mSecondMomentumUpdateParam) * mGradientsWeights.array() * mGradientsWeights.array();
-        Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedSecondMomentumUpdateWeights = mSecondMomentumUpdateWeights.array() / (1 - pow(mSecondMomentumUpdateParam, mStep));
-        mWeights = mWeights - (mLearningRate * vCorrectedMomentumUpdateWeights.array() / (mSecondMomentumUpdateWeights.cwiseSqrt().array() + 0.00000001)).matrix();
+            mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights + (1 - mMomentumUpdateParam) * mGradientsWeights;
+            Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateWeights = mMomentumUpdateWeights.array() / (1 - pow(mMomentumUpdateParam, mStep));
+            mSecondMomentumUpdateWeights = mSecondMomentumUpdateParam * mSecondMomentumUpdateWeights.array() + (1 - mSecondMomentumUpdateParam) * mGradientsWeights.array() * mGradientsWeights.array();
+            Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedSecondMomentumUpdateWeights = mSecondMomentumUpdateWeights.array() / (1 - pow(mSecondMomentumUpdateParam, mStep));
+            mWeights = mWeights - (mLearningRate * vCorrectedMomentumUpdateWeights.array() / (mSecondMomentumUpdateWeights.cwiseSqrt().array() + 0.00000001)).matrix();
 
-        mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases + (1 - mMomentumUpdateParam) * mGradientsBiases;
-        Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateBiases = mMomentumUpdateBiases.array() / (1 - pow(mMomentumUpdateParam, mStep));
-        mSecondMomentumUpdateBiases = mSecondMomentumUpdateParam * mSecondMomentumUpdateBiases.array() + (1 - mSecondMomentumUpdateParam) * mGradientsBiases.array() * mGradientsBiases.array();
-        Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedSecondMomentumUpdateBiases = mSecondMomentumUpdateBiases.array() / (1 - pow(mSecondMomentumUpdateParam, mStep));
-        mBiases = mBiases - (mLearningRate * vCorrectedMomentumUpdateBiases.array() / (mSecondMomentumUpdateBiases.cwiseSqrt().array() + 0.00000001)).matrix();
-    
-    }
-    else if (mUpdateMethod == UpdateMethod::VANILLA)
-    {
-        // Vanilla Descent
-        mWeights = mWeights - mLearningRate * mGradientsWeights;
-        mBiases = mBiases - mLearningRate * mGradientsBiases;
+            mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases + (1 - mMomentumUpdateParam) * mGradientsBiases;
+            Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateBiases = mMomentumUpdateBiases.array() / (1 - pow(mMomentumUpdateParam, mStep));
+            mSecondMomentumUpdateBiases = mSecondMomentumUpdateParam * mSecondMomentumUpdateBiases.array() + (1 - mSecondMomentumUpdateParam) * mGradientsBiases.array() * mGradientsBiases.array();
+            Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedSecondMomentumUpdateBiases = mSecondMomentumUpdateBiases.array() / (1 - pow(mSecondMomentumUpdateParam, mStep));
+            mBiases = mBiases - (mLearningRate * vCorrectedMomentumUpdateBiases.array() / (mSecondMomentumUpdateBiases.cwiseSqrt().array() + 0.00000001)).matrix();
+        }
+        else if (mUpdateMethod == UpdateMethod::VANILLA)
+        {
+            // Vanilla Descent
+            mWeights = mWeights - mLearningRate * mGradientsWeights;
+            mBiases = mBiases - mLearningRate * mGradientsBiases;
+        }
+        else
+        {
+            // Nesterov-Momentum
+            Eigen::Matrix<DataType, Dynamic, Dynamic> vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
+            mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
+            mWeights = mWeights + (-mMomentumUpdateParam * vPreviousMomentumUpdateWeights) + (1 + mMomentumUpdateParam) * mMomentumUpdateWeights;
+            Eigen::Matrix<DataType, Dynamic, Dynamic> vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
+            mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
+            mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam) * mMomentumUpdateBiases;
+        }
     }
     else
     {
-        // Nesterov-Momentum
-        Eigen::Matrix<DataType, Dynamic, Dynamic> vPreviousMomentumUpdateWeights = mMomentumUpdateWeights;
-        mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights - mLearningRate * mGradientsWeights;
-        mWeights = mWeights + (-mMomentumUpdateParam * vPreviousMomentumUpdateWeights) + (1 + mMomentumUpdateParam) * mMomentumUpdateWeights;
-        Eigen::Matrix<DataType, Dynamic, Dynamic> vPreviousMomentumUpdateBiases = mMomentumUpdateBiases;
-        mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases - mLearningRate * mGradientsBiases;
-        mBiases = mBiases + (-mMomentumUpdateParam * vPreviousMomentumUpdateBiases) + (1 + mMomentumUpdateParam) * mMomentumUpdateBiases;
+        throw(std::runtime_error("UpdateParams(): parameters not initialized"));
     }
+}
 
-    // Adam
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases,double aLearningRate)
+{
+    mWeights = aInWeights;
+    mBiases = aInBiases;
+    const size_t vInputDim = mWeights.rows();
+    const size_t vOutputDimWeights = mWeights.cols();
+    const size_t vOutputDimBiases = aInBiases.cols();
+    InitUpdateParams(vInputDim,vOutputDimWeights,vOutputDimBiases,aLearningRate,0.9,0.999);
+    mInitializedFlag = true;
 }
 
 #endif

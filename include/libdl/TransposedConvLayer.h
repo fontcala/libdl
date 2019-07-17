@@ -9,7 +9,7 @@
 /**
 @class TransposedConvLayer
 @brief Transposed Conv Class for transposed convolutional Layer elements.
-@note Honestly, still don't understand what transposed or fractionally strided means, this class is just based on the illustrations in https://github.com/vdumoulin/conv_arithmetic and made such that all dimensions are as expected (see testing)
+@note This class is based on the illustrations in https://github.com/vdumoulin/conv_arithmetic and made such that all dimensions are as expected (see testing)
  */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class TransposedConvLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
@@ -158,7 +158,6 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         // std::cout << "mOutput" << std::endl;
         // std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
 
-        //TODO SOLVE THE PROBLEM WITH BIASES! WTF SIZE SHOULD THEY BE??
         // Add biases
         this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
 

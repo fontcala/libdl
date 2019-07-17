@@ -285,7 +285,6 @@ public:
             std::shuffle(vIndexTrainVector.begin(), vIndexTrainVector.end(), g);
             for (const auto &vIndex : vIndexTrainVector)
             {
-                std::cout << vIndex << " vIndex" << std::endl;
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
                 MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
 
@@ -457,9 +456,9 @@ class SegmentationExample8
     MaxPoolLayer<> maxp2;
     TransposedConvLayer<ReLUActivation> tran3;
     ConvLayer<ReLUActivation> conv3s;
-    TransposedConvLayer<SigmoidActivation> tran4;
-    ConvLayer<ReLUActivation> conv4s;
-    SoftmaxLossLayer<> loss;
+    TransposedConvLayer<ReLUActivation> tran4;
+    ConvLayer<SigmoidActivation> conv4s;
+    L2LossLayer<> loss;
     NetworkHelper<> net;
 
 public:
@@ -470,16 +469,16 @@ public:
                                                      mInputWidth(aInputWidth),
                                                      mInputDepth(aInputDepth),
                                                      mLabelDepth(aLabelDepth),
-                                                     conv1{3, 3, 1, 1, 1, aInputDepth, aInputHeight, aInputWidth, 8, 1,UpdateMethod::NESTEROV},
-                                                     conv1s{3, 3, 1, 1, 1, conv1.GetOutputDims(), 16, 1,UpdateMethod::NESTEROV},
+                                                     conv1{3, 3, 1, 1, 1, aInputDepth, aInputHeight, aInputWidth, 8, 1},
+                                                     conv1s{3, 3, 1, 1, 1, conv1.GetOutputDims(), 16, 1},
                                                      maxp1{conv1s.GetOutputDims(), 2, 2, 1},
-                                                     conv2{3, 3, 1, 1, 1, maxp1.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
-                                                     conv2s{3, 3, 1, 1, 1, conv2.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
+                                                     conv2{3, 3, 1, 1, 1, maxp1.GetOutputDims(), 32, 1},
+                                                     conv2s{3, 3, 1, 1, 1, conv2.GetOutputDims(), 32, 1},
                                                      maxp2{conv2s.GetOutputDims(), 2, 2, 1},
-                                                     tran3{2, 2, 0, 0, 2, maxp2.GetOutputDims(), 32, 1,UpdateMethod::NESTEROV},
-                                                     conv3s{3, 3, 1, 1, 1, tran3.GetOutputDims(), 16, 1,UpdateMethod::NESTEROV},
-                                                     tran4{2, 2, 0, 0, 2, conv3s.GetOutputDims(), 8, 1,UpdateMethod::NESTEROV},
-                                                     conv4s{3, 3, 1, 1, 1, tran4.GetOutputDims(), 2, 1,UpdateMethod::NESTEROV},
+                                                     tran3{2, 2, 0, 0, 2, maxp2.GetOutputDims(), 32, 1},
+                                                     conv3s{3, 3, 1, 1, 1, tran3.GetOutputDims(), 16, 1},
+                                                     tran4{2, 2, 0, 0, 2, conv3s.GetOutputDims(), 8, 1},
+                                                     conv4s{3, 3, 1, 1, 1, tran4.GetOutputDims(), 2, 1},
                                                      loss{},
                                                      net{{&conv1,
                                                           &conv1s,

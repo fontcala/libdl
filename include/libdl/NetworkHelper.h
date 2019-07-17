@@ -82,7 +82,6 @@ Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::FullForwardTe
     {
         mNetwork[vProcess]->ForwardPass();
     }
-    std::cout << (*(mNetwork[mNumberLayers - 2]->GetOutput())).rows() << "rows" << std::endl;
     return *(mNetwork[mNumberLayers - 2]->GetOutput());
 }
 

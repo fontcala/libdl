@@ -18,7 +18,6 @@ class BaseLayer : public NetworkElement<DataType>
 {
 protected:
     // Flags
-    bool mInitializedFlag = false;
     bool mValidInputFlag = false;
     bool mValidBackpropInputFlag = false;
 
@@ -47,7 +46,6 @@ public:
     // virtual void ForwardPass() = 0;
     // virtual void BackwardPass() = 0;
 
-    // Setter/Getters to connect Layers
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) override;
     void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) override;
@@ -71,6 +69,7 @@ BaseLayer<InputDimType, BackpropInputDimType, DataType>::BaseLayer(const InputDi
                                                                                                                                               mInputDims(aInputDims),
                                                                                                                                               mOutputDims(aOutputDims){};
 
+
 template <class InputDimType, class BackpropInputDimType, class DataType>
 void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput)
 {
@@ -81,7 +80,7 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eig
     }
     else
     {
-        throw(std::runtime_error("SetInput(): layer parameters not initialized"));
+        throw(std::runtime_error("SetInput(): invalid input"));
     }
 };
 
@@ -104,7 +103,7 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetBackpropInput(c
     }
     else
     {
-        throw(std::runtime_error("SetBackpropInput(): layer parameters not initialized"));
+        throw(std::runtime_error("SetBackpropInput(): invalid backprop input"));
     }
 };
 

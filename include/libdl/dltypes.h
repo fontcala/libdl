@@ -7,6 +7,7 @@
 @class ConvDataDims.
 @brief encapsulates dimensions of convolutional data.
 @note uses the Named Constructor Idiom.
+@note member notation eased (eg: Depth instead of mDepth)
  */
 struct ConvDataDims
 {
@@ -34,7 +35,7 @@ struct ConvDataDims
         const size_t aPaddingHeight,
         const size_t aPaddingWidth,
         const size_t aStride);
-
+    // Transposed Convolution output Constructor
     static ConvDataDims TransposedConv(
         const size_t aOutDepth,
         const size_t aInHeight,
@@ -89,24 +90,32 @@ ConvDataDims::ConvDataDims(const size_t aInDepth,
                            const size_t aStride) : Depth(aInDepth),
                                                    Height((aInHeight - aPoolSize) / aStride + 1),
                                                    Width((aInWidth - aPoolSize) / aStride + 1) {}
-// ConvDataDims::ConvDataDims(const size_t aOutDepth,
-//                            const size_t aInHeight,
-//                            const size_t aInWidth,
-//                            const size_t aFilterHeight,
-//                            const size_t aFilterWidth,
-//                            const size_t aPaddingHeight,
-//                            const size_t aPaddingWidth,
-//                            const size_t aStride) : Depth(aOutDepth),
-//                                                    Height((aInHeight - aFilterHeight + 2 * aPaddingHeight) / aStride + 1),
-//                                                    Width((aInWidth - aFilterWidth + 2 * aPaddingWidth) / aStride + 1)
-// {
-// }
+
+/**
+@function operator==.
+ */
+bool operator==(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
+{
+    bool aSame = false;
+    if (aRhs.Depth == aLhs.Depth && aRhs.Height == aLhs.Height && aRhs.Width == aLhs.Width)
+    {
+        aSame = true;
+    }
+    return aSame;
+}
+
+/**
+@function operator!=.
+ */
+bool operator!=(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
+{
+    return !(aRhs == aLhs);
+}
 
 // TODO: Data Structure to pass pointer and dimensions too.
-// Make non copyable and non movable?
+
 // template <class DimType, class DataType>
 // class DataWrapper
-
 // {
 // public:
 //     DataWrapper(DataType , DimType aDims)
