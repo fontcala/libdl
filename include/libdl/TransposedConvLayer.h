@@ -7,10 +7,15 @@
 #include "ConnectedBaseLayer.h"
 
 /**
-@class TransposedConvLayer
-@brief Transposed Conv Class for transposed convolutional Layer elements.
-@note This class is based on the illustrations in https://github.com/vdumoulin/conv_arithmetic and made such that all dimensions are as expected (see testing)
- */
+* @class TransposedConvLayer
+* @brief Transposed Conv Class for transposed convolutional Layer elements.
+* 
+* @copydetails FullyConnectedLayer
+* In this layer the forward and the backward pass are 'exchanged' i.e the output is obtained from the same operation as a conv layer obtains the backpropagation output and vice-versa.
+* The weights are therefore matching in size with those of a ConvLayer, but not the biases, since the biases add information to the output.
+* 
+* Illustrations in the following repository help gain an intuition about the concept of transposed convolution https://github.com/vdumoulin/conv_arithmetic.
+*/
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class TransposedConvLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
@@ -59,9 +64,27 @@ public:
                         const ConvDataDims aOutputDims,
                         const size_t aInputSampleNumber,
                         const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
-
-    // Layer-specific Forward-Backward passes.
+    /** 
+    * TransposedConv::ForwardPass
+    * overrides 
+    * @copydoc NetworkElement::ForwardPass
+    * 
+    * This additionally makes the output go through the activation function specified by the \c ActivationFunctionType template parameter.
+    * @return Nothing.
+    * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
+    * @warning Does not perform any size check before doing the computations.
+    */
     void ForwardPass() override;
+    /**
+    * TransposedConv::BackwardPass
+    * overrides 
+    * @copydoc NetworkElement::BackwardPass
+    * 
+    * The backpropagation step also involves convolutions so the im2col trick applies nicely as well.
+    * @return Nothing.
+    * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
+    * @warning Does not perform any size check before doing the computations.
+    */
     void BackwardPass() override;
 };
 template <template <typename> class ActivationFunctionType, typename DataType>
@@ -139,43 +162,12 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
         this->mOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Constant(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth,0.0);
         dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
-        // std::cout << "mTransposedFilterSize" << std::endl;
-        // std::cout << mTransposedFilterSize << std::endl;
-        // std::cout << "mFilterSize" << std::endl;
-        // std::cout << mFilterSize << std::endl;
-        // std::cout << "mWeights" << std::endl;
-        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-        // // // std::cout << "weights" << std::endl;
-        // // // std::cout << this->mWeights << std::endl;
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << this->mInputPtr->rows() << " " << this->mInputPtr->cols() << std::endl;
-        // // // std::cout << "input" << std::endl;
-        // // // std::cout << *(this->mInputPtr) << std::endl;
-        // std::cout << "col2im sizes:" << std::endl;
-        // std::cout << colImage.rows() << " " << colImage.cols() << std::endl;
-        // // // std::cout << "col2im" << std::endl;
-        // // // std::cout << colImage  << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
-
         // Add biases
         this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
 
         // Activate
         this->ActivationFunction.ForwardFunction(this->mOutput);
 
-        // TODO Erase all this.
-        // std::cout << "fwd tran" << std::endl;   
-        // std::cout << "input" << std::endl;
-        // std::cout << *(this->mInputPtr) << std::endl;
-        // std::cout << "output" << std::endl;
-        // std::cout << this->mOutput << std::endl;
-        // std::cout << "mWeights" << std::endl;
-        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*this->mInputPtr).rows() << " " << (*this->mInputPtr).cols() << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << this->mOutput.rows() << " " << this->mOutput.cols() << std::endl;
     }
     else
     {
@@ -204,33 +196,10 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         // Compute convolution
         this->mGradientsWeights = (this->mInputPtr->transpose() * im2ColImageFilters).transpose();
 
-        // std::cout << "colimageFilters" << std::endl;
-        // std::cout << im2ColImageFilters.rows() << " " << im2ColImageFilters.cols() << std::endl;
-        // std::cout << this->mGradientsWeights << std::endl;
-
         // Derivative wrt input
         Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageOutput(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         this->mBackpropOutput = im2ColImageOutput * this->mWeights;
-
-        // // TODO erase all this
-        // std::cout << "bwd tran" << std::endl;
-        // std::cout << "(*mBackpropInputPtr)" << std::endl;
-        // std::cout << this->mBackpropInputPtr->rows() << " " << this->mBackpropInputPtr->cols() << std::endl;
-        // std::cout << "mBackpropOutput" << std::endl;
-        // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
-        // std::cout << "mWeights" << std::endl;
-        // std::cout << this->mWeights.rows() << " " << this->mWeights.cols() << std::endl;
-        // std::cout << "mGradientsWeights" << std::endl;
-        // std::cout << this->mGradientsWeights.rows() << " " << this->mGradientsWeights.cols() << std::endl;
-
-        // std::cout << this->mBackpropOutput << std::endl;
-
-        // std::cout << "colimageFilters" << std::endl;
-        // std::cout << im2ColImageFilters.rows() << " " << im2ColImageFilters.cols() << std::endl;
-
-        // std::cout << "mGradientsBiases" << std::endl;
-        // std::cout << this->mGradientsBiases.rows() << " " << this->mGradientsBiases.cols() << std::endl;
 
         // Update.
         this->UpdateParams();

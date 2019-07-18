@@ -7,7 +7,9 @@
 #include "LossBaseLayer.h"
 /**
 @class SoftmaxLossLayer
-@brief Softmax Loss Layer.
+@brief Softmax Loss Layer (cross entropy loss).
+
+* The output is set to be the class probabilities.
  */
 template <class DataType = double>
 class SoftmaxLossLayer final : public LossBaseLayer<DataType>
@@ -42,19 +44,6 @@ void SoftmaxLossLayer<DataType>::ForwardPass()
             this->mOutput = exp.array().colwise() / exp.rowwise().sum().array();
             Eigen::Matrix<DataType, Dynamic, Dynamic> logprobs = -this->mOutput.array().log();
             Eigen::Matrix<DataType, Dynamic, Dynamic> filtered = logprobs.cwiseProduct(this->mLabels);
-
-            //mOutput = mGradientHelper;
-            // std::cout << "(*mInputPtr)" << std::endl;
-            // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-            // std::cout << "(*mInputPtr)" << std::endl;
-            // std::cout << (*mInputPtr) << std::endl;
-            // std::cout << "exp" << std::endl;
-            // std::cout << exp << std::endl;
-            // std::cout << "probs" << std::endl;
-            // std::cout << mGradientHelper << std::endl;
-            // std::cout << "filtered" << std::endl;
-            // std::cout << filtered << std::endl;
-            // Loss divided by number of examples
             this->mLoss = filtered.array().sum() / static_cast<double>(vOutputNum);
         }
         else
@@ -71,9 +60,5 @@ template <class DataType>
 void SoftmaxLossLayer<DataType>::BackwardPass()
 {
     this->mBackpropOutput = this->mOutput - this->mLabels;
-    // std::cout << "(*mInputPtr)" << std::endl;
-    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols() << std::endl;
-    // std::cout << "mBackpropOutput" << std::endl;
-    // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
 };
 #endif

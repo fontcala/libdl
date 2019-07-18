@@ -7,6 +7,16 @@
 #include "BaseLayer.h"
 #include <math.h>
 
+/**
+* UpdateMethod
+* @brief Encapsulates Optimization methods.
+* 
+* currently available are:
+* 
+* - NESTEROV (sgd with nesterov momentum)  
+* - VANILLA (basic gradient descent)  
+* - ADAM (adam method annealing learning rate)  
+*/
 enum class UpdateMethod
 {
     NESTEROV,
@@ -15,12 +25,16 @@ enum class UpdateMethod
 };
 
 /**
-@class ConnectedBaseLayer
-@brief Base Layer for classes with parameters, introduces the parameters, their update and initialization.
-
-@note Weight Initialization is He Initialization.
-@note Gradient Update is SGD with nesterov momentum.
- */
+* @class ConnectedBaseLayer
+* @brief Base Layer for classes with parameters, introduces the parameters, their update and initialization.
+* 
+* 
+* 
+* Weight initialization is He/Xavier style. Choice left to the child classes.
+* 
+* Parameter Update method (choice left to child classes) offers options from enum \c:
+* @copydetails UpdateMethod
+*/
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
 class ConnectedBaseLayer : public BaseLayer<DimType, DimType, DataType>
 {
@@ -52,20 +66,25 @@ public:
 
     // Processing
     /**
-    @function InitParams
-    @brief Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights (using eigen's random is not random enough). According to cs231n biases are better initialized to 0
-    @note He Initialization dependent on layer type with the parameter  \c aInitVariance to control the variance of weights
+    * @brief Parameter Initialization and variance control.
+    * 
+    * Initialization with <tt>std::mt19937</tt> so that every run is with a different set of weights (using eigen's random is not random enough). According to cs231n biases are better initialized to 0
+    *
+    * He/Xavier Initialization dependent on layer type with the parameter \c aInitVariance to control the variance of weights.
+    * 
+    * Sets \c mInitializedFlag to \c true, which conditions the parameter update
     */
     void InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance);
     void UpdateParams();
 
     /**
-    @function SetCustomParams
-    @brief Initialization of parameters with a user defined value (eg: Pretrained weights).
-    @note Care must be taken when using this function, you should ensure the matrix dimensions match the ones expected given the layer parameters.
+    * @brief Initialization of parameters with a user defined value (eg: Pretrained weights).
+    * 
+    * Sets \c mInitializedFlag to \c true, which conditions the parameter update
+    * @warning The user is responsible to ensure the matrix dimensions in the input match the ones expected given the layer parameters.
     */
     void SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases, double aLearningRate);
-    // Constructor
+    // Constructors
     ConnectedBaseLayer();
     ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod);
 

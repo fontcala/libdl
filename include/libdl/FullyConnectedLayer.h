@@ -9,9 +9,11 @@
 #include "ConnectedBaseLayer.h"
 
 /**
-@class FullyConnectedLayer
-@brief Fully connected layer for dense layer elements.
- */
+* @class FullyConnectedLayer
+* @brief Fully connected layer for dense layer elements.
+*
+* This class encapsulates the forward backward computations needed for this kind of layer, implemented in matrix form. For further information see \c ForwardPass and \c BackwardPass. 
+*/
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class FullyConnectedLayer final : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
@@ -20,7 +22,32 @@ public:
   FullyConnectedLayer(const size_t aInputDim, const size_t aOutputDim, const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
   // Layer-specific Forward-Backward passes.
+
+  /**
+    * FullyConnectedLayer::ForwardPass
+    * overrides 
+    * @copydoc NetworkElement::ForwardPass
+    * 
+    * This additionally makes the output go through the activation function specified by the \c ActivationFunctionType template parameter.
+    * @return Nothing.
+    * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
+    * @warning Does not perform any size check before doing the computations.
+    * @remark Could be done as a simple matrix multiplication by appending ones to the input matrix and putting the bias and weights together. 
+    * However, it seems more elegant to keep weights and biases separated, since for other types of layers I cannot join them together.
+    * In the meantime,  \c replicate() is deemed well enough to include the biases, alternatively it would be possible to use the colwise/rowwise operator.
+    */
   void ForwardPass() override;
+
+  /**
+    * FullyConnectedLayer::BackwardPass
+    * overrides 
+    * @copydoc NetworkElement::BackwardPass
+    * 
+    * This additionally updates the parameters of the layer.
+    * @return Nothing.
+    * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
+    * @warning Does not perform any size check before doing the computations.
+    */
   void BackwardPass() override;
 };
 
@@ -35,21 +62,10 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
   if (this->mValidInputFlag)
   {
-    // TODO This can be rewritten as single matrix product. TODO look into coefficient-wise sum (solve with array() method)
+    // Multiplication and addition
     (this->mOutput) = *(this->mInputPtr) * this->mWeights + this->mBiases.replicate((this->mInputPtr)->rows(), 1);
+    // Activation Function
     this->ActivationFunction.ForwardFunction(this->mOutput);
-
-    //TODO Erase all this
-    // std::cout << "- (*mInputPtr)" << std::endl;
-    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
-    // std::cout << "(this->mOutput)" << std::endl;
-    // std::cout << (this->mOutput).rows() << " " << (this->mOutput).cols() << std::endl;
-    // std::cout << "- mWeights:" << std::endl;
-    // std::cout << mWeights << std::endl;
-    // std::cout << "- mBiases:" << std::endl;
-    // std::cout << mBiases << std::endl;
-    // std::cout << "- (this->mOutput):" << std::endl;
-    // std::cout << (this->mOutput) << std::endl;
   }
   else
   {
@@ -69,18 +85,7 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
     this->mGradientsBiases = vBackpropInput.colwise().sum();
     this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
 
-    //TODO Erase all this
-    // std::cout << "- mBackpropOutput" << std::endl;
-    // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols()<< std::endl;
-    // std::cout << "(*mInputPtr)" << std::endl;
-    // std::cout << (*mInputPtr).rows() << " " << (*mInputPtr).cols()<< std::endl;
-    // std::cout << "- *vBackPropInput" << std::endl;
-    // std::cout << vBackpropInput << std::endl;
-    // std::cout << "- *vDerivatedBackPropInput" << std::endl;
-    // std::cout << vDerivatedBackPropInput << std::endl;
-    // std::cout << "- *mGradientsWeights" << std::endl;
-    // std::cout << mGradientsWeights << std::endl;
-
+    // Update Parameters
     this->UpdateParams();
   }
   else

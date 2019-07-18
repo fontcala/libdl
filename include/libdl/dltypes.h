@@ -92,7 +92,7 @@ ConvDataDims::ConvDataDims(const size_t aInDepth,
                                                    Width((aInWidth - aPoolSize) / aStride + 1) {}
 
 /**
-@function operator==.
+* operator== for type ConvDataDims
  */
 bool operator==(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
 {
@@ -105,14 +105,14 @@ bool operator==(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
 }
 
 /**
-@function operator!=.
+* operator!= for type ConvDataDims
  */
 bool operator!=(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
 {
     return !(aRhs == aLhs);
 }
 
-// TODO: Data Structure to pass pointer and dimensions too.
+// TODO: Data Structure to pass pointer and dimensions too?
 
 // template <class DimType, class DataType>
 // class DataWrapper
@@ -130,12 +130,13 @@ bool operator!=(const ConvDataDims &aRhs, const ConvDataDims &aLhs)
 //     DimType mDims;
 // };
 
-// My classes templated with an activation function class, make all of this classes base of one given class?
-// Idea of this is to make the weight initialization for each layer dependant on which activation function class used.
+
 
 /**
 @class LinearActivation.
 @brief linear activation, mainly for use in the layer before loss layer.
+* 
+* Use members \c ForwardFunction and \c BackwardFunction to apply the corresponding inplace transformation to the passed input
  */
 template <class DataType>
 class LinearActivation
@@ -154,8 +155,10 @@ void LinearActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynami
 }
 
 /**
-@class SigmoidActivation.
-@brief sigmoid activation.
+* @class SigmoidActivation.
+* @brief sigmoid activation.
+* 
+* @copydetails LinearActivation
  */
 template <class DataType>
 class SigmoidActivation
@@ -180,8 +183,10 @@ void SigmoidActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynam
 }
 
 /**
-@class ReLUActivation.
-@brief ReLU activation.
+* @class ReLUActivation.
+* @brief ReLU activation.
+* 
+* @copydetails LinearActivation
  */
 template <class DataType>
 class ReLUActivation

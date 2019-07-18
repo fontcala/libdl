@@ -12,6 +12,10 @@
 /**
 @class BaseLayer
 @brief Base Class for Network Layer Elements.
+*
+* Provides layers with the notion of input, output, input dimensions, output dimensions which is common to all layers.
+* Every Layer will store a pointer to the data it is going to use during its forward and backward passes as well as the output of the passes,
+* as well as the methods to access these outputs.
  */
 template <class InputDimType, class BackpropInputDimType, class DataType>
 class BaseLayer : public NetworkElement<DataType>
@@ -46,6 +50,18 @@ public:
     // virtual void ForwardPass() = 0;
     // virtual void BackwardPass() = 0;
 
+    /**
+    * BaseLayer::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * overrides 
+    * @copydoc NetworkElement::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * 
+    * The user probably prefers to set the input of the whole network like this instead of a pointer, like in the other overload.
+    * 
+    * This function expects an input with the col shape i.e an image is stretched into columns (one column per channel)
+    * @remark Using this one could indicate \c this is the input layer. In the input Layer there is no need so mBackpropagateOutput update
+    * becase we are not going to backpropagate anymore. Knowing this would save an expensive operation at each full backwardpropagation.
+    * And this could be done by setting a flag  for whichever class uses this method.
+    */
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) override;
     void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) override;
@@ -84,11 +100,9 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eig
     }
 };
 
-// TODO: using this one indicates it is the first layer, so no need for mBackpropagateOutput update (set a Flag)
 template <class InputDimType, class BackpropInputDimType, class DataType>
 void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
-    // TODO check validity
     mInputPtr = &aInput;
     mValidInputFlag = true;
 };

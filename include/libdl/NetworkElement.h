@@ -10,14 +10,27 @@
 @class NetworkElement
 @brief Basic interface for any element of a network
  */
+
 #include "dlfunctions.h"
 #include "dltypes.h"
 template <typename DataType>
 class NetworkElement
 {
 public:
-    // Every Layer element must implement these
+    /**
+    * NetworkElement::ForwardPass
+    * 
+    * A Forward pass uses the data reference obtained during a \c SetInput call and 
+    * sets the output value which is may be used by another NetworkElement object.
+    */
     virtual void ForwardPass() = 0;
+
+    /**
+    * NetworkElement::BackwardPass
+    * 
+    * A Backward pass uses the data reference obtained during a \c SetBackpropInput call and 
+    * sets the bacpropagation value which is may be used by another NetworkElement object.
+    */
     virtual void BackwardPass() = 0;
 
     // Helpers to connect Layers

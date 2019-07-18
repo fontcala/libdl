@@ -6,8 +6,13 @@
 
 #include "BaseLayer.h"
 /**
-@class MaxPoolLayer
-@brief MaxPool Layer.
+* @class MaxPoolLayer
+* @brief MaxPool Layer.
+*
+* Max Pooling means selecting the maximum value of a region, in a convolution fashion. Therefore im2col can be used as well.
+* 
+* Pooling properties assumed to be square (Pool Size and Stride), additionally no padding asssumed.
+*
  */
 template <class DataType = double>
 class MaxPoolLayer final : public BaseLayer<ConvDataDims, ConvDataDims, DataType>
@@ -37,7 +42,8 @@ MaxPoolLayer<DataType>::MaxPoolLayer(const ConvDataDims aInputDims, const size_t
                                                                                                                                                      mStride(aStride),
                                                                                                                                                      mInputSampleNumber(aInputSampleNumber)
 {
-        std::cout << "Maxp " << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
+    std::cout << "Maxp "
+              << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
 };
 
 template <class DataType>
@@ -50,11 +56,6 @@ void MaxPoolLayer<DataType>::ForwardPass()
         {
             (this->mOutput).col(vChannelIndex) = dlfunctions::im2pool(mPoolSize, this->mInputPtr->col(vChannelIndex).data(), this->mOutputDims.Height, this->mOutputDims.Width, this->mInputDims.Height, this->mInputDims.Width, mStride, mInputSampleNumber);
         }
-        // std::cout << "fwd maxpool" << std::endl;
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << this->mInputPtr->rows() << " " << this->mInputPtr->cols() << std::endl;
-        // std::cout << "mOutput" << std::endl;
-        // std::cout << (this->mOutput).rows() << " " << (this->mOutput).cols() << std::endl;
     }
     else
     {
@@ -76,12 +77,6 @@ void MaxPoolLayer<DataType>::BackwardPass()
         }
         this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
         dlfunctions::colpool2im(mPoolSize, vAllFeatureCol.data(), (this->mBackpropOutput).data(), this->mOutputDims.Height, this->mOutputDims.Width, mPoolSize * mPoolSize * this->mInputDims.Depth, this->mInputDims.Height, this->mInputDims.Width, mStride, mInputSampleNumber);
-
-        // std::cout << "maxpool bwd" << std::endl;
-        // std::cout << "(*mInputPtr)" << std::endl;
-        // std::cout << (*this->mInputPtr).rows() << " " << (*this->mInputPtr).cols() << std::endl;
-        // std::cout << "this->mBackpropOutput" << std::endl;
-        // std::cout << this->mBackpropOutput.rows() << " " << this->mBackpropOutput.cols() << std::endl;
     }
     else
     {

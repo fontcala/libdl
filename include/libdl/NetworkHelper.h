@@ -8,17 +8,16 @@
 #include "NetworkElement.h"
 
 /**
-@class NetworkHelper
-@brief Class facilitates use of layers.
-Example use (given previously constructed layers):
-@code
+* @class NetworkHelper
+* @brief Class facilitates use of layers.
+*
+* Example use (given previously constructed layers):
+* @code
 NetworkHelper vNetworkExample({&firstLayer,
                                     &hiddenLayer1,
                                     &hiddenLayer2,
                                     &outputLayer});
-vNetworkExample.ConnectLayers();
-vNetworkExample.Train(inputData, inputLabels, 0.3, 24001,false);
-@endcode
+* @endcode
 */
 template <typename DataType = double>
 class NetworkHelper
@@ -34,10 +33,10 @@ public:
     void FullBackwardPass();
     Eigen::Matrix<DataType, Dynamic, Dynamic> FullForwardTestPass();
     /**
-    @function NetworkHelper
-    @note input @code const std::initializer_list<NetworkElement<DataType> *> &
-    @endcode 
-    must contain lvalue <tt>NetworkElement<DataType> *</tt> objects.
+    * NetworkHelper
+    * @note input @code const std::initializer_list<NetworkElement<DataType> *> &
+    * @endcode 
+    * must contain lvalue <tt>NetworkElement<DataType> *</tt> objects.
     */
     NetworkHelper(const std::initializer_list<NetworkElement<DataType> *> &aLayers);
     void ConnectLayers();

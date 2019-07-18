@@ -6,8 +6,12 @@
 
 #include "LossBaseLayer.h"
 /**
-@class L2LossLayer
-@brief L2 Loss Layer.
+* @class L2LossLayer
+* @brief L2 Loss Layer.
+* 
+* Implements the basic squared difference. Useful in task such as Autoencoder.
+* 
+* The output is set to be the input for interpretation of results.
  */
 template <class DataType = double>
 class L2LossLayer final : public LossBaseLayer<DataType>
