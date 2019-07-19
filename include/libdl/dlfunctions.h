@@ -1,3 +1,7 @@
+/** @file dlfunctions.h
+ *  @author Adria Font Calvarons
+ */
+
 #ifndef DLFUNCTIONS_H
 #define DLFUNCTIONS_H
 

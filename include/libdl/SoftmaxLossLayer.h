@@ -1,4 +1,4 @@
-/** @file LossLayer.h
+/** @file SoftmaxLossLayer.h
  *  @author Adria Font Calvarons
  */
 #ifndef SOFTMAXLOSSLAYER_H

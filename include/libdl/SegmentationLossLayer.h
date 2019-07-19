@@ -1,6 +1,4 @@
-/** @file LossLayer.h
- *  @author Adria Font Calvarons
- */
+
 #ifndef SEGMENTATIONLOSSLAYER_H
 #define SEGMENTATIONLOSSLAYER_H
 

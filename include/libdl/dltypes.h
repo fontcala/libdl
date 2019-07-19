@@ -1,3 +1,7 @@
+/** @file dltypes.h
+ *  @author Adria Font Calvarons
+ */
+
 #ifndef DLTYPES_H
 #define DLTYPES_H
 
