@@ -81,8 +81,8 @@ int main()
             MatrixXd inputSample = inputData(vSampleIndices, Eigen::all);
             MatrixXd inputSampleLabel = inputLabels(vSampleIndices, Eigen::all);
             //std::cout << "---- firstLayer.SetInput ----" << std::endl;
-            firstLayer.SetInput(inputData);
-            L2Layer.SetLabels(inputLabels);
+            firstLayer.SetData(inputData);
+            L2Layer.SetData(inputLabels);
             //std::cout << "---- firstLayer.ForwardPass() ----" << std::endl;
             firstLayer.ForwardPass();
             //std::cout << "---- secondLayer.ForwardPass() ----" << std::endl;
@@ -97,8 +97,8 @@ int main()
             firstLayer.BackwardPass();
             if (i % 100 == 0)
             {
-                firstLayer.SetInput(inputData);
-                L2Layer.SetLabels(inputLabels);
+                firstLayer.SetData(inputData);
+                L2Layer.SetData(inputLabels);
                 firstLayer.ForwardPass();
                 secondLayer.ForwardPass();
                 L2Layer.ForwardPass();

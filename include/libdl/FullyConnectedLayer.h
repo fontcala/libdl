@@ -83,7 +83,11 @@ void FullyConnectedLayer<ActivationFunctionType, DataType>::BackwardPass()
     this->ActivationFunction.BackwardFunction(vBackpropInput);
     this->mGradientsWeights = this->mInputPtr->transpose() * vBackpropInput;
     this->mGradientsBiases = vBackpropInput.colwise().sum();
-    this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
+
+    if (!this->mIsFirstLayerFlag)
+    {
+      this->mBackpropOutput = vBackpropInput * this->mWeights.transpose();
+    }
 
     // Update Parameters
     this->UpdateParams();

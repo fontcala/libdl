@@ -40,7 +40,8 @@ public:
     */
     NetworkHelper(const std::initializer_list<NetworkElement<DataType> *> &aLayers);
     void ConnectLayers();
-    void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels);
+    void SetInputData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void SetLabelData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels);
 };
 template <class DataType>
 NetworkHelper<DataType>::NetworkHelper(const std::initializer_list<NetworkElement<DataType> *> &aLayers) : mNetwork(aLayers), mValidNetwork(false), mNumberLayers(aLayers.size())
@@ -82,6 +83,17 @@ Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::FullForwardTe
         mNetwork[vProcess]->ForwardPass();
     }
     return *(mNetwork[mNumberLayers - 2]->GetOutput());
+}
+
+template <class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::SetInputData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+{
+    mNetwork.front()->SetData(aInput)
+}
+template <class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::SetLabelData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
+{
+    mNetwork.back()->SetData(aLabels)
 }
 
 #endif

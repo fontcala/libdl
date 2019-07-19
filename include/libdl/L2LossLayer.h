@@ -12,7 +12,9 @@
 * Implements the basic squared difference. Useful in task such as Autoencoder.
 * 
 * The output is set to be the input for interpretation of results.
- */
+* 
+*  The loss value is normalized by \c this->mLossNormalizationFactor.
+*/
 template <class DataType = double>
 class L2LossLayer final : public LossBaseLayer<DataType>
 {
@@ -21,39 +23,29 @@ protected:
 
 public:
     // Constructors
-    L2LossLayer();
+    L2LossLayer(double aLossNormalizationFactor = 1.0);
 
     void ForwardPass() override;
     void BackwardPass() override;
 };
 
 template <class DataType>
-L2LossLayer<DataType>::L2LossLayer(){};
+L2LossLayer<DataType>::L2LossLayer(double aLossNormalizationFactor): LossBaseLayer<DataType>(aLossNormalizationFactor){};
 
 template <class DataType>
 void L2LossLayer<DataType>::ForwardPass()
 {
-    if (this->mValidInputFlag)
+
+    if (this->ValidData())
     {
-        //check same number of training samples.
-        const size_t vLabelNum = this->mLabels.rows();
-        const size_t vOutputNum = (*(this->mInputPtr)).rows();
-        if (vLabelNum == vOutputNum)
-        {
-            //L2
-            mGradientHelper = *(this->mInputPtr) - this->mLabels;
-            // Loss divided by number of examples or number of pixels;
-            this->mLoss = (0.5 / static_cast<double>(vOutputNum)) * mGradientHelper.rowwise().squaredNorm().sum();
-        }
-        else
-        {
-            throw(std::runtime_error("ForwardPass(): dimension mismatch"));
-        }
+        this->mOutput = *(this->mInputPtr);
+        mGradientHelper = this->mOutput - this->mLabels;
+        this->mLoss = (0.5 / this->mLossNormalizationFactor) * mGradientHelper.rowwise().squaredNorm().sum();
     }
     else
     {
-        throw(std::runtime_error("ForwardPass(): invalid input"));
-    };
+        throw(std::runtime_error("ForwardPass(): dimension mismatch"));
+    }
 };
 
 template <class DataType>

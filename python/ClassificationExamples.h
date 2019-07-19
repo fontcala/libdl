@@ -132,8 +132,8 @@ std::vector<size_t> CNNClassificationExampleModel::runExample(const size_t aEpoc
             // std::cout << "Label" << std::endl;
             // std::cout << Label << std::endl;
             //std::cout << "---------start forward ---------" << std::endl;
-            firstConvLayer.SetInput(Input);
-            lossLayer.SetLabels(Label);
+            firstConvLayer.SetData(Input);
+            lossLayer.SetData(Label);
             //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
             firstConvLayer.ForwardPass();
             //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
@@ -181,8 +181,8 @@ std::vector<size_t> CNNClassificationExampleModel::runExample(const size_t aEpoc
         // std::cout << "Label" << std::endl;
         // std::cout << Label << std::endl;
         //std::cout << "---------start forward ---------" << std::endl;
-        firstConvLayer.SetInput(Input);
-        lossLayer.SetLabels(Label);
+        firstConvLayer.SetData(Input);
+        lossLayer.SetData(Label);
         //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
         firstConvLayer.ForwardPass();
         //std::cout << "secondConvLayer.ForwardPass()  ------" << std::endl;
@@ -345,8 +345,8 @@ std::vector<size_t> CNNClassificationExampleModel2::runExample(const size_t aEpo
             // std::cout << "Label" << std::endl;
             // std::cout << Label << std::endl;
             //std::cout << "---------start forward ---------" << std::endl;
-            firstConvLayer.SetInput(Input);
-            lossLayer.SetLabels(Label);
+            firstConvLayer.SetData(Input);
+            lossLayer.SetData(Label);
             //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
             firstConvLayer.ForwardPass();
             //std::cout << "maxp1.ForwardPass()  ------" << std::endl;
@@ -398,8 +398,8 @@ std::vector<size_t> CNNClassificationExampleModel2::runExample(const size_t aEpo
         // std::cout << "Label" << std::endl;
         // std::cout << Label << std::endl;
         //std::cout << "---------start forward ---------" << std::endl;
-        firstConvLayer.SetInput(Input);
-        lossLayer.SetLabels(Label);
+        firstConvLayer.SetData(Input);
+        lossLayer.SetData(Label);
         //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
         firstConvLayer.ForwardPass();
         //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
@@ -564,8 +564,8 @@ std::vector<size_t> CNNClassificationExampleModel3::runExample(const size_t aEpo
             // std::cout << "Label" << std::endl;
             // std::cout << Label << std::endl;
             //std::cout << "---------start forward ---------" << std::endl;
-            firstConvLayer.SetInput(Input);
-            lossLayer.SetLabels(Label);
+            firstConvLayer.SetData(Input);
+            lossLayer.SetData(Label);
             //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
             firstConvLayer.ForwardPass();
             //std::cout << "maxp1.ForwardPass()  ------" << std::endl;
@@ -617,8 +617,8 @@ std::vector<size_t> CNNClassificationExampleModel3::runExample(const size_t aEpo
         // std::cout << "Label" << std::endl;
         // std::cout << Label << std::endl;
         //std::cout << "---------start forward ---------" << std::endl;
-        firstConvLayer.SetInput(Input);
-        lossLayer.SetLabels(Label);
+        firstConvLayer.SetData(Input);
+        lossLayer.SetData(Label);
         //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;
         firstConvLayer.ForwardPass();
         //std::cout << "firstConvLayer.ForwardPass()  ------" << std::endl;

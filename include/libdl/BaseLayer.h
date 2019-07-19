@@ -22,6 +22,7 @@ class BaseLayer : public NetworkElement<DataType>
 {
 protected:
     // Flags
+    bool mIsFirstLayerFlag = false;
     bool mValidInputFlag = false;
     bool mValidBackpropInputFlag = false;
 
@@ -37,32 +38,25 @@ protected:
     const InputDimType mInputDims;
     const BackpropInputDimType mOutputDims;
 
-    // Data from other layers
-    // std::pair<InputDimType,DataType> mInputDataPtr;
-    // DataPtr<BackpropInputDimType,DataType> mBackpropInputDataPtr;
-
 public:
     // Constructors
     BaseLayer();
     BaseLayer(const InputDimType &aInputDims, const BackpropInputDimType &aOutputDims);
 
-    // Every final Layer element must implement these
-    // virtual void ForwardPass() = 0;
-    // virtual void BackwardPass() = 0;
 
     /**
     * BaseLayer::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
     * overrides 
     * @copydoc NetworkElement::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
     * 
-    * The user probably prefers to set the input of the whole network like this instead of a pointer, like in the other overload.
+    * The user probably prefers to set the training/testing data to the whole network like this instead of a pointer, like in \c SetInput.
     * 
-    * This function expects an input with the col shape i.e an image is stretched into columns (one column per channel)
-    * @remark Using this one could indicate \c this is the input layer. In the input Layer there is no need so mBackpropagateOutput update
+    * This function expects an input with the col shape i.e an image is stretched into columns (one column per channel).
+    * @remark Using this one indicates \c this is the input layer. In the input Layer there is no need for mBackpropagateOutput update
     * becase we are not going to backpropagate anymore. Knowing this would save an expensive operation at each full backwardpropagation.
-    * And this could be done by setting a flag  for whichever class uses this method.
+    * And this is done setting a flag for whichever class uses this method.
     */
-    void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;
+    virtual void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) override;
     void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) override;
     void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) override;
     const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const override;
@@ -101,10 +95,11 @@ void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eig
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>
-void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void BaseLayer<InputDimType, BackpropInputDimType, DataType>::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
     mInputPtr = &aInput;
     mValidInputFlag = true;
+    mIsFirstLayerFlag = true;
 };
 
 template <class InputDimType, class BackpropInputDimType, class DataType>

@@ -100,17 +100,18 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aInputWidth,
                                                        const size_t aOutputDepth,
                                                        const size_t aInputSampleNumber,
-                                                       const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride),aUpdateMethod),
-                                                                                          mFilterHeight(aFilterHeight),
-                                                                                          mFilterWidth(aFilterWidth),
-                                                                                          mPaddingHeight(aPaddingHeight),
-                                                                                          mPaddingWidth(aPaddingWidth),
-                                                                                          mStride(aStride),
-                                                                                          mInputSampleNumber(aInputSampleNumber),
-                                                                                          mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
+                                                       const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride), aUpdateMethod),
+                                                                                           mFilterHeight(aFilterHeight),
+                                                                                           mFilterWidth(aFilterWidth),
+                                                                                           mPaddingHeight(aPaddingHeight),
+                                                                                           mPaddingWidth(aPaddingWidth),
+                                                                                           mStride(aStride),
+                                                                                           mInputSampleNumber(aInputSampleNumber),
+                                                                                           mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
 {
-    std::cout << "Conv " << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
-    this->InitParams(mFilterSize, this->mOutputDims.Depth,this->mOutputDims.Depth, mFilterSize);
+    std::cout << "Conv "
+              << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
+    this->InitParams(mFilterSize, this->mOutputDims.Depth, this->mOutputDims.Depth, mFilterSize);
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
@@ -123,15 +124,15 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const size_t aOutputDepth,
                                                        const size_t aInputSampleNumber,
                                                        const UpdateMethod aUpdateMethod) : ConvLayer(aFilterHeight,
-                                                                                                    aFilterWidth,
-                                                                                                    aPaddingHeight,
-                                                                                                    aPaddingWidth,
-                                                                                                    aStride,
-                                                                                                    aInputDims.Depth,
-                                                                                                    aInputDims.Height,
-                                                                                                    aInputDims.Width,
-                                                                                                    aOutputDepth,
-                                                                                                    aInputSampleNumber){};
+                                                                                                     aFilterWidth,
+                                                                                                     aPaddingHeight,
+                                                                                                     aPaddingWidth,
+                                                                                                     aStride,
+                                                                                                     aInputDims.Depth,
+                                                                                                     aInputDims.Height,
+                                                                                                     aInputDims.Width,
+                                                                                                     aOutputDepth,
+                                                                                                     aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeight,
@@ -143,15 +144,15 @@ ConvLayer<ActivationFunctionType, DataType>::ConvLayer(const size_t aFilterHeigh
                                                        const ConvDataDims aOutputDims,
                                                        const size_t aInputSampleNumber,
                                                        const UpdateMethod aUpdateMethod) : ConvLayer(aFilterHeight,
-                                                                                                    aFilterWidth,
-                                                                                                    aPaddingHeight,
-                                                                                                    aPaddingWidth,
-                                                                                                    aStride,
-                                                                                                    aInputDims.Depth,
-                                                                                                    aInputDims.Height,
-                                                                                                    aInputDims.Width,
-                                                                                                    aOutputDims.Depth,
-                                                                                                    aInputSampleNumber){};
+                                                                                                     aFilterWidth,
+                                                                                                     aPaddingHeight,
+                                                                                                     aPaddingWidth,
+                                                                                                     aStride,
+                                                                                                     aInputDims.Depth,
+                                                                                                     aInputDims.Height,
+                                                                                                     aInputDims.Width,
+                                                                                                     aOutputDims.Depth,
+                                                                                                     aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
@@ -185,23 +186,25 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         // Backpropagation through activation function
         this->ActivationFunction.BackwardFunction(vBackpropInput);
 
-        // --Derivative wrt to bias
+        // Derivative wrt to bias
         this->mGradientsBiases = vBackpropInput.colwise().sum();
 
         // Transpose used below
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
 
-        // --Derivative wrt filters
-        // Compute im2col (im2col computed again, otherwise might be too memory intense to save it and speed really matters in forward not backward.)
+        // Derivative wrt filters (im2col computed again, otherwise might be too memory intense to save it and speed really matters in forward not backward.)
         Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         // Compute convolution
         this->mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
 
-        // --Derivative wrt to input
-        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * vBackpropInputTranspose).transpose();
-        this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
-        dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        if (!this->mIsFirstLayerFlag)
+        {
+            // Derivative wrt to input
+            Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * vBackpropInputTranspose).transpose();
+            this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
+            dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        }
 
         // Update Parameters
         this->UpdateParams();

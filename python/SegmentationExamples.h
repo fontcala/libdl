@@ -42,8 +42,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            loss.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            loss.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -55,7 +55,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "Test Sample:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -143,8 +143,8 @@ public:
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
                 MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
 
-                conv1.SetInput(Input);
-                loss.SetLabels(Labels);
+                conv1.SetData(Input);
+                loss.SetData(Labels);
                 net.FullForwardPass();
                 net.FullBackwardPass();
                 std::cout << "Loss of a given sample at epoch: " << vEpoch << std::endl;
@@ -157,7 +157,7 @@ public:
     Test(MatrixXd aInput)
     {
         std::cout << "Test Sample:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -288,8 +288,8 @@ public:
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
                 MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
 
-                conv1.SetInput(Input);
-                loss.SetLabels(Labels);
+                conv1.SetData(Input);
+                loss.SetData(Labels);
                 net.FullForwardPass();
                 net.FullBackwardPass();
             }
@@ -301,7 +301,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -365,8 +365,8 @@ public:
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
                 MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
 
-                conv1.SetInput(Input);
-                loss.SetLabels(Labels);
+                conv1.SetData(Input);
+                loss.SetData(Labels);
                 net.FullForwardPass();
                 net.FullBackwardPass();
             }
@@ -378,7 +378,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -424,8 +424,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            l2.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            l2.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -437,7 +437,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "Test Sample:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -517,8 +517,8 @@ public:
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, mInputDepth);
                 MatrixXd Labels = aLabels.block(0, vIndex * mLabelDepth, mInputHeight * mInputWidth, mLabelDepth);
 
-                conv1.SetInput(Input);
-                loss.SetLabels(Labels);
+                conv1.SetData(Input);
+                loss.SetData(Labels);
                 net.FullForwardPass();
                 net.FullBackwardPass();
             }
@@ -530,7 +530,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };

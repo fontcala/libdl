@@ -15,29 +15,33 @@
 * Additionally, in this layer (last layer) there is a check of the dimensions between the labels and the resulting output
 */
 template <class DataType>
-class LossBaseLayer : public BaseLayer<size_t,size_t, DataType>
-{ 
+class LossBaseLayer : public BaseLayer<size_t, size_t, DataType>
+{
 protected:
+
+    /**
+    * mLossNormalizationFactor defines how to scale the loss value and is a user choice (default value = 1)
+    */
+    const double mLossNormalizationFactor;
     DataType mLoss;
     Eigen::Matrix<DataType, Dynamic, Dynamic> mLabels;
 
+    bool ValidData() const;
+
 public:
     // Constructor
-    LossBaseLayer();
+    LossBaseLayer(double aLossNormalizationFactor = 1.0);
     // Assume one-hot encoding Labels
-    void SetLabels(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels);
+    void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels) override;
+
     double GetLoss() const;
-    // TODO method that checks validity
-    // Every Layer must implement these
-    // virtual void ForwardPass() = 0;
-    // virtual void BackwardPass() = 0;
 };
 
 template <class DataType>
-LossBaseLayer<DataType>::LossBaseLayer(){};
+LossBaseLayer<DataType>::LossBaseLayer(double aLossNormalizationFactor):mLossNormalizationFactor(aLossNormalizationFactor){};
 
 template <class DataType>
-void LossBaseLayer<DataType>::SetLabels(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
+void LossBaseLayer<DataType>::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
 {
     mLabels = aLabels;
 }
@@ -45,7 +49,26 @@ void LossBaseLayer<DataType>::SetLabels(const Eigen::Matrix<DataType, Dynamic, D
 template <class DataType>
 double LossBaseLayer<DataType>::GetLoss() const
 {
-  return mLoss;
+    return mLoss;
+};
+
+template <class DataType>
+bool LossBaseLayer<DataType>::ValidData() const
+{
+    bool vValidData = false;
+    if (this->mValidInputFlag)
+    {
+
+        if (this->mLabels.rows() == this->mInputPtr->rows() && this->mLabels.cols() == this->mInputPtr->cols())
+        {
+            vValidData = true;
+        }
+    }
+    else
+    {
+        throw(std::runtime_error("ValidData(): invalid input (flag)"));
+    };
+    return vValidData;
 };
 
 #endif

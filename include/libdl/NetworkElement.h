@@ -34,7 +34,7 @@ public:
     virtual void BackwardPass() = 0;
 
     // Helpers to connect Layers
-    virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) = 0;
+    virtual void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) = 0;
     virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) = 0;
     virtual void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) = 0;
     virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const = 0;

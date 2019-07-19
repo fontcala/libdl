@@ -46,7 +46,7 @@ TEST_CASE("dimensions of convolution and upconvolution with same (carefully chos
                                           vInputWidth2,
                                           vOutputDepth2,
                                           1);
-  someLayer2.SetInput(Input2);
+  someLayer2.SetData(Input2);
   someLayer2.ForwardPass();
   someLayer2.SetBackpropInput(&vBackpropInput2);
   someLayer2.BackwardPass();
@@ -80,7 +80,7 @@ TEST_CASE("dimensions of convolution and upconvolution with same (carefully chos
                                                 vInputWidth1,
                                                 vOutputDepth1,
                                                 1);
-  someLayer.SetInput(Input);
+  someLayer.SetData(Input);
   someLayer.ForwardPass();
   someLayer.SetBackpropInput(&vBackpropInput1);
   someLayer.BackwardPass();
@@ -142,7 +142,7 @@ TEST_CASE("Symmetry - If all elements of weight matrix are the same, a Forward P
   MatrixXd vCustomBiases = MatrixXd::Zero(1, 6);
   firstConvLayer.SetCustomParams(vCustomWeights, vCustomBiases, 0.005);
   // Connect
-  firstConvLayer.SetInput(Input);
+  firstConvLayer.SetData(Input);
   firstConvLayer.ForwardPass();
   MatrixXd vOutput = *(firstConvLayer.GetOutput());
   REQUIRE(vOutput.block<25,1>(0,1) == vOutput.block<25,1>(0,2));
@@ -204,10 +204,10 @@ TEST_CASE("network overfit (monotonically decreasing loss) a single noise sample
 
   // losslayer
   SoftmaxLossLayer lossLayer{};
-  lossLayer.SetLabels(Label);
+  lossLayer.SetData(Label);
 
   // Connect
-  firstConvLayer.SetInput(Input);
+  firstConvLayer.SetData(Input);
   secondConvLayer.SetInput(firstConvLayer.GetOutput());
   flattenLayer.SetInput(secondConvLayer.GetOutput());
   fcLayer.SetInput(flattenLayer.GetOutput());
@@ -315,10 +315,10 @@ TEST_CASE("network overfit (monotonically decreasing loss) one single example, w
 
   // losslayer
   SoftmaxLossLayer lossLayer{};
-  lossLayer.SetLabels(Label);
+  lossLayer.SetData(Label);
 
   // Connect
-  firstConvLayer.SetInput(Input);
+  firstConvLayer.SetData(Input);
   mpLayer.SetInput(firstConvLayer.GetOutput());
   secondConvLayer.SetInput(mpLayer.GetOutput());
   flattenLayer.SetInput(secondConvLayer.GetOutput());
@@ -395,7 +395,7 @@ TEST_CASE("maxpool basic tests", "network")
   size_t vNumSamples = 1;
 
   MaxPoolLayer maxP(vNumChannelsVol, vImageHeightVol, vImageWidthVol, tFILTERSIZE, vStrideVol, vNumSamples);
-  maxP.SetInput(InputVol);
+  maxP.SetData(InputVol);
   maxP.ForwardPass();
   std::cout << "*(maxP.GetOutput())" << std::endl;
   std::cout << *(maxP.GetOutput()) << std::endl;
@@ -461,8 +461,8 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
 
   L2LossLayer lossLayer{};
 
-  lossLayer.SetLabels(Input);
-  conv1.SetInput(Input);
+  lossLayer.SetData(Input);
+  conv1.SetData(Input);
   trconv1.SetInput(conv1.GetOutput());
   lossLayer.SetInput(trconv1.GetOutput());
 
@@ -550,8 +550,8 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
   conv1.mLearningRate = 0.005;
   trconv1.mLearningRate = 0.005;
 
-  conv1.SetInput(Input);
-  lossLayer.SetLabels(Input);
+  conv1.SetData(Input);
+  lossLayer.SetData(Input);
 
   for (size_t i = 0; i < 18; i++)
   {

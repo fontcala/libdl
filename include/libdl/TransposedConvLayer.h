@@ -98,18 +98,19 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aInputWidth,
                                                                            const size_t aOutputDepth,
                                                                            const size_t aInputSampleNumber,
-                                                                           const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::TransposedConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride),aUpdateMethod),
-                                                                                                              mFilterHeight(aFilterHeight),
-                                                                                                              mFilterWidth(aFilterWidth),
-                                                                                                              mPaddingHeight(aPaddingHeight),
-                                                                                                              mPaddingWidth(aPaddingWidth),
-                                                                                                              mStride(aStride),
-                                                                                                              mInputSampleNumber(aInputSampleNumber),
-                                                                                                              mFilterSize(aFilterHeight * aFilterWidth * aInputDepth),
-                                                                                                              mTransposedFilterSize(aFilterHeight * aFilterWidth * aOutputDepth)
+                                                                           const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::TransposedConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride), aUpdateMethod),
+                                                                                                               mFilterHeight(aFilterHeight),
+                                                                                                               mFilterWidth(aFilterWidth),
+                                                                                                               mPaddingHeight(aPaddingHeight),
+                                                                                                               mPaddingWidth(aPaddingWidth),
+                                                                                                               mStride(aStride),
+                                                                                                               mInputSampleNumber(aInputSampleNumber),
+                                                                                                               mFilterSize(aFilterHeight * aFilterWidth * aInputDepth),
+                                                                                                               mTransposedFilterSize(aFilterHeight * aFilterWidth * aOutputDepth)
 {
-    std::cout << "Tran " << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
-    this->InitParams(mTransposedFilterSize,this->mInputDims.Depth,this->mOutputDims.Depth, mTransposedFilterSize);
+    std::cout << "Tran "
+              << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
+    this->InitParams(mTransposedFilterSize, this->mInputDims.Depth, this->mOutputDims.Depth, mTransposedFilterSize);
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
@@ -122,15 +123,15 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const size_t aOutputDepth,
                                                                            const size_t aInputSampleNumber,
                                                                            const UpdateMethod aUpdateMethod) : TransposedConvLayer(aFilterHeight,
-                                                                                                                                  aFilterWidth,
-                                                                                                                                  aPaddingHeight,
-                                                                                                                                  aPaddingWidth,
-                                                                                                                                  aStride,
-                                                                                                                                  aInputDims.Depth,
-                                                                                                                                  aInputDims.Height,
-                                                                                                                                  aInputDims.Width,
-                                                                                                                                  aOutputDepth,
-                                                                                                                                  aInputSampleNumber){};
+                                                                                                                                   aFilterWidth,
+                                                                                                                                   aPaddingHeight,
+                                                                                                                                   aPaddingWidth,
+                                                                                                                                   aStride,
+                                                                                                                                   aInputDims.Depth,
+                                                                                                                                   aInputDims.Height,
+                                                                                                                                   aInputDims.Width,
+                                                                                                                                   aOutputDepth,
+                                                                                                                                   aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const size_t aFilterHeight,
@@ -142,15 +143,15 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                            const ConvDataDims aOutputDims,
                                                                            const size_t aInputSampleNumber,
                                                                            const UpdateMethod aUpdateMethod) : TransposedConvLayer(aFilterHeight,
-                                                                                                                                  aFilterWidth,
-                                                                                                                                  aPaddingHeight,
-                                                                                                                                  aPaddingWidth,
-                                                                                                                                  aStride,
-                                                                                                                                  aInputDims.Depth,
-                                                                                                                                  aInputDims.Height,
-                                                                                                                                  aInputDims.Width,
-                                                                                                                                  aOutputDims.Depth,
-                                                                                                                                  aInputSampleNumber){};
+                                                                                                                                   aFilterWidth,
+                                                                                                                                   aPaddingHeight,
+                                                                                                                                   aPaddingWidth,
+                                                                                                                                   aStride,
+                                                                                                                                   aInputDims.Depth,
+                                                                                                                                   aInputDims.Height,
+                                                                                                                                   aInputDims.Width,
+                                                                                                                                   aOutputDims.Depth,
+                                                                                                                                   aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
 void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
@@ -159,7 +160,7 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
     {
         // Transposed Convolution
         Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * this->mInputPtr->transpose()).transpose();
-        this->mOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Constant(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth,0.0);
+        this->mOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Constant(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth, 0.0);
         dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
         // Add biases
@@ -167,7 +168,6 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
 
         // Activate
         this->ActivationFunction.ForwardFunction(this->mOutput);
-
     }
     else
     {
@@ -196,10 +196,14 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         // Compute convolution
         this->mGradientsWeights = (this->mInputPtr->transpose() * im2ColImageFilters).transpose();
 
-        // Derivative wrt input
-        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageOutput(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
-        this->mBackpropOutput = im2ColImageOutput * this->mWeights;
+
+        if (!this->mIsFirstLayerFlag)
+        {
+            // Derivative wrt input
+            Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageOutput(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
+            dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+            this->mBackpropOutput = im2ColImageOutput * this->mWeights;
+        }
 
         // Update.
         this->UpdateParams();

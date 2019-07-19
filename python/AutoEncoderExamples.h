@@ -104,8 +104,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            l2.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            l2.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -117,7 +117,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         net.FullForwardPass();
         std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
         std::cout << l2.GetLoss() << std::endl;
@@ -178,8 +178,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            l2.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            l2.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -191,7 +191,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         net.FullForwardPass();
         std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
         std::cout << l2.GetLoss() << std::endl;
@@ -230,8 +230,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            l2.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            l2.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -243,7 +243,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         net.FullForwardPass();
         std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
         std::cout << l2.GetLoss() << std::endl;
@@ -282,8 +282,8 @@ public:
         for (size_t i = 0; i < aNumber; i++)
         {
 
-            conv1.SetInput(aInput);
-            l2.SetLabels(aLabels);
+            conv1.SetData(aInput);
+            l2.SetData(aLabels);
 
             net.FullForwardPass();
             std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -295,8 +295,8 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "Test Sample:" << std::endl;
-        l2.SetLabels(aInput); // Not used, just in case we want to do just a full forward pass
-        conv1.SetInput(aInput);
+        l2.SetData(aInput); // Not used, just in case we want to do just a full forward pass
+        conv1.SetData(aInput);
         net.FullForwardPass();
         std::cout << "GetLoss(): +++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
         std::cout << l2.GetLoss() << std::endl;
@@ -423,8 +423,8 @@ public:
             for (const auto &vIndex : vIndexTrainVector)
             {
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
-                conv1.SetInput(Input);
-                loss.SetLabels(Input);
+                conv1.SetData(Input);
+                loss.SetData(Input);
                 net.FullForwardPass();
                 net.FullBackwardPass();
             }
@@ -436,7 +436,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };
@@ -493,8 +493,8 @@ public:
             for (const auto &vIndex : vIndexTrainVector)
             {
                 MatrixXd Input = aInput.block(0, vIndex, mInputHeight * mInputWidth, 1);
-                conv1.SetInput(Input);
-                loss.SetLabels(Input);
+                conv1.SetData(Input);
+                loss.SetData(Input);
                 net.FullForwardPass();
                 net.FullBackwardPass();
             }
@@ -506,7 +506,7 @@ public:
     const MatrixXd Test(MatrixXd aInput)
     {
         std::cout << "testing:" << std::endl;
-        conv1.SetInput(aInput);
+        conv1.SetData(aInput);
         return net.FullForwardTestPass();
     }
 };

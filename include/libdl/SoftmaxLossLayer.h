@@ -8,8 +8,10 @@
 /**
 @class SoftmaxLossLayer
 @brief Softmax Loss Layer (cross entropy loss).
-
+*
 * The output is set to be the class probabilities.
+*
+* The loss value is normalized by \c this->mLossNormalizationFactor.
  */
 template <class DataType = double>
 class SoftmaxLossLayer final : public LossBaseLayer<DataType>
@@ -20,40 +22,30 @@ protected:
 
 public:
     // Constructors
-    SoftmaxLossLayer();
+    SoftmaxLossLayer(double aLossNormalizationFactor = 1.0);
 
     void ForwardPass() override;
     void BackwardPass() override;
 };
 
 template <class DataType>
-SoftmaxLossLayer<DataType>::SoftmaxLossLayer(){};
+SoftmaxLossLayer<DataType>::SoftmaxLossLayer(double aLossNormalizationFactor): LossBaseLayer<DataType>(aLossNormalizationFactor){};
 
 template <class DataType>
 void SoftmaxLossLayer<DataType>::ForwardPass()
 {
-    if (this->mValidInputFlag)
+    if (this->ValidData())
     {
-        //check same number of training samples.
-        const size_t vLabelNum = this->mLabels.rows();
-        const size_t vOutputNum = this->mInputPtr->rows();
-        if (vLabelNum == vOutputNum)
-        {
-            //Softmax
-            Eigen::Matrix<DataType, Dynamic, Dynamic> exp = (*(this->mInputPtr)).array().exp();
-            this->mOutput = exp.array().colwise() / exp.rowwise().sum().array();
-            Eigen::Matrix<DataType, Dynamic, Dynamic> logprobs = -this->mOutput.array().log();
-            Eigen::Matrix<DataType, Dynamic, Dynamic> filtered = logprobs.cwiseProduct(this->mLabels);
-            this->mLoss = filtered.array().sum() / static_cast<double>(vOutputNum);
-        }
-        else
-        {
-            throw(std::runtime_error("ForwardPass(): dimension mismatch"));
-        }
+        //Softmax
+        Eigen::Matrix<DataType, Dynamic, Dynamic> exp = (*(this->mInputPtr)).array().exp();
+        this->mOutput = exp.array().colwise() / exp.rowwise().sum().array();
+        Eigen::Matrix<DataType, Dynamic, Dynamic> logprobs = -this->mOutput.array().log();
+        Eigen::Matrix<DataType, Dynamic, Dynamic> filtered = logprobs.cwiseProduct(this->mLabels);
+        this->mLoss = filtered.array().sum() / (this->mLossNormalizationFactor);
     }
     else
     {
-        throw(std::runtime_error("ForwardPass(): invalid input"));
+        throw(std::runtime_error("ForwardPass(): dimension mismatch"));
     };
 };
 template <class DataType>
