@@ -28,7 +28,6 @@ protected:
     const size_t mStride;
 
     const size_t mInputSampleNumber;
-    const size_t mFilterSize;
     const size_t mTransposedFilterSize;
 
 public:
@@ -106,7 +105,6 @@ TransposedConvLayer<ActivationFunctionType, DataType>::TransposedConvLayer(const
                                                                                                                mPaddingWidth(aPaddingWidth),
                                                                                                                mStride(aStride),
                                                                                                                mInputSampleNumber(aInputSampleNumber),
-                                                                                                               mFilterSize(aFilterHeight * aFilterWidth * aInputDepth),
                                                                                                                mTransposedFilterSize(aFilterHeight * aFilterWidth * aOutputDepth)
 {
     std::cout << "Tran "
@@ -161,9 +159,9 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
     {
         // Transposed Convolution
         // Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * this->mInputPtr->transpose()).transpose();
-        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (*(this->mInputPtr) * this->mWeights.transpose());
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vColImage = (*(this->mInputPtr) * this->mWeights.transpose());
         this->mOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Constant(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth, 0.0);
-        dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        dlfunctions::col2im(mFilterHeight, mFilterWidth, vColImage.data(), this->mOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
         // Add biases
         this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
@@ -191,18 +189,18 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         this->mGradientsBiases = vBackpropInput.colwise().sum();
         
         // --Derivative wrt filters (dOut/df = In conv Out) transpose means interchange in and out
-        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageFilters(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageFilters.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImageFilters(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), vIm2ColImageFilters.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         // Compute convolution
-        this->mGradientsWeights = (this->mInputPtr->transpose() * im2ColImageFilters).transpose();
+        this->mGradientsWeights = (this->mInputPtr->transpose() * vIm2ColImageFilters).transpose();
 
 
         if (!this->mIsFirstLayerFlag)
         {
             // Derivative wrt input
-            Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageOutput(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
-            dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
-            this->mBackpropOutput = im2ColImageOutput * this->mWeights;
+            Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImageOutput(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
+            dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), vIm2ColImageOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+            this->mBackpropOutput = vIm2ColImageOutput * this->mWeights;
         }
 
         // Update.

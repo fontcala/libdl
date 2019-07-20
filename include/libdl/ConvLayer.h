@@ -183,10 +183,10 @@ void ConvLayer<ActivationFunctionType, DataType>::ForwardPass()
     if (this->mValidInputFlag)
     {
         // Compute the im2Col Matrix
-        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), vIm2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         // Compute Convolution
-        this->mOutput = im2ColImage * this->mWeights;
+        this->mOutput = vIm2ColImage * this->mWeights;
         // Add biases
         this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
         // Activate
@@ -213,17 +213,17 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         this->mGradientsBiases = vBackpropInput.colwise().sum();
 
         // Derivative wrt filters (im2col computed again, otherwise might be too memory intense to save it and speed really matters in forward not backward.)
-        Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
-        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+        Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
+        dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), vIm2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         //  (Compute convolution (avoid transpose of im2Col image!))
-        this->mGradientsWeights = (vBackpropInput.transpose() * im2ColImage).transpose();
+        this->mGradientsWeights = (vBackpropInput.transpose() * vIm2ColImage).transpose();
 
         if (!this->mIsFirstLayerFlag)
         {
             // Derivative wrt to input
-            Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (vBackpropInput * this->mWeights.transpose());
+            Eigen::Matrix<DataType, Dynamic, Dynamic> vColImage = (vBackpropInput * this->mWeights.transpose());
             this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
-            dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
+            dlfunctions::col2im(mFilterHeight, mFilterWidth, vColImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         }
 
         // Update Parameters
