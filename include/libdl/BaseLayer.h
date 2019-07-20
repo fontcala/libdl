@@ -10,12 +10,22 @@
 #include "dltypes.h"
 
 /**
-@class BaseLayer
-@brief Base Class for Network Layer Elements.
+* @class BaseLayer
+* @brief Base Class for Network Layer Elements.
 *
 * Provides layers with the notion of input, output, input dimensions, output dimensions which is common to all layers.
 * Every Layer will store a pointer to the data it is going to use during its forward and backward passes as well as the output of the passes,
 * as well as the methods to access these outputs.
+*
+* BaseLayer is templated over the type of input and output dimensions \c InputDimType and \c BackpropInputDimType, to allow for generality of input output.
+* So far,Layers where 3D image Data is used (eg: ConvLayer), store their size in an object ConvDataDims, otherwise \c size_t is used (eg: FullyConnectedLayer). 
+* 
+* @note Why am I not using smart pointers?
+* Raw pointers are used because there is no concept of ownership to be implemented (in fact, the data these pointers are mant to point to is owned by other objects).
+* Additionally the data in these pointers is accessed many times, and having a wrapper around the actual pointer could be slower.
+*
+* @note Why pointer to data and not pointer to previous and next layers?
+* Like this the layers are easier to interface. It should be up to the user, where he gets the input from, maybe he has a useful function returning some data which he wants to use in between two layers. 
  */
 template <class InputDimType, class BackpropInputDimType, class DataType>
 class BaseLayer : public NetworkElement<DataType>

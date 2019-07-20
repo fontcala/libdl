@@ -8,8 +8,8 @@
 /**
 * @class FlattenLayer
 * @brief Flatten Layer, necessary interface between convolutional layers and fully connected layers.
-* 
-* Takes an object of Dimension type ConvDataDims (coming from Conv layers) and returns another of Dimension type \c size_t (into dense layers).
+*
+* Takes an object of Dimension type ConvDataDims (coming from Conv layers or related) and returns another of Dimension type \c size_t (into dense layers).
 */
 template <class DataType = double>
 class FlattenLayer final : public BaseLayer<ConvDataDims, size_t, DataType>
