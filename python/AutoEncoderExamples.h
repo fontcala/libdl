@@ -84,22 +84,22 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aNumber)
     {
-        conv1.mLearningRate = aLearningRate;
-        conv2.mLearningRate = aLearningRate;
-        conv3.mLearningRate = aLearningRate;
-        conv4.mLearningRate = aLearningRate;
-        conv5.mLearningRate = aLearningRate;
-        conv6.mLearningRate = aLearningRate;
-        conv7.mLearningRate = aLearningRate;
-        conv8.mLearningRate = aLearningRate;
-        tran8.mLearningRate = aLearningRate;
-        tran7.mLearningRate = aLearningRate;
-        tran6.mLearningRate = aLearningRate;
-        tran5.mLearningRate = aLearningRate;
-        tran4.mLearningRate = aLearningRate;
-        tran3.mLearningRate = aLearningRate;
-        tran2.mLearningRate = aLearningRate;
-        tran1.mLearningRate = aLearningRate;
+        conv1.SetLearningRate(aLearningRate);
+        conv2.SetLearningRate(aLearningRate);
+        conv3.SetLearningRate(aLearningRate);
+        conv4.SetLearningRate(aLearningRate);
+        conv5.SetLearningRate(aLearningRate);
+        conv6.SetLearningRate(aLearningRate);
+        conv7.SetLearningRate(aLearningRate);
+        conv8.SetLearningRate(aLearningRate);
+        tran8.SetLearningRate(aLearningRate);
+        tran7.SetLearningRate(aLearningRate);
+        tran6.SetLearningRate(aLearningRate);
+        tran5.SetLearningRate(aLearningRate);
+        tran4.SetLearningRate(aLearningRate);
+        tran3.SetLearningRate(aLearningRate);
+        tran2.SetLearningRate(aLearningRate);
+        tran1.SetLearningRate(aLearningRate);
 
         for (size_t i = 0; i < aNumber; i++)
         {
@@ -169,11 +169,11 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aNumber)
     {
-        conv1.mLearningRate = aLearningRate;
-        conv2.mLearningRate = aLearningRate;
-        tran3.mLearningRate = aLearningRate;
-        trmp1.mLearningRate = aLearningRate;
-        tran4.mLearningRate = aLearningRate;
+        conv1.SetLearningRate(aLearningRate);
+        conv2.SetLearningRate(aLearningRate);
+        tran3.SetLearningRate(aLearningRate);
+        trmp1.SetLearningRate(aLearningRate);
+        tran4.SetLearningRate(aLearningRate);
 
         for (size_t i = 0; i < aNumber; i++)
         {
@@ -224,8 +224,8 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aNumber)
     {
-        conv1.mLearningRate = aLearningRate;
-        conv2.mLearningRate = aLearningRate;
+        conv1.SetLearningRate(aLearningRate);
+        conv2.SetLearningRate(aLearningRate);
 
         for (size_t i = 0; i < aNumber; i++)
         {
@@ -276,8 +276,8 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aNumber)
     {
-        conv1.mLearningRate = aLearningRate;
-        tonv2.mLearningRate = aLearningRate;
+        conv1.SetLearningRate(aLearningRate);
+        tonv2.SetLearningRate(aLearningRate);
 
         for (size_t i = 0; i < aNumber; i++)
         {
@@ -378,39 +378,22 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aEpochNum)
     {
-        conv1.mLearningRate = aLearningRate;
-        conv2.mLearningRate = aLearningRate;
-        conv3.mLearningRate = aLearningRate;
-        conv4.mLearningRate = aLearningRate;
-        conv5.mLearningRate = aLearningRate;
-        conv6.mLearningRate = aLearningRate;
-        conv7.mLearningRate = aLearningRate;
-        conv8.mLearningRate = aLearningRate;
-        tran8.mLearningRate = aLearningRate;
-        tran7.mLearningRate = aLearningRate;
-        tran6.mLearningRate = aLearningRate;
-        tran5.mLearningRate = aLearningRate;
-        tran4.mLearningRate = aLearningRate;
-        tran3.mLearningRate = aLearningRate;
-        tran2.mLearningRate = aLearningRate;
-        tran1.mLearningRate = aLearningRate;
-
-        conv1.mMomentumUpdateParam = 0.99;
-        conv2.mMomentumUpdateParam = 0.99;
-        conv3.mMomentumUpdateParam = 0.99;
-        conv4.mMomentumUpdateParam = 0.99;
-        conv5.mMomentumUpdateParam = 0.99;
-        conv6.mMomentumUpdateParam = 0.99;
-        conv7.mMomentumUpdateParam = 0.99;
-        conv8.mMomentumUpdateParam = 0.99;
-        tran8.mMomentumUpdateParam = 0.99;
-        tran7.mMomentumUpdateParam = 0.99;
-        tran6.mMomentumUpdateParam = 0.99;
-        tran5.mMomentumUpdateParam = 0.99;
-        tran4.mMomentumUpdateParam = 0.99;
-        tran3.mMomentumUpdateParam = 0.99;
-        tran2.mMomentumUpdateParam = 0.99;
-        tran1.mMomentumUpdateParam = 0.99;
+        conv1.SetLearningParams(aLearningRate,0.99);
+        conv2.SetLearningParams(aLearningRate,0.99);
+        conv3.SetLearningParams(aLearningRate,0.99);
+        conv4.SetLearningParams(aLearningRate,0.99);
+        conv5.SetLearningParams(aLearningRate,0.99);
+        conv6.SetLearningParams(aLearningRate,0.99);
+        conv7.SetLearningParams(aLearningRate,0.99);
+        conv8.SetLearningParams(aLearningRate,0.99);
+        tran8.SetLearningParams(aLearningRate,0.99);
+        tran7.SetLearningParams(aLearningRate,0.99);
+        tran6.SetLearningParams(aLearningRate,0.99);
+        tran5.SetLearningParams(aLearningRate,0.99);
+        tran4.SetLearningParams(aLearningRate,0.99);
+        tran3.SetLearningParams(aLearningRate,0.99);
+        tran2.SetLearningParams(aLearningRate,0.99);
+        tran1.SetLearningParams(aLearningRate,0.99);
 
         std::random_device rd;
         std::mt19937 g(rd());
@@ -477,10 +460,10 @@ public:
     }
     void Train(const MatrixXd &aInput, const MatrixXd &aLabels, const double aLearningRate, const size_t aEpochNum)
     {
-        conv1.mLearningRate = aLearningRate;
-        conv2.mLearningRate = aLearningRate;
-        tran3.mLearningRate = aLearningRate;
-        tran4.mLearningRate = aLearningRate;
+        conv1.SetLearningRate(aLearningRate);
+        conv2.SetLearningRate(aLearningRate);
+        tran3.SetLearningRate(aLearningRate);
+        tran4.SetLearningRate(aLearningRate);
 
         std::random_device rd;
         std::mt19937 g(rd());

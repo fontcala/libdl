@@ -470,8 +470,8 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
   trconv1.SetBackpropInput(lossLayer.GetBackpropOutput());
 
   // Init Params
-  conv1.mLearningRate = 0.00003;
-  trconv1.mLearningRate = 0.00003;
+  conv1.SetLearningRate(0.00003);
+  trconv1.SetLearningRate(0.00003);
 
   double vPreviousLoss = std::numeric_limits<double>::max();
   const double cTolerance = 0.000000000000001;
@@ -547,8 +547,8 @@ TEST_CASE("autoencoder-like network overfit (monotonically decreasing loss) one 
   NetworkHelper vNetworkExample({&conv1,
                                  &trconv1,
                                  &lossLayer});
-  conv1.mLearningRate = 0.005;
-  trconv1.mLearningRate = 0.005;
+  conv1.SetLearningRate(0.005);
+  trconv1.SetLearningRate(0.005);
 
   conv1.SetData(Input);
   lossLayer.SetData(Input);

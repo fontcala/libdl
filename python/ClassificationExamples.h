@@ -110,9 +110,9 @@ std::vector<size_t> CNNClassificationExampleModel::runExample(const size_t aEpoc
     fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
 
     // Init Params
-    firstConvLayer.mLearningRate = mLearningRate;
-    secondConvLayer.mLearningRate = mLearningRate;
-    fcLayer.mLearningRate = mLearningRate;
+    firstConvLayer.SetLearningRate(mLearningRate);
+    secondConvLayer.SetLearningRate(mLearningRate);
+    fcLayer.SetLearningRate(mLearningRate);
 
     // TRAIN
     std::random_device rd;
@@ -323,9 +323,9 @@ std::vector<size_t> CNNClassificationExampleModel2::runExample(const size_t aEpo
     fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
 
     // Init Params
-    firstConvLayer.mLearningRate = mLearningRate;
-    secondConvLayer.mLearningRate = mLearningRate;
-    fcLayer.mLearningRate = mLearningRate;
+    firstConvLayer.SetLearningRate(mLearningRate);
+    secondConvLayer.SetLearningRate(mLearningRate);
+    fcLayer.SetLearningRate(mLearningRate);
 
     // TRAIN
     std::random_device rd;
@@ -542,9 +542,9 @@ std::vector<size_t> CNNClassificationExampleModel3::runExample(const size_t aEpo
     fcLayer.SetBackpropInput(lossLayer.GetBackpropOutput());
 
     // Init Params
-    firstConvLayer.mLearningRate = mLearningRate;
-    secondConvLayer.mLearningRate = mLearningRate;
-    fcLayer.mLearningRate = mLearningRate;
+    firstConvLayer.SetLearningRate(mLearningRate);
+    secondConvLayer.SetLearningRate(mLearningRate);
+    fcLayer.SetLearningRate(mLearningRate);
 
     // TRAIN
     std::random_device rd;

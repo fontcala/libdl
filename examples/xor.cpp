@@ -63,8 +63,8 @@ int main()
         firstLayer.SetBackpropInput(secondLayer.GetBackpropOutput());
         secondLayer.SetBackpropInput(L2Layer.GetBackpropOutput());
 
-        firstLayer.mLearningRate = 0.05;
-        secondLayer.mLearningRate = 0.05;
+        firstLayer.SetLearningRate(0.05);
+        secondLayer.SetLearningRate(0.05);
         // set input subset
         std::random_device rd;
         std::mt19937 gen(rd());

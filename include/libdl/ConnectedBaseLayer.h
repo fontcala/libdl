@@ -55,15 +55,14 @@ protected:
     Eigen::Matrix<DataType, Dynamic, Dynamic> mMomentumUpdateBiases;
     Eigen::Matrix<DataType, Dynamic, Dynamic> mSecondMomentumUpdateWeights;
     Eigen::Matrix<DataType, Dynamic, Dynamic> mSecondMomentumUpdateBiases;
-
-    void InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aLearningRate, double aMomentumUpdateParam, double aSecondMomentumUpdateParam);
-
-public:
+    DataType mStep;
     DataType mLearningRate;
     DataType mMomentumUpdateParam;
     DataType mSecondMomentumUpdateParam;
-    DataType mStep;
 
+    void InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, DataType aLearningRate, DataType aMomentumUpdateParam, DataType aSecondMomentumUpdateParam);
+
+public:
     // Processing
     /**
     * @brief Parameter Initialization and variance control.
@@ -74,7 +73,7 @@ public:
     * 
     * Sets \c mInitializedFlag to \c true, which conditions the parameter update
     */
-    void InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance);
+    void InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance, DataType aLearningRate = 0.005, DataType aMomentumUpdateParam = 0.9, DataType aSecondMomentumUpdateParam = 0.999);
     void UpdateParams();
 
     /**
@@ -83,7 +82,9 @@ public:
     * Sets \c mInitializedFlag to \c true, which conditions the parameter update
     * @warning The user is responsible to ensure the matrix dimensions in the input match the ones expected given the layer parameters.
     */
-    void SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases, double aLearningRate);
+    void SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases, DataType aLearningRate = 0.005, DataType aMomentumUpdateParam = 0.9, DataType aSecondMomentumUpdateParam = 0.999);
+    void SetLearningParams(DataType aLearningRate = 0.005, DataType aMomentumUpdateParam = 0.9, DataType aSecondMomentumUpdateParam = 0.999);
+    void SetLearningRate(DataType aLearningRate);
     // Constructors
     ConnectedBaseLayer();
     ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod);
@@ -100,19 +101,19 @@ template <typename DimType, template <typename> class ActivationFunctionType, ty
 ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod) : BaseLayer<DimType, DimType, DataType>(aInputDims, aOutputDims), mUpdateMethod(aUpdateMethod){};
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
-void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance)
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aInitVariance, DataType aLearningRate, DataType aMomentumUpdateParam, DataType aSecondMomentumUpdateParam)
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, sqrt(2 / aInitVariance));
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDimWeights, [&]() { return vRandDistr(vRandom); });
     mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
-    InitUpdateParams(aInputDim, aOutputDimWeights, aOutputDimBiases,0.05,0.9,0.999);
+    InitUpdateParams(aInputDim, aOutputDimWeights, aOutputDimBiases, aLearningRate, aMomentumUpdateParam, aSecondMomentumUpdateParam);
     mInitializedFlag = true;
 }
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
-void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, double aLearningRate, double aMomentumUpdateParam, double aSecondMomentumUpdateParam)
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitUpdateParams(size_t aInputDim, size_t aOutputDimWeights, size_t aOutputDimBiases, DataType aLearningRate, DataType aMomentumUpdateParam, DataType aSecondMomentumUpdateParam)
 {
     mLearningRate = aLearningRate;
     if (mUpdateMethod != UpdateMethod::VANILLA)
@@ -176,15 +177,29 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::UpdateParams
 }
 
 template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
-void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases,double aLearningRate)
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetCustomParams(Eigen::Matrix<DataType, Dynamic, Dynamic> aInWeights, Eigen::Matrix<DataType, Dynamic, Dynamic> aInBiases, DataType aLearningRate, DataType aMomentumUpdateParam, DataType aSecondMomentumUpdateParam)
 {
     mWeights = aInWeights;
     mBiases = aInBiases;
     const size_t vInputDim = mWeights.rows();
     const size_t vOutputDimWeights = mWeights.cols();
     const size_t vOutputDimBiases = aInBiases.cols();
-    InitUpdateParams(vInputDim,vOutputDimWeights,vOutputDimBiases,aLearningRate,0.9,0.999);
+    InitUpdateParams(vInputDim, vOutputDimWeights, vOutputDimBiases, aLearningRate, 0.9, 0.999);
     mInitializedFlag = true;
+}
+
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetLearningParams(DataType aLearningRate, DataType aMomentumUpdateParam, DataType aSecondMomentumUpdateParam)
+{
+    SetLearningRate(aLearningRate);
+    mMomentumUpdateParam = aMomentumUpdateParam;
+    mSecondMomentumUpdateParam = aSecondMomentumUpdateParam;
+}
+
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetLearningRate(DataType aLearningRate)
+{
+    mLearningRate = aLearningRate;
 }
 
 #endif

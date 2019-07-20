@@ -18,7 +18,7 @@ int main()
 
     MatrixXd C = (A * B.transpose());
 
-    MatrixXd D = (B.transpose() * A);
+    MatrixXd D = (B * A);
 
     std::cout << C << std::endl;
     std::cout << "---------" << std::endl;

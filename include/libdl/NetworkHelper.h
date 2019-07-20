@@ -86,14 +86,14 @@ Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::FullForwardTe
 }
 
 template <class DataType>
-Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::SetInputData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void NetworkHelper<DataType>::SetInputData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
-    mNetwork.front()->SetData(aInput)
+    mNetwork.front()->SetData(aInput);
 }
 template <class DataType>
-Eigen::Matrix<DataType, Dynamic, Dynamic> NetworkHelper<DataType>::SetLabelData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
+void NetworkHelper<DataType>::SetLabelData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels)
 {
-    mNetwork.back()->SetData(aLabels)
+    mNetwork.back()->SetData(aLabels);
 }
 
 #endif
