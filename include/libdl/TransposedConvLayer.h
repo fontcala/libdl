@@ -69,6 +69,7 @@ public:
     * overrides 
     * @copydoc NetworkElement::ForwardPass
     * 
+    * Care has been taken to avoid the transpose operation in the col matrix.
     * This additionally makes the output go through the activation function specified by the \c ActivationFunctionType template parameter.
     * @return Nothing.
     * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
@@ -159,7 +160,8 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::ForwardPass()
     if (this->mValidInputFlag)
     {
         // Transposed Convolution
-        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * this->mInputPtr->transpose()).transpose();
+        // Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * this->mInputPtr->transpose()).transpose();
+        Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (*(this->mInputPtr) * this->mWeights.transpose());
         this->mOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Constant(this->mOutputDims.Height * this->mOutputDims.Width, this->mOutputDims.Depth, 0.0);
         dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mOutput.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
 
@@ -187,9 +189,7 @@ void TransposedConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         this->ActivationFunction.BackwardFunction(vBackpropInput);
         // --Derivative wrt to bias
         this->mGradientsBiases = vBackpropInput.colwise().sum();
-        // --Transpose used below
-        Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
-
+        
         // --Derivative wrt filters (dOut/df = In conv Out) transpose means interchange in and out
         Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImageFilters(this->mInputDims.Height * this->mInputDims.Width, mTransposedFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, vBackpropInput.data(), im2ColImageFilters.data(), this->mInputDims.Height, this->mInputDims.Width, mTransposedFilterSize, this->mOutputDims.Height, this->mOutputDims.Width, mPaddingHeight, mPaddingWidth, mStride);

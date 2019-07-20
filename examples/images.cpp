@@ -13,12 +13,13 @@
 using Eigen::MatrixXd;
 int main()
 {
+
     MatrixXd A = MatrixXd::Random(10,3);
     MatrixXd B = MatrixXd::Random(5,3);
 
-    MatrixXd C = (A * B.transpose());
+    MatrixXd C = (A * B.transpose()).transpose();
 
-    MatrixXd D = (B * A);
+    MatrixXd D = (B * A.transpose());
 
     std::cout << C << std::endl;
     std::cout << "---------" << std::endl;

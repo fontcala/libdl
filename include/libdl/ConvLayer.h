@@ -12,8 +12,7 @@
 *
 * @copydetails FullyConnectedLayer
 *
-* Convolution is abstracted as a matrix multiplication in both forward and backward passes, for speed purposes.
-* and this allows GEMM (further read: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/)
+* Convolution is abstracted as a matrix multiplication in both forward and backward passes (further read: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/).
 */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class ConvLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
@@ -31,6 +30,29 @@ protected:
 
 public:
     // Constructors
+    /**
+    * Example Use given defined \c vInputDepth \c vInputHeight and \c vInputWidth
+    @code
+    const size_t vFilterHeight1 = 5;
+    const size_t vFilterWidth1 = 5;
+    const size_t vPaddingHeight1 = 1;
+    const size_t vPaddingWidth1 = 1;
+    const size_t vStride1 = 2;
+    const size_t vOutputDepth1 = 6;
+    const size_t vInputSampleNumber = 1;
+
+    ConvLayer firstConvLayer(vFilterHeight1,
+                             vFilterWidth1,
+                             vPaddingHeight1,
+                             vPaddingWidth1,
+                             vStride1,
+                             vInputDepth,
+                             vInputHeight,
+                             vInputWidth,
+                             vOutputDepth1,
+                             vInputSampleNumber);
+    @endcode
+    */
     ConvLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
@@ -81,6 +103,7 @@ public:
     * overrides 
     * @copydoc NetworkElement::BackwardPass
     * The backpropagation step also involves convolutions so the im2col trick applies nicely as well.
+    * Care has been taken to avoid the transpose operation in the col matrix.
     * @return Nothing.
     * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
     * @warning Does not perform any size check before doing the computations.
@@ -189,19 +212,16 @@ void ConvLayer<ActivationFunctionType, DataType>::BackwardPass()
         // Derivative wrt to bias
         this->mGradientsBiases = vBackpropInput.colwise().sum();
 
-        // Transpose used below
-        Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInputTranspose = vBackpropInput.transpose();
-
         // Derivative wrt filters (im2col computed again, otherwise might be too memory intense to save it and speed really matters in forward not backward.)
         Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), im2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
-        // Compute convolution
-        this->mGradientsWeights = (vBackpropInputTranspose * im2ColImage).transpose();
+        //  (Compute convolution (avoid transpose of im2Col image!))
+        this->mGradientsWeights = (vBackpropInput.transpose() * im2ColImage).transpose();
 
         if (!this->mIsFirstLayerFlag)
         {
             // Derivative wrt to input
-            Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (this->mWeights * vBackpropInputTranspose).transpose();
+            Eigen::Matrix<DataType, Dynamic, Dynamic> colImage = (vBackpropInput * this->mWeights.transpose());
             this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
             dlfunctions::col2im(mFilterHeight, mFilterWidth, colImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         }

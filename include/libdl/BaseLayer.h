@@ -45,9 +45,9 @@ public:
 
 
     /**
-    * BaseLayer::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * BaseLayer::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
     * overrides 
-    * @copydoc NetworkElement::SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * @copydoc NetworkElement::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
     * 
     * The user probably prefers to set the training/testing data to the whole network like this instead of a pointer, like in \c SetInput.
     * 

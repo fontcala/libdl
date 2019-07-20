@@ -34,10 +34,40 @@ public:
     virtual void BackwardPass() = 0;
 
     // Helpers to connect Layers
+    /**
+    * NetworkElement::SetData
+    * 
+    * Interact with training/testing data or labels, or any other useful external data.
+    */
     virtual void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput) = 0;
+    /**
+    * NetworkElement::SetInput
+    * 
+    * Sets the input pointer for the forward pass.
+    * 
+    */
     virtual void SetInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aInput) = 0;
+    /**
+    * NetworkElement::SetBackpropInput
+    * 
+    * Sets the input pointer for the backward pass.
+    * 
+    */
     virtual void SetBackpropInput(const Eigen::Matrix<DataType, Dynamic, Dynamic> *aOutput) = 0;
+    /**
+    * NetworkElement::GetOutput
+    * 
+    * 
+    * @return pointer to the internal Output matrix.
+    * 
+    */
     virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetOutput() const = 0;
+    /**
+    * NetworkElement::GetBackpropOutput
+    * 
+    * @return pointer to the internal Backpropagation output matrix.
+    * 
+    */
     virtual const Eigen::Matrix<DataType, Dynamic, Dynamic> *GetBackpropOutput() const = 0;
 };
 

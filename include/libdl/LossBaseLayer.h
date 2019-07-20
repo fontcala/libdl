@@ -31,9 +31,19 @@ protected:
 public:
     // Constructor
     LossBaseLayer(double aLossNormalizationFactor = 1.0);
-    // Assume one-hot encoding Labels
+    
+    /**
+    * LossLayer::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * overrides
+    * @copydoc BaseLayer::SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+    * 
+    * In this case, labels are the expected Input.
+    */
     void SetData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels) override;
 
+    /**
+    * Loss normalized by mLossNormalizationFactor.
+    */
     double GetLoss() const;
 };
 

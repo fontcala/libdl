@@ -40,7 +40,7 @@ make doc_doxygen
 in the build folder. And check the results in the folder build/doc/html or build/doc/latex.
 
 The documentation includes
-* A **Main Page**, which gives details about the library design.
+* A **Main Page**, which gives details about the library design and important information (reccomended read)
 * Information of the **Classes** being used as well as relevant functions (with class diagrams).
 * Source **Files** with ommited doxygen blocks
 
@@ -56,6 +56,9 @@ For Higher-level tests on real data check the /python directory and run the corr
 
 ## Examples
 The python notebook files mentioned above serve as examples. Additionally in the folder /examples provides some more example files.
+
+## Contributing
+Please refer to the documentation.
 
 ## submodules
 
