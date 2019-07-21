@@ -29,6 +29,8 @@ Layers may have as input and output various kinds of data. Making a common inter
 ### Computation Layers
 Layers with parameters inherit from ConnectedBaseLayer (which provides methods related to parameter setting, initialization and update) and are templated over an Activation Function.  
 
+Parameter initialization is tunned in a He/Xavier style, by setting the value of the variance of the distribution which the random values are going to be drawn from.
+
 For the sake of flexibility, each layer updates their own parameters independently, unlike in other frameworks, this easily allows different update methods (default is Nesterov Momentum) and parameters for each layer. The enum UpdateMethod defines which update methods are available.
 
 Unlike the data, N 3D filters (weights) of sizes (x,y,z) each are stored in 2D matrices of size (x * y * z, N). With this, the amout of reshaping needed before and after im2col is minimal.
@@ -227,7 +229,8 @@ The standards c++ 11, 14 and 17 are used at own discretion.
 # 5. Limitations:
 - Currently batch processing is only available in Fully Connected Neural Networks, since with matrix notation more than one sample can be processed efficiently. It would introduce some overhead and looping for Convolutional layers. Besides, sgd is often preferred in image data than batch processing for computational reasons, and batch processing can be approximated by setting a high momentum parameter.
 - Currently SoftmaxLossLayer is not supported for 3D images.
-- Currenlty no size checks are performed at every layer, only at the final one (Loss Layer).
+- Currenlty no shape checks are performed at every layer, only at the final one (Loss Layer).
+- Currently it is not easy to set a user defined parameter update method.
 
 
 
