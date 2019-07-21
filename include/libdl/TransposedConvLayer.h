@@ -69,7 +69,8 @@ public:
     * @copydoc NetworkElement::ForwardPass
     * 
     * Care has been taken to avoid the transpose operation in the col matrix.
-    * This additionally makes the output go through the activation function specified by the \c ActivationFunctionType template parameter.
+    * 
+    * This function additionally makes the output go through the activation function specified by the \c ActivationFunctionType template parameter.
     * @return Nothing.
     * @throws std::runtime_error runtime error if flag \c mValidInputFlag does not hold.
     * @warning Does not perform any size check before doing the computations.

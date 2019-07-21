@@ -6,10 +6,13 @@ C++ Deep Learning Library.
 # 1. Design
 In this library, the main building blocks to run Deep Learning methods are implemented. The library is designed such that \c final classes only implement the few mathematically relevant elements of the corresponding block (eg: Convolutions in the Conv Layer), while leaving the more object-related and boilerplate elements for the base classes. This improves clarity, and makes it easier to introduce more classes, and reduces the amount of code of the library.
 
+This library has been designed to be fast, relying in light data structures, limiting shape checks and using im2col (see file dlfunction.h) as the fundamental operation in convolution-like operations.
+
 With the current design Classification, Encoding and Segmentation tasks have been successfully implemented, reusing the same NetworkElement classes and with no significant changes in the application code structure (for further information refer to the python notebook tests).
 
+
 ## Data
-No tensors are used and images are never really processed as images. A 3D input data of sizes (x,y,z) is stored in 2D matrices of size (x * y, z) throughout the entire network. By noting that a convolution can be represented as a Matrix multiplication using im2col. The layers where convolution would be used, apply this im2col trick instead.
+No tensors are used and images are never really processed as images. A 3D input data of sizes (x,y,z) is stored in 2D matrices of size (x * y, z) throughout the entire network. By noting that a convolution can be represented as a Matrix multiplication using im2col. The layers where convolution would be used, apply this im2col trick instead. This makes the library much faster.
 
 Feature Data (such as in the xor problem) is also represented as a matrix of (number of Training Samples,number of features).
 
@@ -23,11 +26,20 @@ void BackwardPass();
 ```
 Further details of these functions is provided in each layer's class documentation.
 
-Layers may have as input and output various kinds of data. Making a common interface (see interface description) for all layers with arbitrary input and output types is not trivial. For this reason, the burden of representig data is moved to \c mInputDims and \c mOutputDims respectively, which together with the template parameters, encode how each layer should use the data, while the data itself is always stored as a matrix of template type DataType (default double). This additionally allows a very simple and fast access to input data via raw pointer. For further discussion see BaseLayer.
+Layers may have as input and output various kinds of data. Making a common interface (see interface description) for all layers with arbitrary input and output types is not trivial. For this reason, the burden of representig data is moved to \c mInputDims and \c mOutputDims respectively, which together with the template parameters, encode how each layer should use the data, while the data itself is always stored as a matrix  (and pointed to with a matrix pointer) of template type DataType (default double). This additionally allows a very simple and fast access to input data via raw pointer. For further discussion see BaseLayer.
+
+@remarks Why am I not using smart pointers or encapsulation of data?
+@remarks - Raw pointers are used because there is no concept of ownership to be implemented (in fact, the data these pointers are meant to point to, is owned by other objects).
+Additionally the data in these pointers is accessed many times, and having a wrapper around the actual pointer could be slower.
+
+@remarks Why pointer to data and not pointer to previous and next layers?
+@remarks - Like this the layers are easier to interface. It should be up to the user, where he gets the input from,maybe he has a useful function returning some data which he wants to use in between two layers.
+Additionally it might be that in the future several inputs from different layers, which means the Layers cannot be modelled as elements of a doubly linked list. 
+ 
 
 
 ### Computation Layers
-Layers with parameters inherit from ConnectedBaseLayer (which provides methods related to parameter setting, initialization and update) and are templated over an Activation Function.  
+Layers with parameters inherit from ConnectedBaseLayer (which provides methods related to parameter setting, initialization and update parameters) and are templated over an Activation Function.  
 
 Parameter initialization is tunned in a He/Xavier style, by setting the value of the variance of the distribution which the random values are going to be drawn from.
 
@@ -35,6 +47,9 @@ For the sake of flexibility, each layer updates their own parameters independent
 
 Unlike the data, N 3D filters (weights) of sizes (x,y,z) each are stored in 2D matrices of size (x * y * z, N). With this, the amout of reshaping needed before and after im2col is minimal.
 For nonconvolutional layers, weights are stored in normal matrix notation of dense networks.
+
+@remarks Why does the constructor of \c ConvLayer and \c TransposedConvLayer take input dimensions, when theycould be deduced later when setting the input?
+@remarks - It may appear that there is no need for the input parameters to be known at construction, since they could be  deduced from the input when this is set after construction. However, this reasoning assumes that the previous layer is going to be the only input to the next and that the sizes will always match. But there are cases where this does not hold (eg: In Concatenation Skip layers, two outputs are concatenated, making the Input Depth dependant not only on the previous layer but also on an arbitrary concatenation operation).
 
 ### Loss Layers
 The final layer of a CNN is typically a loss layer. Loss layers inherit from LossBaseLayer and have an additional method  LossBaseLayer::GetLoss() that provides a Loss normalized by LossBaseLayer::mLossNormalizationFactor. 
@@ -55,7 +70,7 @@ Activation Functions have not been considered to be layers in the current design
 - Since the computation happening in an Activation Function is strictly element-wise and parameterless, there is no need to store the input or the output.
 - I want to enforce the use of an Activation Function after every computation Layer (nonlinearities are a must in a neural network).
 
-The easiest way of doing this is by forcing computation layers to accept a template template parameter ActivationFunctionType, that has to implement the following methods:
+The easiest way of doing this is by forcing computation layers to accept a template template parameter ActivationFunctionType, that has to implement the following methods inplace modifying an input:
 ```cpp
 void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
 void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
@@ -66,7 +81,7 @@ See the existing classes for further information.
 - class SigmoidActivation
 
 
-No SFINAE or similar techniques on this parameter are applied to ensure nicer compile time errors in case a wrong Activation Function is passed, since C++20 will introduce Concepts.
+No SFINAE or similar techniques on this parameter are applied to ensure nicer compile time errors in case a wrong Activation Function is passed, since this would make classes less readable and anyways C++20 will introduce Concepts.
 
 
 ---
@@ -218,6 +233,7 @@ public:
         - class members \c m- (eg: \c mPaddingWidth)
         - constants \c c- (eg: \c cTolerance)
         - all other \c v- (eg: \c vTemp)
+    - For functions in the \c dlfunctions namespace (dlfunctions.h), all lowercase is preferred
 - Code is documented using Javadoc style Doxygen.
     - commands "remark" and "note" discuss a specific implementation choice.
 - Comments use \c //

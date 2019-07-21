@@ -41,29 +41,28 @@ void im2col(Eigen::Matrix<double, Dynamic, Dynamic> *aOutput, const Eigen::Matri
 * @warning To avoid nasty errors, make sure Matrix  \c *col is properly constructed(correct sizes). 
 */
 template <class DataType>
-void im2col(const size_t FilterHeight, const size_t FilterWidth, const DataType *img, DataType *col, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, size_t height, size_t width,
-            size_t pad_w, size_t pad_h, size_t aStride)
+void im2col(const size_t FilterHeight, const size_t FilterWidth, const DataType *aImg, DataType *aCol, size_t aOutHeight, size_t aOutWidth, size_t aOutFields, size_t aHeight, size_t aWidth,
+            size_t aPaddingWidth, size_t aPaddingHeight, size_t aStride)
 {
-    //std::cout << FilterHeight << FilterWidth << aOutHeight << aOutWidth << aOutFields << height << width << channels<< "padw " << pad_w << "padh " << pad_h << "stride " << aStride << "samp " << aNumSamples << std::endl;
     for (size_t c = 0; c < aOutFields; ++c)
     {
-        size_t w_offset = c % FilterWidth;
-        size_t h_offset = (c / FilterWidth) % FilterHeight;
-        size_t c_im = c / (FilterHeight * FilterWidth);
+        size_t vWOffset = c % FilterWidth;
+        size_t vHOffset = (c / FilterWidth) % FilterHeight;
+        size_t vCIm = c / (FilterHeight * FilterWidth);
         for (size_t h = 0; h < aOutHeight; ++h)
         {
-            size_t h_pad = h * aStride - pad_h + h_offset;
+            size_t vHPad = h * aStride - aPaddingHeight + vHOffset;
             for (size_t w = 0; w < aOutWidth; ++w)
             {
-                size_t w_pad = w * aStride - pad_w + w_offset;
-                if (h_pad >= 0 && h_pad < height && w_pad >= 0 && w_pad < width)
+                size_t vWPad = w * aStride - aPaddingWidth + vWOffset;
+                if (vHPad >= 0 && vHPad < aHeight && vWPad >= 0 && vWPad < aWidth)
                 {
-                    col[(c * aOutHeight + h) * aOutWidth + w] =
-                        img[(c_im * height + h_pad) * width + w_pad];
+                    aCol[(c * aOutHeight + h) * aOutWidth + w] =
+                        aImg[(vCIm * aHeight + vHPad) * aWidth + vWPad];
                 }
                 else
                 {
-                    col[(c * aOutHeight + h) * aOutWidth + w] = 0;
+                    aCol[(c * aOutHeight + h) * aOutWidth + w] = 0;
                 }
             }
         }
@@ -77,23 +76,23 @@ void im2col(const size_t FilterHeight, const size_t FilterWidth, const DataType 
 */
 template <class DataType>
 void col2im(const size_t aFilterHeight, const size_t aFilterWidth, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
-            const size_t height, const size_t width,
-            const size_t pad_w, const size_t pad_h,
+            const size_t aHeight, const size_t aWidth,
+            const size_t aPaddingWidth, const size_t aPaddingHeight,
             const size_t aStride)
 {
     for (size_t c = 0; c < aOutFields; ++c)
     {
-        size_t w_offset = c % aFilterWidth;
-        size_t h_offset = (c / aFilterWidth) % aFilterHeight;
-        size_t c_im = c / aFilterHeight / aFilterWidth;
+        size_t vWOffset = c % aFilterWidth;
+        size_t vHOffset = (c / aFilterWidth) % aFilterHeight;
+        size_t vCIm = c / aFilterHeight / aFilterWidth;
         for (size_t h = 0; h < aOutHeight; ++h)
         {
-            size_t h_pad = h * aStride - pad_h + h_offset;
+            size_t vHPad = h * aStride - aPaddingHeight + vHOffset;
             for (size_t w = 0; w < aOutWidth; ++w)
             {
-                size_t w_pad = w * aStride - pad_w + w_offset;
-                if (h_pad >= 0 && h_pad < height && w_pad >= 0 && w_pad < width)
-                    aImData[(c_im * height + h_pad) * width + w_pad] +=
+                size_t vWPad = w * aStride - aPaddingWidth + vWOffset;
+                if (vHPad >= 0 && vHPad < aHeight && vWPad >= 0 && vWPad < aWidth)
+                    aImData[(vCIm * aWidth + vHPad) * aWidth + vWPad] +=
                         aColData[(c * aOutHeight + h) * aOutWidth + w];
             }
         }
@@ -150,11 +149,11 @@ Eigen::Matrix<DataType, Dynamic, Dynamic> unflatten(const Eigen::Matrix<DataType
 
 template <class DataType>
 void convolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutput, size_t aOutHeight, size_t aOutWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aFilters, const size_t aFilterHeight, const size_t aFilterWidth, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInputImage, size_t height, size_t width, size_t channels,
-                 size_t pad_w, size_t pad_h, size_t aStride, size_t aNumSamples)
+                 size_t aPaddingWidth, size_t aPaddingHeight, size_t aStride, size_t aNumSamples)
 {
     size_t vOutFields = aFilterHeight * aFilterWidth * channels;
     Eigen::Matrix<DataType, Dynamic, Dynamic> im2ColImage(aOutHeight * aOutWidth, vOutFields);
-    dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, pad_w, pad_h, aStride);
+    dlfunctions::im2col(aFilterHeight, aFilterWidth, aInputImage.data(), im2ColImage.data(), aOutHeight, aOutWidth, vOutFields, height, width, aPaddingWidth, aPaddingHeight, aStride);
     aConvolutedOutput = im2ColImage * aFilters;
 }
 
@@ -167,56 +166,63 @@ void fullconvolution(Eigen::Matrix<DataType, Dynamic, Dynamic> &aConvolutedOutpu
     dlfunctions::convolution(aConvolutedOutput, aOutHeight, aOutWidth, aFilters, aFilterHeight, aFilterWidth, aInputImage, height, width, vPadHeight, vPadWidth, aStride, aNumSamples);
 }
 
-// Based on im2col, only 2D. TODO: Can be made more efficient
+/**
+* Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
+* Similar to libdl::im2col() but put in a different function, because given the assumptions of maxpool, there is some place for marginal gains.
+*/
 template <class DataType>
-void im2colpool(const size_t PoolSize, const DataType *img, DataType *col, size_t aOutHeight, size_t aOutWidth, size_t height, size_t width, size_t aStride, size_t aNumSamples)
+void im2colpool(const size_t aPoolSize, const DataType *aImg, DataType *aCol, size_t aOutHeight, size_t aOutWidth, size_t aHeight, size_t aWidth, size_t aStride, size_t aNumSamples)
 {
-    const size_t vOutFields = PoolSize * PoolSize;
+    const size_t vOutFields = aPoolSize * aPoolSize;
     for (size_t c = 0; c < vOutFields; ++c)
     {
-        size_t w_offset = c % PoolSize;
-        size_t h_offset = (c / PoolSize) % PoolSize;
-        size_t c_im = c / (PoolSize * PoolSize);
+        size_t vWOffset = c % aPoolSize;
+        size_t vHOffset = (c / aPoolSize) % aPoolSize;
+        size_t vCIm = c / (aPoolSize * aPoolSize);
         for (size_t h = 0; h < aOutHeight; ++h)
         {
-            size_t h_pad = h * aStride + h_offset;
+            size_t vHPad = h * aStride + vHOffset;
             for (size_t w = 0; w < aOutWidth; ++w)
             {
-                size_t w_pad = w * aStride + w_offset;
-                col[(c * aOutHeight + h) * aOutWidth + w] =
-                    img[(c_im * height + h_pad) * width + w_pad];
+                size_t vWPad = w * aStride + vWOffset;
+                aCol[(c * aOutHeight + h) * aOutWidth + w] =
+                    aImg[(vCIm * aHeight + vHPad) * aWidth + vWPad];
             }
         }
     }
 }
 
 template <class DataType>
-Eigen::Matrix<DataType, Dynamic, 1> im2pool(const size_t PoolSize, const DataType *img, size_t aOutHeight, size_t aOutWidth, size_t height, size_t width, size_t aStride, size_t aNumSamples)
+Eigen::Matrix<DataType, Dynamic, 1> im2pool(const size_t aPoolSize, const DataType *img, size_t aOutHeight, size_t aOutWidth, size_t height, size_t width, size_t aStride, size_t aNumSamples)
 {
-    const size_t vOutFields = PoolSize * PoolSize;
+    const size_t vOutFields = aPoolSize * aPoolSize;
     Eigen::Matrix<DataType, Dynamic, Dynamic> PrePool(aOutHeight * aOutWidth, vOutFields);
-    im2colpool(PoolSize, img, PrePool.data(), aOutHeight, aOutWidth, height, width, aStride, aNumSamples);
+    im2colpool(aPoolSize, img, PrePool.data(), aOutHeight, aOutWidth, height, width, aStride, aNumSamples);
     Eigen::Matrix<DataType, Dynamic, 1> PostPool = PrePool.rowwise().maxCoeff();
     return PostPool;
 }
 
+/**
+* Adapted from Caffe https://github.com/BVLC/caffe/blob/master/src/caffe/util/im2col.cpp
+* Similar to libdl::col2im() but put in a different function, because given the assumptions of maxpool, there is some place for marginal gains.
+*/
 template <class DataType>
-void colpool2im(const size_t aPoolSize, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
-                const size_t height, const size_t width,
+void colpool2im(const size_t aaPoolSize, const DataType *aColData, DataType *aImData, size_t aOutHeight, size_t aOutWidth, size_t aOutFields,
+                const size_t aHeight, const size_t aWidth,
                 const size_t aStride, const size_t aNumSamples)
 {
     for (size_t c = 0; c < aOutFields; ++c)
     {
-        size_t w_offset = c % aPoolSize;
-        size_t h_offset = (c / aPoolSize) % aPoolSize;
-        size_t c_im = c / aPoolSize / aPoolSize;
+        size_t vWOffset = c % aaPoolSize;
+        size_t vHOffset = (c / aaPoolSize) % aaPoolSize;
+        size_t vCIm = c / aaPoolSize / aaPoolSize;
         for (size_t h = 0; h < aOutHeight; ++h)
         {
-            size_t h_pad = h * aStride + h_offset;
+            size_t vHPad = h * aStride + vHOffset;
             for (size_t w = 0; w < aOutWidth; ++w)
             {
-                size_t w_pad = w * aStride + w_offset;
-                aImData[(c_im * height + h_pad) * width + w_pad] +=
+                size_t vWPad = w * aStride + vWOffset;
+                aImData[(vCIm * aHeight + vHPad) * aWidth + vWPad] +=
                     aColData[(c * aOutHeight + h) * aOutWidth + w];
             }
         }

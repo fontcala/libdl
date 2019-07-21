@@ -20,14 +20,7 @@
 * BaseLayer is templated over the type of input and output dimensions \c InputDimType and \c BackpropInputDimType, to allow for generality of input output.
 * So far,Layers where 3D image Data is used (eg: ConvLayer), store their size in an object ConvDataDims, otherwise \c size_t is used (eg: FullyConnectedLayer). 
 * 
-* @note Why am I not using smart pointers?
-* Raw pointers are used because there is no concept of ownership to be implemented (in fact, the data these pointers are meant to point to, is owned by other objects).
-* Additionally the data in these pointers is accessed many times, and having a wrapper around the actual pointer could be slower.
-*
-* @note Why pointer to data and not pointer to previous and next layers?
-* Like this the layers are easier to interface. It should be up to the user, where he gets the input from, maybe he has a useful function returning some data which he wants to use in between two layers.
-* Additionally it might be that in the future several inputs from different layers, which means the Layers cannot be modelled as elements of a doubly linked list. 
- */
+*/
 template <class InputDimType, class BackpropInputDimType, class DataType>
 class BaseLayer : public NetworkElement<DataType>
 {

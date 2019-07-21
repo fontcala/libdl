@@ -13,8 +13,6 @@
 * @copydetails FullyConnectedLayer
 *
 * Convolution is abstracted as a matrix multiplication in both forward and backward passes (further read: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/).
-* @note It may appear that there is no need for the input parameters to be known at construction, since they could be  deduced from the input when this is set.
-* However, this reasoning assumes that the previous layer is going to be the only input to the next and that the sizes will always match. But there are cases (eg: Concatenation skip layers) where this does not hold.
 */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
 class ConvLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
