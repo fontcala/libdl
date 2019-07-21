@@ -44,7 +44,7 @@ void L2LossLayer<DataType>::ForwardPass()
     }
     else
     {
-        throw(std::runtime_error("ForwardPass(): dimension mismatch"));
+        throw(std::runtime_error("L2LossLayer::ForwardPass(): dimension mismatch (may be caused by wrong label input or upsampling part of the network not matching the size of the downsampling part."));
     }
 };
 

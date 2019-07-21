@@ -32,6 +32,8 @@ enum class UpdateMethod
 * 
 * Weight initialization is He/Xavier style. Choice left to the child classes.
 * 
+* In the case of convolutional-related images, Weights of sizes (x,y,z) each are stored in 2D matrices of size (x * y * z, N). This minimizes reshapes needed.
+* 
 * Parameter Update method (choice left to child classes) offers options from enum \c:
 * @copydetails UpdateMethod
 */
