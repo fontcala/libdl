@@ -30,7 +30,7 @@ TEST_CASE("im2col with 2D Data and hardcoded example", "image im2col")
     REQUIRE(Output == vExpectedOutput);
 }
 
-TEST_CASE("im2com with 3D Data and hardcoded example", "image im2col")
+TEST_CASE("im2col with 3D Data and hardcoded example", "image im2col")
 {
 
     // Template parameter vFilterSize = 2
@@ -60,7 +60,7 @@ TEST_CASE("im2com with 3D Data and hardcoded example", "image im2col")
     REQUIRE(OutputVol == vExpectedOutputVol);
 }
 
-TEST_CASE("flip", "flip")
+TEST_CASE("flip with hardcoded expected output", "flip")
 {
     MatrixXd InputVol1(4, 1);
     MatrixXd InputVol2(4, 1);
@@ -110,7 +110,7 @@ TEST_CASE("flatten and unflatten one after the other should return the input", "
     REQUIRE(unflattened == InputVol);
 }
 
-TEST_CASE("forward and backward maxpool elements", "maxpool")
+TEST_CASE("forward and backward maxpool elements should return a hardcoded expected output", "maxpool")
 {
 
         // Input

@@ -135,15 +135,15 @@ With that, you may create your custom Activation Function (eg: Tanh).
 
 ---
 # 3. Coding style:
-- Indentation of 4 spaces.
-- CamelCase style for variables and functions
+- Indentation of **4** spaces.
+- **CamelCase** style for variables and functions
     - For variables a lower case prefix indicates the variable use:
         - Function arguments \c a- (eg: \c aInput)
         - class members \c m- (eg: \c mPaddingWidth)
         - constants \c c- (eg: \c cTolerance)
         - all other \c v- (eg: \c vTemp)
     - For functions in the \c dlfunctions namespace (dlfunctions.h), all lowercase is preferred
-- Code is documented using Javadoc style Doxygen.
+- Code is documented using **Javadoc style Doxygen**.
     - commands "remark" and "note" discuss a specific implementation choice.
 - Comments use \c //
 
@@ -157,7 +157,10 @@ The standards c++ 11, 14 and 17 are used at own discretion.
 - Currenlty no shape checks are performed at every layer, only at the final one (Loss Layer).
 - Currently it is not easy to set a user defined parameter update method.
 
-# 5. Example Use:
+# 5. Bindings:
+Some basic tests can be found in the directory /test and /python. The python bindings have been made in such a way that they serve the purpose of **testing** and **illustration** of the library and are the most maintainable possible (ideally not having to change the python interface very often), given that this library is in development phase. For this reason classes, such as the ones in the example below, have been found to be useful. They additionally could be used in pure c++ code and a good image I/O library. Proper bindings would involve making a highly parameterized wrapper around the currently implemented classes in the library, which would make a single binding useful for many cases or make bindings for every newly developed library class.
+
+# 6. Tests and Example Use:
 The most basic way to use the library (without \c NetworkHelper) is illustrated in the following example that solves the xor problem:
 
 ```cpp
