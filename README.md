@@ -4,8 +4,10 @@ Deep Learning Library
 
 ## Deliverables for the DLFS course
 
-- For the **XoR milestone**, refer to the folder examples.
-- For the **MNIST milestone**, you'll need to:
+#### For the **XoR milestone**
+Refer to the folder examples.
+#### For the **MNIST milestone**
+You'll need to:
 
 Clone the repository and run
 ```
@@ -21,7 +23,8 @@ Then open Jupyter notebook in the folder /python and run the script Classifier_M
 
 **Note:** To convince yourself that my code works and there is a learning actually taking place I suggest doing the following: Set the Learning rate to a higher value (eg: in the order of 0.1) and you will see the network doesn't learn anything and the accuracy is around 0.1, which is basically just the same as random. Reset the original Learning (0.005) and the accuracy should be above 0.9.
 
-- For the **Final Project Milestone**, you'll need to do the same steps but open one of the Segmentation notebooks instead. The results are far from being state-of-the art but validate the algorithm. Similarly refer to /python/SegmentationExamples.h for code details.
+#### For the **Final Project Milestone**
+You'll need to do the same steps but open one of the Segmentation notebooks instead. The results are far from being state-of-the art but validate the algorithm. Similarly refer to /python/SegmentationExamples.h for code details.
 
 
 **Note:** More information regarding the interaction with Python and the python bindings can be found in the Python readme.
@@ -37,7 +40,8 @@ in the build folder. By default the build in in \c RELEASE mode, you may change 
 
 This generates library, tests, and python bindings.
 
-** Please read the documentation **
+**Please read the documentation**.
+
 In order to compile the documentation run
 ```
 make doc_doxygen
