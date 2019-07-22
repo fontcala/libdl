@@ -134,8 +134,116 @@ void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
 With that, you may create your custom Activation Function (eg: Tanh).
 
 ---
-# 3. Example Use:
-The following example illustrates a possible way to use Layers, Activation Functions and NetworkHelper to create a class for training and testing on some data
+# 3. Coding style:
+- Indentation of 4 spaces.
+- CamelCase style for variables and functions
+    - For variables a lower case prefix indicates the variable use:
+        - Function arguments \c a- (eg: \c aInput)
+        - class members \c m- (eg: \c mPaddingWidth)
+        - constants \c c- (eg: \c cTolerance)
+        - all other \c v- (eg: \c vTemp)
+    - For functions in the \c dlfunctions namespace (dlfunctions.h), all lowercase is preferred
+- Code is documented using Javadoc style Doxygen.
+    - commands "remark" and "note" discuss a specific implementation choice.
+- Comments use \c //
+
+The standards c++ 11, 14 and 17 are used at own discretion.
+
+
+---
+# 4. Limitations:
+- Currently batch processing is only available in Fully Connected Neural Networks, since with matrix notation more than one sample can be processed efficiently. It would introduce some overhead and looping for Convolutional layers. Besides, sgd is often preferred in image data than batch processing for computational reasons, and batch processing can be approximated by setting a high momentum parameter.
+- Currently SoftmaxLossLayer is not supported for 3D images.
+- Currenlty no shape checks are performed at every layer, only at the final one (Loss Layer).
+- Currently it is not easy to set a user defined parameter update method.
+
+# 5. Example Use:
+The most basic way to use the library (without \c NetworkHelper) is illustrated in the following example that solves the xor problem:
+
+```cpp
+#include <iostream>
+#include <libdl/dlfunctions.h>
+#include <libdl/dltypes.h>
+#include <libdl/FullyConnectedLayer.h>
+#include <libdl/L2LossLayer.h>
+
+using Eigen::MatrixXd;
+int main()
+{
+    // inputData:   inputLabels:
+    // 0 1          1
+    // 1 0          1
+    // 0 0          0
+    // 1 1          0
+    MatrixXd inputData(4, 2);
+    inputData << 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0;
+    MatrixXd inputLabels(4, 1);
+    inputLabels << 1.0, 1.0, 0.0, 0.0;
+
+    // Construct the Layers, making the simplest network able to solve the problem (note only one final node, so Softmax is not suitable.)
+    FullyConnectedLayer<SigmoidActivation> firstLayer(2, 2);
+    FullyConnectedLayer<SigmoidActivation> secondLayer(2, 1);
+    L2LossLayer L2Layer{};
+
+    // Connect the layers.
+    secondLayer.SetInput(firstLayer.GetOutput());
+    L2Layer.SetInput(secondLayer.GetOutput());
+    firstLayer.SetBackpropInput(secondLayer.GetBackpropOutput());
+    secondLayer.SetBackpropInput(L2Layer.GetBackpropOutput());
+
+    firstLayer.SetLearningRate(0.05);
+    secondLayer.SetLearningRate(0.05);
+
+    // set distribution and Batch Size.
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, inputData.rows() - 1);
+    const int vBatchSize = 2;
+    std::vector<int> vSampleIndices(vBatchSize);
+    for (size_t i = 0; i < 12000; i++)
+    {
+        // Pick N samples form the dataset randomly
+        for (size_t k = 0; k < vBatchSize; k++)
+        {
+            vSampleIndices[k] = dis(gen);
+        }
+        // Set picked Input samples and corresponding Labels
+        MatrixXd inputSample = inputData(vSampleIndices, Eigen::all);
+        MatrixXd inputSampleLabel = inputLabels(vSampleIndices, Eigen::all);
+        firstLayer.SetData(inputSample);
+        L2Layer.SetData(inputSampleLabel);
+
+        // Forward and Backward Passes
+        firstLayer.ForwardPass();
+        secondLayer.ForwardPass();
+        L2Layer.ForwardPass();
+        L2Layer.BackwardPass();
+        secondLayer.BackwardPass();
+        firstLayer.BackwardPass();
+
+        // Test with the whole data
+        if (i % 100 == 0)
+        {
+            firstLayer.SetData(inputData);
+            L2Layer.SetData(inputLabels);
+            firstLayer.ForwardPass();
+            secondLayer.ForwardPass();
+            L2Layer.ForwardPass();
+            std::cout << "----- Total Unnormalized Loss: ----" << std::endl;
+            std::cout << L2Layer.GetLoss() << std::endl;
+            std::cout << "----- Computed Output: ----" << std::endl;
+            std::cout << *(secondLayer.GetOutput()) << std::endl;
+            std::cout << "----- Total Labels: --" << std::endl;
+            std::cout << inputLabels << std::endl;
+        }
+    }
+
+    std::cout << "Rerun a few times (random weight initialization)" << std::endl;
+}
+```
+
+
+The following example illustrates a possible way to use Layers, Activation Functions and NetworkHelper to create a class for training and testing on some data:
 ```cpp
 #include <libdl/NetworkHelper.h>
 #include <libdl/dlfunctions.h>
@@ -221,32 +329,6 @@ public:
     }
 };
 ```
-
-
-
----
-# 4. Coding style:
-- Indentation of 4 spaces.
-- CamelCase style for variables and functions
-    - For variables a lower case prefix indicates the variable use:
-        - Function arguments \c a- (eg: \c aInput)
-        - class members \c m- (eg: \c mPaddingWidth)
-        - constants \c c- (eg: \c cTolerance)
-        - all other \c v- (eg: \c vTemp)
-    - For functions in the \c dlfunctions namespace (dlfunctions.h), all lowercase is preferred
-- Code is documented using Javadoc style Doxygen.
-    - commands "remark" and "note" discuss a specific implementation choice.
-- Comments use \c //
-
-The standards c++ 11, 14 and 17 are used at own discretion.
-
-
----
-# 5. Limitations:
-- Currently batch processing is only available in Fully Connected Neural Networks, since with matrix notation more than one sample can be processed efficiently. It would introduce some overhead and looping for Convolutional layers. Besides, sgd is often preferred in image data than batch processing for computational reasons, and batch processing can be approximated by setting a high momentum parameter.
-- Currently SoftmaxLossLayer is not supported for 3D images.
-- Currenlty no shape checks are performed at every layer, only at the final one (Loss Layer).
-- Currently it is not easy to set a user defined parameter update method.
 
 
 
