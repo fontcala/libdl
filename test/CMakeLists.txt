@@ -1,4 +1,3 @@
-# The main program
 add_executable(firstTest firstTest.cpp)
 target_link_libraries(firstTest PRIVATE libdl)
 target_link_libraries(firstTest PRIVATE Catch2)
@@ -22,3 +21,9 @@ target_link_libraries(layerbasics PRIVATE libdl)
 target_link_libraries(layerbasics PRIVATE Catch2)
 target_compile_features(layerbasics PRIVATE cxx_std_17)
 add_test(NAME layerbasics COMMAND layerbasics)
+
+add_executable(errorhandling errorhandling.cpp)
+target_link_libraries(errorhandling PRIVATE libdl)
+target_link_libraries(errorhandling PRIVATE Catch2)
+target_compile_features(errorhandling PRIVATE cxx_std_17)
+add_test(NAME errorhandling COMMAND errorhandling)

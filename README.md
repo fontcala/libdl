@@ -31,7 +31,7 @@ Clone the repository and run
 ```
 make
 ```
-in the build folder.
+in the build folder. By default the build in in \c RELEASE mode, you may change this by setting ```-DCMAKE_BUILD_TYPE=Debug```
 This generates library, tests, and python bindings.  
 In order to compile the documentation run
 ```
