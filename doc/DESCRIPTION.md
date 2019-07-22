@@ -12,7 +12,7 @@ With the current design Classification, Encoding and Segmentation tasks have bee
 
 
 ## Data
-No tensors are used and images are never really processed as images. A 3D input data of sizes (x,y,z) is stored in 2D matrices of size (x * y, z) throughout the entire network. By noting that a convolution can be represented as a Matrix multiplication using im2col. The layers where convolution would be used, apply this im2col trick instead. This makes the library much faster.
+No tensors are used and images are never really processed as images. A 3D input data of sizes (x,y,z) is stored in 2D matrices of size (x * y, z) throughout the entire network. By noting that a convolution can be represented as a Matrix multiplication using im2col, the layers where convolution would be used, apply this im2col trick instead. This makes the library much faster.
 
 Feature Data (such as in the xor problem) is also represented as a matrix of (number of Training Samples,number of features).
 

@@ -9,5 +9,4 @@ Additionally, this has been made an additional step in the gitlab CI (see pipeli
 Important: The weights are initialized randomly such that at every run they are different. This means, occasionally xor does not converge to the desired output. i.e stuck in a local minima (approximately one in 10-15 runs, depending on the parameters).
 
 **xor problem**
-* xor.cpp - simple example (added to CI)
-* xor_bigger_network - example to illustrate the current implementation of a NEural network can be scaled up
+* xor.cpp - simple example (added to CI).

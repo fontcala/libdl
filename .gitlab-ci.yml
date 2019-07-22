@@ -62,13 +62,13 @@ tests:linux-clang:
 examples:linux-gcc:
   stage: examples
   script:
-    - ./build-linux-gcc/examples/images
+    - ./build-linux-gcc/examples/xor
   tags:
     - linux
 examples:linux-clang:
   stage: examples
   script:
-    - ./build-linux-clang/examples/images
+    - ./build-linux-clang/examples/xor
   tags:
     - linux
       
