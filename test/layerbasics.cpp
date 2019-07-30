@@ -222,7 +222,11 @@ TEST_CASE("addition skip connection should perform expected additions", "skip")
 
   thirdConvLayer.ForwardAdditionSkipConnection(firstConvLayer, secondConvLayer);
 
-  REQUIRE(vExpectedSum == *thirdConvLayer.GetOutput());
+  MatrixXd vSkipSum = *thirdConvLayer.GetOutput();
+
+  const double cTolerance = 0.000000001;
+
+  REQUIRE(std::abs((vExpectedSum - vSkipSum).sum()) < cTolerance);
 }
 
 TEST_CASE("network overfit (monotonically decreasing loss) a single noise sample, without maxpool", "network")
