@@ -10,6 +10,9 @@ Very basic Python bindings are made for each test. The only purpose of these bin
 The c++ code in AutoEncoderExamples, SegmentationExamples and ClassificationExamples illustrates some different ways of using the library, which may or may not be useful to a user. Please refer to the documentation (target doc_doxygen) for proper guidelines.
 
 
+**Note:** In all of these examples the loss value has not been normalized, normalization of a loss value (eg: by the number of pixels or samples) is left to the user. Therefore loss values might appear relatively large.
+
+
 
 
 

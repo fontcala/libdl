@@ -7,7 +7,8 @@
 using Eigen::MatrixXd;
 int main()
 {
-  ConvDataDims A(3,4,5);
-  ConvDataDims B(3,4,7);
-  std::cout << (A == B) << std::endl;
+
+    MatrixXd InputVol= MatrixXd::Random(16, 3);
+
+    MatrixXd flattened = dlfunctions::flatten(InputVol, 2);
 }

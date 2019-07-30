@@ -53,10 +53,8 @@ TEST_CASE("Forgetting some backward layer connection should throw a recognizable
     firstLayer.ForwardPass();
     secondLayer.ForwardPass();
     secondLayer.SetBackpropInput(&vBackpropInputData);
-    std::cout << "here" << std::endl;
     secondLayer.BackwardPass();
     const std::string cExpectedErrorMessage = "BackwardPass(): invalid input";
-    std::cout << "here2" << std::endl;
     try{
         firstLayer.BackwardPass();
     }
@@ -74,7 +72,7 @@ TEST_CASE("mismatch Input/Labels should throw a recognizable error", "layers")
     MatrixXd inputLabels(3, 1);
     inputLabels << 1.0, 1.0, 0.0;
 
-    // Construct the Layers, making the simplest network able to solve the problem (note only one final node, so Softmax is not suitable.)
+    // Construct the Layers
     FullyConnectedLayer<SigmoidActivation> firstLayer(2, 1);
     L2LossLayer L2Layer{};
 
