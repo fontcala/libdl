@@ -26,7 +26,7 @@ enum class UpdateMethod
 
 /**
 * @class ConnectedBaseLayer
-* @brief Base Layer for classes with parameters, introduces the parameters, their update and initialization.
+* @brief Base Layer for classes with parameters (i.e layers that have "neural connections" and possibly skip connections), introduces the parameters, their update and initialization.
 * 
 * 
 * 
@@ -90,6 +90,12 @@ public:
     // Constructors
     ConnectedBaseLayer();
     ConnectedBaseLayer(const DimType &aInputDims, const DimType &aOutputDims, const UpdateMethod aUpdateMethod);
+
+    template <typename... ConnectedTypes>
+    void ForwardAdditionSkipConnection(ConnectedTypes &... aIncomingConnections);
+
+    template <typename... ConnectedTypes>
+    void BackwardAdditionSkipConnection(ConnectedTypes &... aOutgoingConnections);
 
     // Every final Layer must implement these
     // virtual void ForwardPass() = 0;
@@ -202,6 +208,18 @@ template <typename DimType, template <typename> class ActivationFunctionType, ty
 void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::SetLearningRate(DataType aLearningRate)
 {
     mLearningRate = aLearningRate;
+}
+
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+template <typename... ConnectedTypes>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::ForwardAdditionSkipConnection(ConnectedTypes &... aIncomingConnections){
+    this->mOutput = (this->mOutput + ... + *(aIncomingConnections.GetOutput()));
+}
+
+template <typename DimType, template <typename> class ActivationFunctionType, typename DataType>
+template <typename... ConnectedTypes>
+void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::BackwardAdditionSkipConnection(ConnectedTypes &... aOutgoingConnections){
+    this->mBackpropOutput = (this->mBackpropOutput + ... + *(aOutgoingConnections.GetBackpropOutput()));
 }
 
 #endif

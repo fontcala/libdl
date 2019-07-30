@@ -100,6 +100,17 @@ PYBIND11_MODULE(pybindings, m)
               py::call_guard<py::scoped_ostream_redirect,
                              py::scoped_estream_redirect>());
 
+     py::class_<AutoEncoderSkipExample>(m, "AutoEncoderSkipExample")
+         .def(py::init<int, int, int, int, int, int, int, int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &AutoEncoderSkipExample::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &AutoEncoderSkipExample::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
      py::class_<AutoEncoderExample6>(m, "AutoEncoderExample6")
          .def(py::init<int, int, int>(),
               py::call_guard<py::scoped_ostream_redirect,
