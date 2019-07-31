@@ -13,6 +13,7 @@
 *  apart from the loss that is meaningful to the learning task. (Eg: class probabilites).
 *
 * Additionally, in this layer (last layer) there is a check of the dimensions between the labels and the resulting output
+* @note The user is responsible to scale the loss value via mLossNormalizationFactor.
 */
 template <class DataType>
 class LossBaseLayer : public BaseLayer<size_t, size_t, DataType>

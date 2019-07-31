@@ -52,7 +52,7 @@ For nonconvolutional layers, weights are stored in normal matrix notation of den
 @remarks - It may appear that there is no need for the input parameters to be known at construction, since they could be  deduced from the input when this is set after construction. However, this reasoning assumes that the previous layer is going to be the only input to the next and that the sizes will always match. But there are cases where this does not hold (eg: In Concatenation Skip layers, two outputs are concatenated, making the Input Depth dependant not only on the previous layer but also on an arbitrary concatenation operation).
 
 ### Loss Layers
-The final layer of a CNN is typically a loss layer. Loss layers inherit from LossBaseLayer and have an additional method  LossBaseLayer::GetLoss() that provides a Loss normalized by LossBaseLayer::mLossNormalizationFactor. 
+The final layer of a CNN is typically a loss layer. Loss layers inherit from LossBaseLayer and have an additional method  LossBaseLayer::GetLoss() that provides a Loss normalized by LossBaseLayer::mLossNormalizationFactor. By default the loss values are not normalized, and it is left to the user to normalize the loss meaningfully via the provided member. The learning process is independent of the normalization factor.
 
 The method \c LossBaseLayer::SetData() overrides \c BaseLayer::SetData(), such that the input to this method is expected to be a Labels matrix. 
 

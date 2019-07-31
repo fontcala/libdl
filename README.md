@@ -29,6 +29,7 @@ You'll need to do the same steps but open one of the Segmentation notebooks inst
 
 **Note:** More information regarding the interaction with Python and the python bindings can be found in the Python readme.
 
+**Note:** Latest developments regarding skip connections are in branch skip-connections-resnet.
 
 ## Getting Started
 
