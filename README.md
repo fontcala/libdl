@@ -1,6 +1,56 @@
-# libdl
+# Deep Learning Library 
+A Deep Learning Library in C++ based on eigen with Python bindings originally written in the context of a praktikum at TUM. Henceforth called libdl for simplicity.
 
-Deep Learning Library 
+## Getting Started
+
+Clone the repository, create a build folder (eg: ```mkdir -p build```) and run
+```
+make
+```
+in the build folder. By default the build in in \c RELEASE mode, you may change this by setting ```-DCMAKE_BUILD_TYPE=Debug``` but this is not reccomended since tests and examples become way slower.
+
+This generates library, tests, and python bindings.
+
+**Please read the documentation**.
+
+In order to compile the documentation run
+```
+make doc_doxygen
+```
+in the build folder. And check the results in the folder build/doc/html or build/doc/latex.
+
+The documentation includes
+* A **Main Page**, which gives details about the library design and important information (reccomended read). In case you don't want to use doxygen, you may read the file DESCRIPTION.md in the /doc folder.
+* Information of the **Classes** being used as well as relevant functions (with class diagrams).
+* Source **Files** with ommited doxygen blocks.
+
+
+### Prerequisites
+
+C++17 compiler.
+
+## Running the tests
+
+For funtionality tests, check the folder /test.
+
+For Higher-level tests on real data check the /python directory and run the corresponding notebook files.
+
+## Examples
+The python notebook files mentioned above serve as examples. Additionally in the folder /examples provides some more example files.
+
+## Contributing
+Please refer to the documentation.
+
+## submodules
+
+* [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) - Math library
+* [Test](https://github.com/catchorg/Catch2) - Test library
+* [Pybind11](https://github.com/pybind/pybind11) - Python binding library
+* [spdlog](https://github.com/gabime/spdlog) - Logging library
+
+## Authors
+
+* **Adria Font Calvarons**
 
 ## Deliverables for the DLFS course
 
@@ -31,55 +81,4 @@ You'll need to do the same steps but open one of the Segmentation notebooks inst
 
 **Note:** Latest developments regarding skip connections are in branch skip-connections-resnet.
 
-## Getting Started
-
-Clone the repository and run
-```
-make
-```
-in the build folder. By default the build in in \c RELEASE mode, you may change this by setting ```-DCMAKE_BUILD_TYPE=Debug``` but this is not reccomended since tests and examples become way slower.
-
-This generates library, tests, and python bindings.
-
-**Please read the documentation**.
-
-In order to compile the documentation run
-```
-make doc_doxygen
-```
-in the build folder. And check the results in the folder build/doc/html or build/doc/latex.
-
-The documentation includes
-* A **Main Page**, which gives details about the library design and important information (reccomended read). In case you don't want to use doxygen, you may read the file DESCRIPTION.md in the /doc folder.
-* Information of the **Classes** being used as well as relevant functions (with class diagrams).
-* Source **Files** with ommited doxygen blocks.
-
-
-
-### Prerequisites
-
-C++17 compiler.
-
-## Running the tests
-
-For funtionality tests, check the folder /test.
-
-For Higher-level tests on real data check the /python directory and run the corresponding notebook files.
-
-## Examples
-The python notebook files mentioned above serve as examples. Additionally in the folder /examples provides some more example files.
-
-## Contributing
-Please refer to the documentation.
-
-## submodules
-
-* [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) - Math library
-* [Test](https://github.com/catchorg/Catch2) - Test library
-* [Pybind11](https://github.com/pybind/pybind11) - Python binding library
-* [spdlog](https://github.com/gabime/spdlog) - Logging library
-
-## Authors
-
-* **Adria Font Calvarons**
 
