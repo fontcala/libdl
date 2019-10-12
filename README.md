@@ -1,5 +1,5 @@
-# Deep Learning Library 
-A Deep Learning Library in C++ based on eigen with Python bindings originally written in the context of a praktikum at TUM. Henceforth called libdl for simplicity.
+# Deep Learning Library (libdl)
+A Deep Learning Library in C++ based on eigen with Python bindings originally written in the context of a praktikum at TUM. Henceforth called **libdl** for simplicity.
 
 ## Getting Started
 
