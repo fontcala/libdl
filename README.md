@@ -17,7 +17,7 @@ In order to compile the documentation run
 ```
 make doc_doxygen
 ```
-in the build folder. And check the results in the folder build/doc/html or build/doc/latex.
+in the build folder (known issue: issue with spaces in path, alternative read file Description.md). And check the results in the folder build/doc/html or build/doc/latex.
 
 The documentation includes
 * A **Main Page**, which gives details about the library design and important information (reccomended read). In case you don't want to use doxygen, you may read the file DESCRIPTION.md in the /doc folder.
