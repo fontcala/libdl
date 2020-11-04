@@ -107,7 +107,7 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::InitParams(s
 {
     std::random_device rd;
     std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, sqrt(2 / aInitVariance));
+    std::normal_distribution<float> vRandDistr(0, sqrt(static_cast<double>(2) / static_cast<double>(aInitVariance)));
     mWeights = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim, aOutputDimWeights, [&]() { return vRandDistr(vRandom); });
     mBiases = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(1, aOutputDimBiases);
     InitUpdateParams(aInputDim, aOutputDimWeights, aOutputDimBiases, aLearningRate, aMomentumUpdateParam, aSecondMomentumUpdateParam);

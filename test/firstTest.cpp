@@ -19,8 +19,17 @@ TEST_CASE("all library submoduels working and c++17 are available", "[includes]"
     m(1, 0) = 2.5;
     m(0, 1) = -1;
     m(1, 1) = m(1, 0) + m(0, 1);
+    m = m.array().sign();
     std::cout << m << std::endl;
 
+    //
+    std::random_device rd;
+    std::mt19937 vRandom(rd());
+    std::normal_distribution<float> vRandDistr(0, sqrt(static_cast<double>(2) / static_cast<double>(12)));
+    MatrixXd mR = MatrixXd::NullaryExpr(5,4, [&]() { return vRandDistr(vRandom); });
+    std::cout << mR << std::endl;
+    mR = MatrixXd::NullaryExpr(5,4, [&]() { return vRandDistr(vRandom); });
+    std::cout << mR << std::endl;
     //C++17
     std::string name = "Hello world";
     if (const auto it = name.find("Hello"); it != std::string::npos)
