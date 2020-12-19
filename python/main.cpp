@@ -13,6 +13,29 @@ PYBIND11_MODULE(pybindings, m)
 {
      m.def("subtract", [](int i, int j) { return i - j; }, "substract");
 
+     py::class_<AutoencoderExp<ConvLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>>(m, "AutoencoderExp")
+         .def(py::init<int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &AutoencoderExp<ConvLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &AutoencoderExp<ConvLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+
+     py::class_<AutoencoderExpSkip<ConvSignedAlignmentLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>>(m, "AutoencoderExpSkip")
+         .def(py::init<int, int, int, int>(),
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Test", &AutoencoderExpSkip<ConvSignedAlignmentLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::Test,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>())
+         .def("Train", &AutoencoderExpSkip<ConvSignedAlignmentLayer<ReLUActivation>,TransposedConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::Train,
+              py::call_guard<py::scoped_ostream_redirect,
+                             py::scoped_estream_redirect>());
+     // Small autoencoder Tests for MNIST
+
      py::class_<CNNClassificationAlignmentTest<ConvExperimentalLayer<ReLUActivation>,FullyConnectedExperimentalLayer<LinearActivation>>>(m, "CNNClassificationAlignmentTestMom")
          .def(py::init<int, int, int, int, int, int>())
          .def("setTrainInputs", &CNNClassificationAlignmentTest<ConvExperimentalLayer<ReLUActivation>,FullyConnectedExperimentalLayer<LinearActivation>>::setTrainInputs, "set In")
@@ -59,38 +82,38 @@ PYBIND11_MODULE(pybindings, m)
                              py::scoped_estream_redirect>());
 
 
-     py::class_<CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>>(m, "CNNClassificationAltTestBP")
-         .def(py::init<int, int, int, int, int, int>())
-         .def("setTrainInputs", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTrainInputs, "set In")
-         .def("setTrainLabels", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTrainLabels, "set Lb")
-         .def("setTestInputs", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTestInputs, "set Int")
-         .def("setTestLabels", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTestLabels, "set Lbt")
-         .def("setLearningRate", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setLearningRate, "set Lr")
-         .def("runExample", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::runExample,
-              py::call_guard<py::scoped_ostream_redirect,
-                             py::scoped_estream_redirect>());
+     // py::class_<CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>>(m, "CNNClassificationAltTestBP")
+     //     .def(py::init<int, int, int, int, int, int>())
+     //     .def("setTrainInputs", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTrainInputs, "set In")
+     //     .def("setTrainLabels", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTrainLabels, "set Lb")
+     //     .def("setTestInputs", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTestInputs, "set Int")
+     //     .def("setTestLabels", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setTestLabels, "set Lbt")
+     //     .def("setLearningRate", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::setLearningRate, "set Lr")
+     //     .def("runExample", &CNNClassificationAltTest<ConvLayer<ReLUActivation>,FullyConnectedLayer<LinearActivation>>::runExample,
+     //          py::call_guard<py::scoped_ostream_redirect,
+     //                         py::scoped_estream_redirect>());
 
-     py::class_<CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>>(m, "CNNClassificationAltTestFA")
-         .def(py::init<int, int, int, int, int, int>())
-         .def("setTrainInputs", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTrainInputs, "set In")
-         .def("setTrainLabels", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTrainLabels, "set Lb")
-         .def("setTestInputs", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTestInputs, "set Int")
-         .def("setTestLabels", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTestLabels, "set Lbt")
-         .def("setLearningRate", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setLearningRate, "set Lr")
-         .def("runExample", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::runExample,
-              py::call_guard<py::scoped_ostream_redirect,
-                             py::scoped_estream_redirect>());
+     // py::class_<CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>>(m, "CNNClassificationAltTestFA")
+     //     .def(py::init<int, int, int, int, int, int>())
+     //     .def("setTrainInputs", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTrainInputs, "set In")
+     //     .def("setTrainLabels", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTrainLabels, "set Lb")
+     //     .def("setTestInputs", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTestInputs, "set Int")
+     //     .def("setTestLabels", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setTestLabels, "set Lbt")
+     //     .def("setLearningRate", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::setLearningRate, "set Lr")
+     //     .def("runExample", &CNNClassificationAltTest<ConvAlignmentLayer<ReLUActivation>,FullyConnectedAlignmentLayer<LinearActivation>>::runExample,
+     //          py::call_guard<py::scoped_ostream_redirect,
+     //                         py::scoped_estream_redirect>());
 
-     py::class_<CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>>(m, "CNNClassificationAltTestSFA")
-         .def(py::init<int, int, int, int, int, int>())
-         .def("setTrainInputs", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTrainInputs, "set In")
-         .def("setTrainLabels", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTrainLabels, "set Lb")
-         .def("setTestInputs", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTestInputs, "set Int")
-         .def("setTestLabels", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTestLabels, "set Lbt")
-         .def("setLearningRate", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setLearningRate, "set Lr")
-         .def("runExample", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::runExample,
-              py::call_guard<py::scoped_ostream_redirect,
-                             py::scoped_estream_redirect>());     
+     // py::class_<CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>>(m, "CNNClassificationAltTestSFA")
+     //     .def(py::init<int, int, int, int, int, int>())
+     //     .def("setTrainInputs", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTrainInputs, "set In")
+     //     .def("setTrainLabels", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTrainLabels, "set Lb")
+     //     .def("setTestInputs", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTestInputs, "set Int")
+     //     .def("setTestLabels", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setTestLabels, "set Lbt")
+     //     .def("setLearningRate", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::setLearningRate, "set Lr")
+     //     .def("runExample", &CNNClassificationAltTest<ConvSignedAlignmentLayer<ReLUActivation>,FullyConnectedSignedAlignmentLayer<LinearActivation>>::runExample,
+     //          py::call_guard<py::scoped_ostream_redirect,
+     //                         py::scoped_estream_redirect>());     
 
      py::class_<CNNClassificationExampleModel>(m, "CNNClassificationExampleModel")
          .def(py::init<>())

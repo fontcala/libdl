@@ -229,6 +229,42 @@ void colpool2im(const size_t aaPoolSize, const DataType *aColData, DataType *aIm
     }
 };
 
+template <class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> topkAMM(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput1, Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput2, const double k)
+{
+    size_t vMaxSamples = aInput1.cols();
+    size_t vNumberSamples = static_cast<size_t>(std::floor(static_cast<float>(vMaxSamples) * k));
+    
+    // Compute Coefs
+    std::vector<double> vProductCoefs;
+    vProductCoefs.resize(vMaxSamples);
+    for (size_t i = 0; i < vMaxSamples; ++i)
+    {
+        vProductCoefs[i] = aInput1(i,Eigen::all) * aInput2(Eigen::all,i);
+    }
+    // Pick k  best indices
+    struct Comp
+    {
+        Comp(const std::vector<double> &v) : _v(v) {}
+        bool operator()(double a, double b) { return _v[a] > _v[b]; }
+        const std::vector<double> _v;
+    };
+    std::vector<int> vIndices;
+    vIndices.resize(vMaxSamples);
+    std::iota(vIndices.begin(),vIndices.end(),0);
+    partial_sort( vIndices.begin(), vIndices.begin()+vNumberSamples, vIndices.end(), Comp(vProductCoefs) );
+    
+    //
+    vIndices.resize(vNumberSamples);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mat1 = aInput1(Eigen::all,vIndices);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mat2 = aInput2(vIndices,Eigen::all);
+    // //Perform Multiplication
+    
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vToBeReturned = mat1 * mat2;
+
+    return vToBeReturned;
+}
+
 } // namespace dlfunctions
 
 #endif
