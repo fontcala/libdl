@@ -6,6 +6,7 @@
 #define DLTYPES_H
 
 #include "dlfunctions.h"
+#include <math.h>
 
 /**
 @class ConvDataDims.
@@ -213,6 +214,32 @@ void ReLUActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynamic,
 {
     Eigen::Matrix<bool, Dynamic, Dynamic> vDerivative = (mReLUHelper.array() > 0);
     aBackpropInput = aBackpropInput.array() * vDerivative.cast<DataType>().array();
+}
+
+template <class DataType>
+class RandomActivation
+{
+private:
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mRandomHelper;
+
+public:
+    void ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
+    void BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput);
+};
+template <class DataType>
+void RandomActivation<DataType>::ForwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+{   
+    // ugly way but for quick test, later put it in the constructor
+    std::random_device rd;
+    std::mt19937 vRandom(rd());
+    std::normal_distribution<float> vRandDistr(0.5,0.5);
+    mRandomHelper = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInput.rows(),aInput.cols(), [&]() { return vRandDistr(vRandom); });
+    aInput = aInput.array()*mRandomHelper.array();
+}
+template <class DataType>
+void RandomActivation<DataType>::BackwardFunction(Eigen::Matrix<DataType, Dynamic, Dynamic> &aBackpropInput)
+{
+    aBackpropInput = aBackpropInput.array() * mRandomHelper.array();
 }
 
 #endif

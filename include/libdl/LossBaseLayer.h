@@ -69,7 +69,7 @@ bool LossBaseLayer<DataType>::ValidData() const
     bool vValidData = false;
     if (this->mValidInputFlag)
     {
-
+        //std::cout << " " << this->mLabels.rows() << " " << this->mInputPtr->rows() << " " << this->mLabels.cols() << " " << this->mInputPtr->cols();
         if (this->mLabels.rows() == this->mInputPtr->rows() && this->mLabels.cols() == this->mInputPtr->cols())
         {
             vValidData = true;

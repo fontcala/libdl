@@ -7,6 +7,11 @@
 #include "BaseLayer.h"
 #include "NetworkElement.h"
 
+enum class ConnectionType
+{
+    DEFAULT,
+    DIRECT_FEEDBACK_ALIGNMENT
+};
 /**
 * @class NetworkHelper
 * @brief Class facilitates use of layers.
@@ -39,7 +44,7 @@ public:
     * must contain lvalue <tt>NetworkElement<DataType> *</tt> objects.
     */
     NetworkHelper(const std::initializer_list<NetworkElement<DataType> *> &aLayers);
-    void ConnectLayers();
+    void ConnectLayers(const ConnectionType connectionType = ConnectionType::DEFAULT);
     void SetInputData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
     void SetLabelData(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aLabels);
 };
@@ -50,12 +55,23 @@ NetworkHelper<DataType>::NetworkHelper(const std::initializer_list<NetworkElemen
 }
 
 template <class DataType>
-void NetworkHelper<DataType>::ConnectLayers()
+void NetworkHelper<DataType>::ConnectLayers(const ConnectionType connectionType)
 {
     for (size_t i = 1; i < mNumberLayers; i++)
     {
         mNetwork[i]->SetInput(mNetwork[i - 1]->GetOutput());
-        mNetwork[i - 1]->SetBackpropInput(mNetwork[i]->GetBackpropOutput());
+        if(connectionType == ConnectionType::DEFAULT)
+        {
+            mNetwork[i - 1]->SetBackpropInput(mNetwork[i]->GetBackpropOutput());
+        }
+        else if(connectionType == ConnectionType::DIRECT_FEEDBACK_ALIGNMENT)
+        {
+            mNetwork[i - 1]->SetBackpropInput(mNetwork.back()->GetBackpropOutput());
+        }
+        else
+        {
+            throw std::runtime_error("NetworkHelper::ConnectLayers: Unknown connection type");
+        }
     }
     mValidNetwork = true;
 }

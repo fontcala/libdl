@@ -6,10 +6,13 @@
 #define DLFUNCTIONS_H
 
 #include <random>
+#include <queue>
 #include <stdexcept>
 #include <string>
 #include <iostream>
 #include <Eigen/Core>
+#include <algorithm>
+#include <map>
 //#include <spdlog/spdlog.h>
 
 using Eigen::Dynamic;
@@ -228,6 +231,41 @@ void colpool2im(const size_t aaPoolSize, const DataType *aColData, DataType *aIm
         }
     }
 };
+
+template <class DataType>
+Eigen::Matrix<DataType, Dynamic, Dynamic> topkAMM(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput1, const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput2, const double k)
+{
+
+    int vMaxSamples = aInput1.cols();
+    int vMaxSamplesCheck = aInput2.rows();
+    if(vMaxSamples != vMaxSamplesCheck){
+        std::cout <<"topkAMM(): invalid input shapes" << std::endl;
+    }
+    
+    int vNumberSamples = static_cast<int>(std::floor(static_cast<double>(aInput1.cols()) * k));
+    // Compute Coefs
+    std::multimap<double,int,std::greater<double>> vProductCoefs;
+    double totalValue = 0;
+    for (int i = 0; i < vMaxSamples; ++i)
+    {
+        double vCurrentValue = (aInput1(Eigen::all,i)).norm() * (aInput2(i,Eigen::all)).norm();
+        totalValue = totalValue + vCurrentValue;
+        vProductCoefs.insert(std::make_pair(vCurrentValue,i));
+    }
+    std::vector<int> vIndices;
+    std::transform( vProductCoefs.begin(), std::next(vProductCoefs.begin(),vNumberSamples), std::back_inserter( vIndices ), [] (std::pair<double, int> const & pair)
+                                                                                {
+                                                                                    return pair.second;
+                                                                                } );
+
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mat1 = aInput1(Eigen::all,vIndices);
+    Eigen::Matrix<DataType, Dynamic, Dynamic> mat2 = aInput2(vIndices,Eigen::all);
+    //Perform Multiplication
+    Eigen::Matrix<DataType, Dynamic, Dynamic> vToBeReturned = mat1 * mat2;
+    
+    return vToBeReturned;
+}
+
 
 } // namespace dlfunctions
 

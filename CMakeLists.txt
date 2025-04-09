@@ -86,6 +86,7 @@ enable_testing()
 add_subdirectory(test)
 add_subdirectory(doc EXCLUDE_FROM_ALL)
 add_subdirectory(python)
+add_subdirectory(experimental)
 add_subdirectory(examples)
 
 
