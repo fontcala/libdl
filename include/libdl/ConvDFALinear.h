@@ -1,13 +1,13 @@
-/** @file ConvAlignmentLayer.h
+/** @file ConvDirectLinearAlignmentLayer.h
  *  @author Adria Font Calvarons
  */
-#ifndef CONVALIGNMENTLAYER_H
-#define CONVALIGNMENTLAYER_H
+#ifndef ConvDirectLinearAlignmentLayer_H
+#define ConvDirectLinearAlignmentLayer_H
 
 #include "ConnectedBaseLayer.h"
 
 /**
-* @class ConvAlignmentLayer
+* @class ConvDirectLinearAlignmentLayer
 * @brief Conv Class for convolutional Layer elements.
 *
 * @copydetails FullyConnectedLayer
@@ -15,7 +15,7 @@
 * Convolution is abstracted as a matrix multiplication in both forward and backward passes (further read: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/).
 */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
-class ConvAlignmentLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
+class ConvDirectLinearAlignmentLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
 protected:
     // Layer-specific properties.
@@ -42,7 +42,7 @@ public:
     const size_t vOutputDepth1 = 6;
     const size_t vInputSampleNumber = 1;
 
-    ConvAlignmentLayer firstConvAlignmentLayer(vFilterHeight1,
+    ConvDirectLinearAlignmentLayer firstConvDirectLinearAlignmentLayer(vFilterHeight1,
                              vFilterWidth1,
                              vPaddingHeight1,
                              vPaddingWidth1,
@@ -54,7 +54,7 @@ public:
                              vInputSampleNumber);
     @endcode
     */
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -64,9 +64,10 @@ public:
               const size_t aInputWidth,
               const size_t aOutputDepth,
               const size_t aInputSampleNumber,
+              const size_t aDirectfeedbackDim,
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -74,9 +75,10 @@ public:
               const ConvDataDims aInputDims,
               const size_t aOutputDepth,
               const size_t aInputSampleNumber,
+              const size_t aDirectfeedbackDim,
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -84,10 +86,11 @@ public:
               const ConvDataDims aInputDims,
               const ConvDataDims aOutputDims,
               const size_t aInputSampleNumber,
+              const size_t aDirectfeedbackDim,
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     /**
-    * ConvAlignmentLayer::ForwardPass
+    * ConvDirectLinearAlignmentLayer::ForwardPass
     * overrides 
     * @copydoc NetworkElement::ForwardPass
     * 
@@ -100,7 +103,7 @@ public:
     void ForwardPass() override;
 
     /**
-    * ConvAlignmentLayer::BackwardPass
+    * ConvDirectLinearAlignmentLayer::BackwardPass
     * overrides 
     * @copydoc NetworkElement::BackwardPass
     * The backpropagation step also involves convolutions so the im2col trick applies nicely as well.
@@ -118,13 +121,13 @@ public:
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-const Eigen::Matrix<DataType, Dynamic, Dynamic>& ConvAlignmentLayer<ActivationFunctionType, DataType>::GetWeights()
+const Eigen::Matrix<DataType, Dynamic, Dynamic>& ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::GetWeights()
 {
     return this->mWeights;
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
     if(aInput.cols() != mRandomWeightMatrix.cols())
     {
@@ -139,7 +142,7 @@ void ConvAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(co
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -149,6 +152,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                        const size_t aInputWidth,
                                                        const size_t aOutputDepth,
                                                        const size_t aInputSampleNumber,
+                                                       const size_t aDirectfeedbackDim,
                                                        const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>(ConvDataDims(aInputDepth, aInputHeight, aInputWidth), ConvDataDims::NormalConv(aOutputDepth, aInputHeight, aInputWidth, aFilterHeight, aFilterWidth, aPaddingHeight, aPaddingWidth, aStride), aUpdateMethod),
                                                                                            mFilterHeight(aFilterHeight),
                                                                                            mFilterWidth(aFilterWidth),
@@ -161,9 +165,6 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
     std::cout << "Conv "
               << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
     this->InitParams(mFilterSize, this->mOutputDims.Depth, this->mOutputDims.Depth, mFilterSize);
-    // mRandomWeightMatrix = this->mWeights;
-    // Generate Random Weight Matrix
-    // mRandomWeightMatrix  = this->mWeights;
     std::random_device rd;
     std::mt19937 vRandom(rd());
     std::normal_distribution<float> vRandDistr(0, sqrt(2 / mFilterSize));
@@ -171,7 +172,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -179,7 +180,8 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                        const ConvDataDims aInputDims,
                                                        const size_t aOutputDepth,
                                                        const size_t aInputSampleNumber,
-                                                       const UpdateMethod aUpdateMethod) : ConvAlignmentLayer(aFilterHeight,
+                                                       const size_t aDirectfeedbackDim,
+                                                       const UpdateMethod aUpdateMethod) : ConvDirectLinearAlignmentLayer(aFilterHeight,
                                                                                                      aFilterWidth,
                                                                                                      aPaddingHeight,
                                                                                                      aPaddingWidth,
@@ -188,10 +190,11 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                                                                      aInputDims.Height,
                                                                                                      aInputDims.Width,
                                                                                                      aOutputDepth,
-                                                                                                     aInputSampleNumber){};
+                                                                                                     aInputSampleNumber,
+                                                                                                     aDirectfeedbackDim){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::ConvDirectLinearAlignmentLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -199,7 +202,8 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                        const ConvDataDims aInputDims,
                                                        const ConvDataDims aOutputDims,
                                                        const size_t aInputSampleNumber,
-                                                       const UpdateMethod aUpdateMethod) : ConvAlignmentLayer(aFilterHeight,
+                                                       const size_t aDirectfeedbackDim,
+                                                       const UpdateMethod aUpdateMethod) : ConvDirectLinearAlignmentLayer(aFilterHeight,
                                                                                                      aFilterWidth,
                                                                                                      aPaddingHeight,
                                                                                                      aPaddingWidth,
@@ -208,10 +212,11 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                                                                      aInputDims.Height,
                                                                                                      aInputDims.Width,
                                                                                                      aOutputDims.Depth,
-                                                                                                     aInputSampleNumber){};
+                                                                                                     aInputSampleNumber,
+                                                                                                     aDirectfeedbackDim){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
+void ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mValidInputFlag)
     {
@@ -232,12 +237,15 @@ void ConvAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
 }
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
+void ConvDirectLinearAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     if (this->mValidBackpropInputFlag)
     {
         // Backprop input from next layer.
         Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr);
+
+        std::cout  << "vBackpropInput " << "( " << vBackpropInput.rows() << " , " << vBackpropInput.cols() << " )" << std::endl;
+
 
         // Backpropagation through activation function
         this->ActivationFunction.BackwardFunction(vBackpropInput);

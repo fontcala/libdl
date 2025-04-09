@@ -1,21 +1,21 @@
-/** @file ConvAlignmentLayer.h
+/** @file ConvAMMLayer.h
  *  @author Adria Font Calvarons
  */
-#ifndef CONVALIGNMENTLAYER_H
-#define CONVALIGNMENTLAYER_H
+#ifndef CONVAMMLAYER_H
+#define CONVAMMLAYER_H
 
 #include "ConnectedBaseLayer.h"
 
 /**
-* @class ConvAlignmentLayer
-* @brief Conv Class for convolutional Layer elements.
+* @class ConvAMMLayer
+* @brief Conv Class for convolutional Layer elements with AMM.
 *
 * @copydetails FullyConnectedLayer
 *
 * Convolution is abstracted as a matrix multiplication in both forward and backward passes (further read: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/).
 */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
-class ConvAlignmentLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
+class ConvAMMLayer final : public ConnectedBaseLayer<ConvDataDims, ActivationFunctionType, DataType>
 {
 protected:
     // Layer-specific properties.
@@ -29,7 +29,9 @@ protected:
     const size_t mFilterSize;
 
 public:
-    Eigen::Matrix<DataType, Dynamic, Dynamic> mRandomWeightMatrix;
+    // AMM Parameters
+    double mAMMFractionForward;
+    double mAMMFractionBackward;
     // Constructors
     /**
     * Example Use given defined \c vInputDepth \c vInputHeight and \c vInputWidth
@@ -42,7 +44,7 @@ public:
     const size_t vOutputDepth1 = 6;
     const size_t vInputSampleNumber = 1;
 
-    ConvAlignmentLayer firstConvAlignmentLayer(vFilterHeight1,
+    ConvAMMLayer firstConvAMMLayer(vFilterHeight1,
                              vFilterWidth1,
                              vPaddingHeight1,
                              vPaddingWidth1,
@@ -54,7 +56,7 @@ public:
                              vInputSampleNumber);
     @endcode
     */
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvAMMLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -66,7 +68,7 @@ public:
               const size_t aInputSampleNumber,
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvAMMLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -76,7 +78,7 @@ public:
               const size_t aInputSampleNumber,
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
-    ConvAlignmentLayer(const size_t aFilterHeight,
+    ConvAMMLayer(const size_t aFilterHeight,
               const size_t aFilterWidth,
               const size_t aPaddingHeight,
               const size_t aPaddingWidth,
@@ -87,7 +89,7 @@ public:
               const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
     /**
-    * ConvAlignmentLayer::ForwardPass
+    * ConvAMMLayer::ForwardPass
     * overrides 
     * @copydoc NetworkElement::ForwardPass
     * 
@@ -100,7 +102,7 @@ public:
     void ForwardPass() override;
 
     /**
-    * ConvAlignmentLayer::BackwardPass
+    * ConvAMMLayer::BackwardPass
     * overrides 
     * @copydoc NetworkElement::BackwardPass
     * The backpropagation step also involves convolutions so the im2col trick applies nicely as well.
@@ -112,34 +114,9 @@ public:
     * However this raises memory concerns, since im2col generates very large images (much larger than the input if the kernels overlap)
     */
     void BackwardPass() override;
-
-    const Eigen::Matrix<DataType, Dynamic, Dynamic>& GetWeights();
-    void SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput);
 };
-
 template <template <typename> class ActivationFunctionType, typename DataType>
-const Eigen::Matrix<DataType, Dynamic, Dynamic>& ConvAlignmentLayer<ActivationFunctionType, DataType>::GetWeights()
-{
-    return this->mWeights;
-};
-
-template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
-{
-    if(aInput.cols() != mRandomWeightMatrix.cols())
-    {
-        throw(std::runtime_error("SetBackpropWeights: invalid backprop input cols"));
-    }
-    if(aInput.rows() != mRandomWeightMatrix.rows())
-    {
-        throw(std::runtime_error("SetBackpropWeights: invalid backprop input rows"));
-    }
-    
-    mRandomWeightMatrix = aInput;
-};
-
-template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvAMMLayer<ActivationFunctionType, DataType>::ConvAMMLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -156,22 +133,20 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                                                            mPaddingWidth(aPaddingWidth),
                                                                                            mStride(aStride),
                                                                                            mInputSampleNumber(aInputSampleNumber),
-                                                                                           mFilterSize(aFilterHeight * aFilterWidth * aInputDepth)
+                                                                                           mFilterSize(aFilterHeight * aFilterWidth * aInputDepth),
+                                                                                           mAMMFractionForward(0.5),
+                                                                                           mAMMFractionBackward(0.5)
+
 {
     std::cout << "Conv "
               << "In Depth: " << this->mInputDims.Depth << " In Height: " << this->mInputDims.Height << " In Width: " << this->mInputDims.Width << " Out Depth: " << this->mOutputDims.Depth << " Out Height: " << this->mOutputDims.Height << " Out Width: " << this->mOutputDims.Width << std::endl;
+    mAMMFractionForward = 0.7;
+    mAMMFractionBackward = 0.3;
     this->InitParams(mFilterSize, this->mOutputDims.Depth, this->mOutputDims.Depth, mFilterSize);
-    // mRandomWeightMatrix = this->mWeights;
-    // Generate Random Weight Matrix
-    // mRandomWeightMatrix  = this->mWeights;
-    std::random_device rd;
-    std::mt19937 vRandom(rd());
-    std::normal_distribution<float> vRandDistr(0, sqrt(2 / mFilterSize));
-    mRandomWeightMatrix = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(mFilterSize,this->mOutputDims.Depth, [&]() { return vRandDistr(vRandom); });
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvAMMLayer<ActivationFunctionType, DataType>::ConvAMMLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -179,7 +154,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                        const ConvDataDims aInputDims,
                                                        const size_t aOutputDepth,
                                                        const size_t aInputSampleNumber,
-                                                       const UpdateMethod aUpdateMethod) : ConvAlignmentLayer(aFilterHeight,
+                                                       const UpdateMethod aUpdateMethod) : ConvAMMLayer(aFilterHeight,
                                                                                                      aFilterWidth,
                                                                                                      aPaddingHeight,
                                                                                                      aPaddingWidth,
@@ -191,7 +166,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                                                                      aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const size_t aFilterHeight,
+ConvAMMLayer<ActivationFunctionType, DataType>::ConvAMMLayer(const size_t aFilterHeight,
                                                        const size_t aFilterWidth,
                                                        const size_t aPaddingHeight,
                                                        const size_t aPaddingWidth,
@@ -199,7 +174,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                        const ConvDataDims aInputDims,
                                                        const ConvDataDims aOutputDims,
                                                        const size_t aInputSampleNumber,
-                                                       const UpdateMethod aUpdateMethod) : ConvAlignmentLayer(aFilterHeight,
+                                                       const UpdateMethod aUpdateMethod) : ConvAMMLayer(aFilterHeight,
                                                                                                      aFilterWidth,
                                                                                                      aPaddingHeight,
                                                                                                      aPaddingWidth,
@@ -211,7 +186,7 @@ ConvAlignmentLayer<ActivationFunctionType, DataType>::ConvAlignmentLayer(const s
                                                                                                      aInputSampleNumber){};
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
+void ConvAMMLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
     if (this->mValidInputFlag)
     {
@@ -219,7 +194,8 @@ void ConvAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
         Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), vIm2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         // Compute Convolution
-        this->mOutput = vIm2ColImage * this->mWeights;
+        this->mOutput = dlfunctions::topkAMM(vIm2ColImage,this->mWeights,mAMMFractionForward);
+        //this->mOutput = vIm2ColImage * this->mWeights;
         // Add biases
         this->mOutput = this->mOutput + this->mBiases.replicate(this->mOutputDims.Height * this->mOutputDims.Width, 1);
         // Activate
@@ -232,7 +208,7 @@ void ConvAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
 }
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void ConvAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
+void ConvAMMLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
     if (this->mValidBackpropInputFlag)
     {
@@ -249,12 +225,14 @@ void ConvAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
         Eigen::Matrix<DataType, Dynamic, Dynamic> vIm2ColImage(this->mOutputDims.Height * this->mOutputDims.Width, mFilterSize);
         dlfunctions::im2col(mFilterHeight, mFilterWidth, this->mInputPtr->data(), vIm2ColImage.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         //  (Compute convolution (avoid transpose of im2Col image!))
-        this->mGradientsWeights = (vBackpropInput.transpose() * vIm2ColImage).transpose();
-
+        this->mGradientsWeights = dlfunctions::topkAMM(static_cast<Eigen::Matrix<DataType, Dynamic, Dynamic>>(vBackpropInput.transpose()),vIm2ColImage,mAMMFractionBackward).transpose();
+        
         if (!this->mIsFirstLayerFlag)
         {
             // Derivative wrt to input
-            Eigen::Matrix<DataType, Dynamic, Dynamic> vColImage = (vBackpropInput * this->mRandomWeightMatrix.transpose());
+            Eigen::Matrix<DataType, Dynamic, Dynamic> vColImage = dlfunctions::topkAMM(vBackpropInput,static_cast<Eigen::Matrix<DataType, Dynamic, Dynamic>>(this->mWeights.transpose()),mAMMFractionBackward);
+            //Eigen::Matrix<DataType, Dynamic, Dynamic> vColImage = vBackpropInput * this->mWeights.transpose();
+            
             this->mBackpropOutput = Eigen::Matrix<DataType, Dynamic, Dynamic>::Zero(this->mInputDims.Height * this->mInputDims.Width, this->mInputDims.Depth);
             dlfunctions::col2im(mFilterHeight, mFilterWidth, vColImage.data(), this->mBackpropOutput.data(), this->mOutputDims.Height, this->mOutputDims.Width, mFilterSize, this->mInputDims.Height, this->mInputDims.Width, mPaddingHeight, mPaddingWidth, mStride);
         }

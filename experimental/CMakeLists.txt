@@ -1,0 +1,4 @@
+project(pybindings_experimental)
+pybind11_add_module(pybindings_experimental main.cpp)
+target_link_libraries(pybindings_experimental PRIVATE libdl)
+target_compile_features(pybindings_experimental PRIVATE cxx_std_17)

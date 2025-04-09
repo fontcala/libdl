@@ -1,32 +1,32 @@
-/** @file FullyConnectedAlignmentLayer.h
+/** @file FullyConnectedDirectAlignmentLayer.h
  *  @author Adria Font Calvarons
  */
-#ifndef FULLYCONNECTEDALIGNMENTLAYER_H
-#define FULLYCONNECTEDALIGNMENTLAYER_H
+#ifndef FullyConnectedDirectAlignmentLayer_H
+#define FullyConnectedDirectAlignmentLayer_H
 
 #include <memory>
 #include "dlfunctions.h"
 #include "ConnectedBaseLayer.h"
 
 /**
-* @class FullyConnectedAlignmentLayer
+* @class FullyConnectedDirectAlignmentLayer
 * @brief Fully connected layer for dense layer elements.
 *
 * This class encapsulates the forward backward computations needed for this kind of layer, implemented in matrix form. For further information see \c ForwardPass and \c BackwardPass. 
 */
 template <template <typename> class ActivationFunctionType, typename DataType = double>
-class FullyConnectedAlignmentLayer final : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
+class FullyConnectedDirectAlignmentLayer final : public ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>
 {
 public:
   
   Eigen::Matrix<DataType, Dynamic, Dynamic> mRandomWeightMatrix;
   // Constructors
-  FullyConnectedAlignmentLayer(const size_t aInputDim, const size_t aOutputDim, const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
+  FullyConnectedDirectAlignmentLayer(const size_t aInputDim, const size_t aOutputDim, const size_t aDirectfeedbackDim, const UpdateMethod aUpdateMethod = UpdateMethod::NESTEROV);
 
   // Layer-specific Forward-Backward passes.
 
   /**
-    * FullyConnectedAlignmentLayer::ForwardPass
+    * FullyConnectedDirectAlignmentLayer::ForwardPass
     * overrides 
     * @copydoc NetworkElement::ForwardPass
     * 
@@ -41,7 +41,7 @@ public:
   void ForwardPass() override;
 
   /**
-    * FullyConnectedAlignmentLayer::BackwardPass
+    * FullyConnectedDirectAlignmentLayer::BackwardPass
     * overrides 
     * @copydoc NetworkElement::BackwardPass
     * 
@@ -57,13 +57,13 @@ public:
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-const Eigen::Matrix<DataType, Dynamic, Dynamic>& FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::GetWeights()
+const Eigen::Matrix<DataType, Dynamic, Dynamic>& FullyConnectedDirectAlignmentLayer<ActivationFunctionType, DataType>::GetWeights()
 {
     return this->mWeights;
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
+void FullyConnectedDirectAlignmentLayer<ActivationFunctionType, DataType>::SetBackpropWeights(const Eigen::Matrix<DataType, Dynamic, Dynamic> &aInput)
 {
     if(aInput.cols() != mRandomWeightMatrix.cols())
     {
@@ -78,7 +78,7 @@ void FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::SetBackprop
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::FullyConnectedAlignmentLayer(const size_t aInputDim, const size_t aOutputDim, const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim, aUpdateMethod)
+FullyConnectedDirectAlignmentLayer<ActivationFunctionType, DataType>::FullyConnectedDirectAlignmentLayer(const size_t aInputDim, const size_t aOutputDim, const size_t aDirectfeedbackDim, const UpdateMethod aUpdateMethod) : ConnectedBaseLayer<size_t, ActivationFunctionType, DataType>(aInputDim, aOutputDim, aUpdateMethod)
 {
   this->InitParams(aInputDim, aOutputDim, aOutputDim, aInputDim);
   // Generate Random Weight Matrix
@@ -86,11 +86,11 @@ FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::FullyConnectedAl
   std::random_device rd;
   std::mt19937 vRandom(rd());
   std::normal_distribution<float> vRandDistr(0, sqrt(static_cast<double>(2) / static_cast<double>(aInputDim)));
-  mRandomWeightMatrix = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aInputDim,aOutputDim, [&]() { return vRandDistr(vRandom); });
+  mRandomWeightMatrix = Eigen::Matrix<DataType, Dynamic, Dynamic>::NullaryExpr(aOutputDim,aDirectfeedbackDim, [&]() { return vRandDistr(vRandom); });
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
+void FullyConnectedDirectAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass()
 {
   if (this->mValidInputFlag)
   {
@@ -106,14 +106,20 @@ void FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::ForwardPass
 };
 
 template <template <typename> class ActivationFunctionType, typename DataType>
-void FullyConnectedAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
+void FullyConnectedDirectAlignmentLayer<ActivationFunctionType, DataType>::BackwardPass()
 {
+  std::cout  << "mWeights " << "( " << this->mWeights.rows() << " , " << this->mWeights.cols() << " )" << std::endl;
+
 
   if (this->mValidBackpropInputFlag)
   {
     Eigen::Matrix<DataType, Dynamic, Dynamic> vBackpropInput = *(this->mBackpropInputPtr) * mRandomWeightMatrix.transpose();
+    std::cout  << "mRandomWeightMatrix " << "( " << mRandomWeightMatrix.rows() << " , " << mRandomWeightMatrix.cols() << " )" << std::endl;
+    std::cout  << "vBackpropInput " << "( " << vBackpropInput.rows() << " , " << vBackpropInput.cols() << " )" << std::endl;
+
     this->ActivationFunction.BackwardFunction(vBackpropInput);
     this->mGradientsWeights = this->mInputPtr->transpose() * vBackpropInput;
+    std::cout  << "mGradientsWeights " << "( " << this->mGradientsWeights.rows() << " , " << this->mGradientsWeights.cols() << " )" << std::endl;
     this->mGradientsBiases = vBackpropInput.colwise().sum();
 
     // Update Parameters

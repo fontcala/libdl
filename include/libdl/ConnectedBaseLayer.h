@@ -143,11 +143,14 @@ void ConnectedBaseLayer<DimType, ActivationFunctionType, DataType>::UpdateParams
             // Adam
             mStep++;
 
+            auto vPreWeights = mWeights; 
             mMomentumUpdateWeights = mMomentumUpdateParam * mMomentumUpdateWeights + (1 - mMomentumUpdateParam) * mGradientsWeights;
             Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateWeights = mMomentumUpdateWeights.array() / (1 - pow(mMomentumUpdateParam, mStep));
             mSecondMomentumUpdateWeights = mSecondMomentumUpdateParam * mSecondMomentumUpdateWeights.array() + (1 - mSecondMomentumUpdateParam) * mGradientsWeights.array() * mGradientsWeights.array();
             Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedSecondMomentumUpdateWeights = mSecondMomentumUpdateWeights.array() / (1 - pow(mSecondMomentumUpdateParam, mStep));
             mWeights = mWeights - (mLearningRate * vCorrectedMomentumUpdateWeights.array() / (mSecondMomentumUpdateWeights.cwiseSqrt().array() + 0.00000001)).matrix();
+
+            
 
             mMomentumUpdateBiases = mMomentumUpdateParam * mMomentumUpdateBiases + (1 - mMomentumUpdateParam) * mGradientsBiases;
             Eigen::Matrix<double, Dynamic, Dynamic> vCorrectedMomentumUpdateBiases = mMomentumUpdateBiases.array() / (1 - pow(mMomentumUpdateParam, mStep));
